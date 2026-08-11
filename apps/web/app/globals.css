@@ -3,33 +3,33 @@
 @tailwind utilities;
 
 @layer base {
-  /* Light Mode — Warm, clean, modern */
+  /* Light Mode — Soft Rose Stone & Rich Crimson */
   :root {
-    --background: #faf9f7;
-    --foreground: #1c1917;
+    --background: #faf4f5;
+    --foreground: #1f090d;
     --card: #ffffff;
-    --card-hover: #f5f0eb;
-    --border: #e7e0d8;
-    --accent: #8b5cf6;
-    --accent-secondary: #06b6d4;
+    --card-hover: #f5e8eb;
+    --border: #eed5da;
+    --accent: #e11d48;
+    --accent-secondary: #f43f5e;
     --accent-foreground: #ffffff;
-    --muted: #f5f0eb;
-    --muted-foreground: #78716c;
+    --muted: #f5e8eb;
+    --muted-foreground: #884a57;
     --success: #10b981;
   }
 
-  /* Dark Mode — Rich purple-tinted deep backgrounds */
+  /* Dark Mode — Deep Crimson Obsidian & Wine Red */
   .dark {
-    --background: #0a0a0f;
-    --foreground: #f5f5f4;
-    --card: #13131f;
-    --card-hover: #1c1c2e;
-    --border: #2a2a3d;
-    --accent: #a78bfa;
-    --accent-secondary: #22d3ee;
+    --background: #0f0507;
+    --foreground: #fff1f2;
+    --card: #1c0a0e;
+    --card-hover: #2a0f15;
+    --border: #441420;
+    --accent: #f43f5e;
+    --accent-secondary: #fb7185;
     --accent-foreground: #ffffff;
-    --muted: #0e0e18;
-    --muted-foreground: #a1a1aa;
+    --muted: #16070a;
+    --muted-foreground: #fda4af;
     --success: #34d399;
   }
 }
@@ -43,31 +43,31 @@ body {
 
 /* Dark mode input styling */
 .dark input, .dark select, .dark textarea {
-  color: #f5f5f4 !important;
+  color: #fff1f2 !important;
 }
 
 /* Light mode input styling */
 input, select, textarea {
-  color: #1c1917 !important;
+  color: #1f090d !important;
 }
 
 .dark input:-webkit-autofill,
 .dark input:-webkit-autofill:hover, 
 .dark input:-webkit-autofill:focus {
-  -webkit-text-fill-color: #f5f5f4 !important;
-  -webkit-box-shadow: 0 0 0px 1000px #13131f inset !important;
+  -webkit-text-fill-color: #fff1f2 !important;
+  -webkit-box-shadow: 0 0 0px 1000px #1c0a0e inset !important;
   transition: background-color 5000s ease-in-out 0s;
 }
 
 input:-webkit-autofill,
 input:-webkit-autofill:hover, 
 input:-webkit-autofill:focus {
-  -webkit-text-fill-color: #1c1917 !important;
-  -webkit-box-shadow: 0 0 0px 1000px #faf9f7 inset !important;
+  -webkit-text-fill-color: #1f090d !important;
+  -webkit-box-shadow: 0 0 0px 1000px #faf4f5 inset !important;
   transition: background-color 5000s ease-in-out 0s;
 }
 
-/* Modern scrollbar */
+/* Modern scrollbar with Crimson glow */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -82,5 +82,5 @@ input:-webkit-autofill:focus {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--muted-foreground);
+  background: var(--accent);
 }
