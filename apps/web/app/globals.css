@@ -3,33 +3,33 @@
 @tailwind utilities;
 
 @layer base {
-  /* Light Mode — Soft Rose Stone & Rich Crimson */
+  /* Light Mode — Warm Sand Beige & Deep Cyber Teal */
   :root {
-    --background: #faf4f5;
-    --foreground: #1f090d;
-    --card: #ffffff;
-    --card-hover: #f5e8eb;
-    --border: #eed5da;
-    --accent: #e11d48;
-    --accent-secondary: #f43f5e;
+    --background: #f5f1e8;
+    --foreground: #23201b;
+    --card: #fdfbf7;
+    --card-hover: #eae3d5;
+    --border: #dfd4c1;
+    --accent: #0d9488;
+    --accent-secondary: #06b6d4;
     --accent-foreground: #ffffff;
-    --muted: #f5e8eb;
-    --muted-foreground: #884a57;
+    --muted: #eae3d5;
+    --muted-foreground: #786c5a;
     --success: #10b981;
   }
 
-  /* Dark Mode — Deep Crimson Obsidian & Wine Red */
+  /* Dark Mode — Deep Obsidian Teal & Warm Amber Highlights */
   .dark {
-    --background: #0f0507;
-    --foreground: #fff1f2;
-    --card: #1c0a0e;
-    --card-hover: #2a0f15;
-    --border: #441420;
-    --accent: #f43f5e;
-    --accent-secondary: #fb7185;
+    --background: #061316;
+    --foreground: #f0fdfa;
+    --card: #0d2328;
+    --card-hover: #15343b;
+    --border: #1f4852;
+    --accent: #14b8a6;
+    --accent-secondary: #22d3ee;
     --accent-foreground: #ffffff;
-    --muted: #16070a;
-    --muted-foreground: #fda4af;
+    --muted: #0a1b1f;
+    --muted-foreground: #99f6e4;
     --success: #34d399;
   }
 }
@@ -43,31 +43,31 @@ body {
 
 /* Dark mode input styling */
 .dark input, .dark select, .dark textarea {
-  color: #fff1f2 !important;
+  color: #f0fdfa !important;
 }
 
 /* Light mode input styling */
 input, select, textarea {
-  color: #1f090d !important;
+  color: #23201b !important;
 }
 
 .dark input:-webkit-autofill,
 .dark input:-webkit-autofill:hover, 
 .dark input:-webkit-autofill:focus {
-  -webkit-text-fill-color: #fff1f2 !important;
-  -webkit-box-shadow: 0 0 0px 1000px #1c0a0e inset !important;
+  -webkit-text-fill-color: #f0fdfa !important;
+  -webkit-box-shadow: 0 0 0px 1000px #0d2328 inset !important;
   transition: background-color 5000s ease-in-out 0s;
 }
 
 input:-webkit-autofill,
 input:-webkit-autofill:hover, 
 input:-webkit-autofill:focus {
-  -webkit-text-fill-color: #1f090d !important;
-  -webkit-box-shadow: 0 0 0px 1000px #faf4f5 inset !important;
+  -webkit-text-fill-color: #23201b !important;
+  -webkit-box-shadow: 0 0 0px 1000px #f5f1e8 inset !important;
   transition: background-color 5000s ease-in-out 0s;
 }
 
-/* Modern scrollbar with Crimson glow */
+/* Modern scrollbar with Teal glow */
 ::-webkit-scrollbar {
   width: 6px;
 }

@@ -42,7 +42,7 @@ export default function CharityHQPage() {
         <div className="p-5 rounded-2xl bg-card border border-border/60 shadow-sm relative overflow-hidden group hover:border-accent/50 transition-all">
           <div className="flex items-center justify-between text-muted-foreground mb-3">
             <span className="text-xs font-semibold uppercase tracking-wider">Donations Shared</span>
-            <div className="w-8 h-8 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-teal-500/10 text-teal-400 flex items-center justify-center">
               <FileText className="w-4 h-4" />
             </div>
           </div>
@@ -55,7 +55,7 @@ export default function CharityHQPage() {
         <div className="p-5 rounded-2xl bg-card border border-border/60 shadow-sm relative overflow-hidden group hover:border-accent/50 transition-all">
           <div className="flex items-center justify-between text-muted-foreground mb-3">
             <span className="text-xs font-semibold uppercase tracking-wider">Classmates Saved</span>
-            <div className="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center">
               <Users className="w-4 h-4" />
             </div>
           </div>
@@ -139,7 +139,7 @@ export default function CharityHQPage() {
                 <span className="text-muted-foreground">0%</span>
               </div>
               <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
-                <div className="h-full bg-purple-500 rounded-full" style={{ width: '0%' }} />
+                <div className="h-full bg-cyan-500 rounded-full" style={{ width: '0%' }} />
               </div>
             </div>
 

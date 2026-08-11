@@ -12,7 +12,7 @@ export default function LandingPage() {
               <HeartHandshake className="w-6 h-6" />
             </div>
             <div>
-              <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-rose-500 via-foreground to-foreground bg-clip-text text-transparent">
+              <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-teal-400 via-foreground to-foreground bg-clip-text text-transparent">
                 PEER'S CHARITY
               </span>
               <span className="block text-[10px] text-accent font-semibold tracking-wider uppercase">
@@ -59,7 +59,7 @@ export default function LandingPage() {
 
         <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight max-w-4xl leading-[1.15]">
           Give a Note. Get a Note.{' '}
-          <span className="bg-gradient-to-r from-rose-500 via-red-500 to-pink-500 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-teal-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
             Save a Semester.
           </span>
         </h1>
@@ -88,7 +88,7 @@ export default function LandingPage() {
         {/* Value Props Cards Grid */}
         <div className="mt-20 grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl text-left">
           <Link href="/pantry" className="p-6 rounded-2xl bg-card border border-border/60 shadow-sm hover:border-accent/40 transition-all group">
-            <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center mb-4">
+            <div className="w-10 h-10 rounded-xl bg-teal-500/10 text-teal-400 flex items-center justify-center mb-4">
               <BookOpen className="w-5 h-5" />
             </div>
             <h3 className="text-lg font-bold mb-2 group-hover:text-accent transition-colors">Academic Pantry</h3>
@@ -98,7 +98,7 @@ export default function LandingPage() {
           </Link>
 
           <Link href="/bazaar" className="p-6 rounded-2xl bg-card border border-border/60 shadow-sm hover:border-accent/40 transition-all group">
-            <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center mb-4">
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center mb-4">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <h3 className="text-lg font-bold mb-2 group-hover:text-accent transition-colors">Verified Quality Score</h3>
