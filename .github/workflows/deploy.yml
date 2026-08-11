@@ -21,19 +21,20 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-
-      - name: Install Shared Package
-        run: npm install --prefix packages/shared --no-package-lock --legacy-peer-deps
+          node-version: '22'
 
       - name: Install Web App Dependencies
-        run: npm install --prefix apps/web --no-package-lock --legacy-peer-deps
+        working-directory: apps/web
+        run: |
+          rm -f package-lock.json
+          npm install --legacy-peer-deps --no-audit --no-fund
 
-      - name: Build Next.js Web App
-        run: npm run build --prefix apps/web
+      - name: Build Next.js Static Export
+        working-directory: apps/web
+        run: npm run build
 
       - name: Upload GitHub Pages Artifact
         uses: actions/upload-pages-artifact@v3
