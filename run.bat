@@ -1,0 +1,3 @@
+@echo off
+echo Starting Peer's Charity (Backend API + Frontend Web)...
+npm run dev
