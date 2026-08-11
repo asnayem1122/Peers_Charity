@@ -42,7 +42,7 @@ export default function CharityHQPage() {
         <div className="p-5 rounded-2xl bg-card border border-border/60 shadow-sm relative overflow-hidden group hover:border-accent/50 transition-all">
           <div className="flex items-center justify-between text-muted-foreground mb-3">
             <span className="text-xs font-semibold uppercase tracking-wider">Donations Shared</span>
-            <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-violet-500/10 text-violet-400 flex items-center justify-center">
               <FileText className="w-4 h-4" />
             </div>
           </div>
