@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   UploadCloud,
@@ -56,6 +57,14 @@ export default function DonateKnowledgePage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-8">
+      {/* Login Required Banner */}
+      <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-center space-y-2 mb-6">
+        <p className="text-sm font-bold text-amber-400">🔒 Sign in required to upload & donate notes</p>
+        <Link href="/login" className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-accent text-white text-xs font-semibold hover:bg-accent/90 transition-all shadow-md shadow-accent/20">
+          Sign In to Continue
+        </Link>
+      </div>
+
       {/* Page Title & Tagline */}
       <div className="text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-accent/30 bg-accent/10 text-accent text-xs font-semibold mb-3">

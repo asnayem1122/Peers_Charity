@@ -230,6 +230,13 @@ export default function CharityCardProfilePage() {
 
   return (
     <div className="space-y-8">
+      {/* Login Required Banner */}
+      <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-center space-y-2">
+        <p className="text-sm font-bold text-amber-400">🔒 Sign in to access your Charity Card profile</p>
+        <Link href="/login" className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-accent text-white text-xs font-semibold hover:bg-accent/90 transition-all shadow-md shadow-accent/20">
+          Sign In to Continue
+        </Link>
+      </div>
       {/* Clean Profile Header Container */}
       <div className="p-6 sm:p-8 rounded-3xl bg-card border border-border/80 shadow-2xl relative">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">

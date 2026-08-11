@@ -21,6 +21,15 @@ export default function LandingPage() {
             </div>
           </div>
 
+          {/* Public Navigation Links */}
+          <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
+            <Link href="/hq" className="hover:text-foreground transition-colors">HQ</Link>
+            <Link href="/bazaar" className="hover:text-foreground transition-colors">Bazaar</Link>
+            <Link href="/pantry" className="hover:text-foreground transition-colors">Pantry</Link>
+            <Link href="/exam" className="hover:text-foreground transition-colors">Exam Room</Link>
+            <Link href="/leaderboard" className="hover:text-foreground transition-colors">Leaderboard</Link>
+          </nav>
+
           <div className="flex items-center gap-4">
             <Link
               href="/login"
@@ -69,44 +78,44 @@ export default function LandingPage() {
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
           <Link
-            href="/donate"
+            href="/login"
             className="w-full sm:w-auto px-8 py-4 bg-card border border-border/80 text-foreground font-semibold rounded-xl hover:bg-card-hover transition-all flex items-center justify-center gap-2"
           >
-            Donate Knowledge
+            Sign In to Donate
           </Link>
         </div>
 
         {/* Value Props Cards Grid */}
         <div className="mt-20 grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl text-left">
-          <div className="p-6 rounded-2xl bg-card border border-border/60 shadow-sm">
+          <Link href="/pantry" className="p-6 rounded-2xl bg-card border border-border/60 shadow-sm hover:border-accent/40 transition-all group">
             <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center mb-4">
               <BookOpen className="w-5 h-5" />
             </div>
-            <h3 className="text-lg font-bold mb-2">Academic Pantry</h3>
+            <h3 className="text-lg font-bold mb-2 group-hover:text-accent transition-colors">Academic Pantry</h3>
             <p className="text-sm text-muted-foreground">
               Courses structured by university, department, and term with real pantry coverage metrics.
             </p>
-          </div>
+          </Link>
 
-          <div className="p-6 rounded-2xl bg-card border border-border/60 shadow-sm">
+          <Link href="/bazaar" className="p-6 rounded-2xl bg-card border border-border/60 shadow-sm hover:border-accent/40 transition-all group">
             <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center mb-4">
               <ShieldCheck className="w-5 h-5" />
             </div>
-            <h3 className="text-lg font-bold mb-2">Verified Quality Score</h3>
+            <h3 className="text-lg font-bold mb-2 group-hover:text-accent transition-colors">Verified Quality Score</h3>
             <p className="text-sm text-muted-foreground">
               Bayesian confidence ratings and cryptographic hash deduplication protect against duplicate spam.
             </p>
-          </div>
+          </Link>
 
-          <div className="p-6 rounded-2xl bg-card border border-border/60 shadow-sm">
+          <Link href="/leaderboard" className="p-6 rounded-2xl bg-card border border-border/60 shadow-sm hover:border-accent/40 transition-all group">
             <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center mb-4">
               <Award className="w-5 h-5" />
             </div>
-            <h3 className="text-lg font-bold mb-2">Generosity Olympics</h3>
+            <h3 className="text-lg font-bold mb-2 group-hover:text-accent transition-colors">Generosity Olympics</h3>
             <p className="text-sm text-muted-foreground">
               Earn Charity Points, badges, and recognition as a top benefactor saving peer semesters.
             </p>
-          </div>
+          </Link>
         </div>
       </main>
 
