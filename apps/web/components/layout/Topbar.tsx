@@ -8,6 +8,18 @@ export default function Topbar() {
   const [isDark, setIsDark] = useState(true);
   const [isCmdOpen, setIsCmdOpen] = useState(false);
 
+  // Initialize theme from localStorage or default to dark
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('peers-charity-theme');
+    const prefersDark = savedTheme ? savedTheme === 'dark' : true;
+    setIsDark(prefersDark);
+    if (prefersDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -20,9 +32,14 @@ export default function Topbar() {
   }, []);
 
   const toggleTheme = () => {
-    setIsDark(!isDark);
-    if (typeof document !== 'undefined') {
-      document.documentElement.classList.toggle('dark');
+    const newIsDark = !isDark;
+    setIsDark(newIsDark);
+    if (newIsDark) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('peers-charity-theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('peers-charity-theme', 'light');
     }
   };
 
