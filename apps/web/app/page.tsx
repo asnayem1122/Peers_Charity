@@ -1,7 +1,36 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { BookOpen, ShieldCheck, HeartHandshake, Sparkles, ArrowRight, Award } from 'lucide-react';
+import { BookOpen, ShieldCheck, HeartHandshake, Sparkles, ArrowRight, Award, Sun, Moon } from 'lucide-react';
 
 export default function LandingPage() {
+  const [isDark, setIsDark] = useState(true);
+
+  // Initialize theme from localStorage or default to dark
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('peers-charity-theme');
+    const prefersDark = savedTheme ? savedTheme === 'dark' : true;
+    setIsDark(prefersDark);
+    if (prefersDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newIsDark = !isDark;
+    setIsDark(newIsDark);
+    if (newIsDark) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('peers-charity-theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('peers-charity-theme', 'light');
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen relative overflow-hidden bg-background">
       {/* Ambient Glassmorphic Background Orbs */}
@@ -36,6 +65,15 @@ export default function LandingPage() {
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+            {/* Light / Dark Mode Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-xl border border-border/80 bg-background/50 hover:bg-card-hover text-muted-foreground hover:text-foreground transition-all"
+              title="Toggle Light / Dark Mode"
+            >
+              {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-accent" />}
+            </button>
+
             <Link
               href="/login"
               className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
