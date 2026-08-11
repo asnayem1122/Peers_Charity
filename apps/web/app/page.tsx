@@ -3,12 +3,17 @@ import { BookOpen, ShieldCheck, HeartHandshake, Sparkles, ArrowRight, Award } fr
 
 export default function LandingPage() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen relative overflow-hidden bg-background">
+      {/* Ambient Glassmorphic Background Orbs */}
+      <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-accent/20 rounded-full blur-[140px] pointer-events-none" />
+      <div className="fixed bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-cyan-500/15 rounded-full blur-[160px] pointer-events-none" />
+      <div className="fixed top-[40%] right-[20%] w-[350px] h-[350px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
+
       {/* Header Navigation */}
-      <header className="border-b border-border/60 bg-card/60 backdrop-blur-xl sticky top-0 z-50 transition-all">
+      <header className="border-b border-border/60 bg-card/60 backdrop-blur-2xl sticky top-0 z-50 transition-all shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-accent flex items-center justify-center text-white shadow-lg shadow-accent/20 shrink-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-accent flex items-center justify-center text-white shadow-xl shadow-accent/30 shrink-0">
               <HeartHandshake className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div className="min-w-0">
@@ -39,7 +44,7 @@ export default function LandingPage() {
             </Link>
             <Link
               href="/register"
-              className="px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold bg-accent text-accent-foreground rounded-xl hover:bg-accent/90 transition-all shadow-md shadow-accent/20"
+              className="px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold bg-accent text-accent-foreground rounded-xl hover:bg-accent/90 transition-all shadow-lg shadow-accent/25"
             >
               Get Started
             </Link>
@@ -48,11 +53,8 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <main className="flex-1 flex flex-col justify-center items-center text-center px-4 sm:px-6 py-12 sm:py-20 relative overflow-hidden">
-        {/* Background glow effects */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 sm:w-96 sm:h-96 bg-accent/10 rounded-full blur-3xl pointer-events-none" />
-        
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-accent/30 bg-accent/10 text-accent text-xs font-medium mb-6 animate-pulse">
+      <main className="flex-1 flex flex-col justify-center items-center text-center px-4 sm:px-6 py-12 sm:py-24 relative z-10">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-accent/40 bg-accent/15 backdrop-blur-xl text-accent text-xs font-semibold mb-6 shadow-lg shadow-accent/10 animate-pulse">
           <Sparkles className="w-3.5 h-3.5 shrink-0" />
           <span className="truncate">Non-monetary Academic Knowledge Sharing</span>
         </div>
@@ -72,24 +74,24 @@ export default function LandingPage() {
         <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center w-full sm:w-auto px-4">
           <Link
             href="/bazaar"
-            className="w-full sm:w-auto px-7 py-3.5 bg-accent text-white font-semibold rounded-xl hover:bg-accent/90 transition-all shadow-lg shadow-accent/25 flex items-center justify-center gap-2 group text-sm"
+            className="w-full sm:w-auto px-8 py-4 bg-accent text-white font-semibold rounded-2xl hover:bg-accent/90 transition-all shadow-xl shadow-accent/30 flex items-center justify-center gap-2 group text-sm"
           >
             <span>Explore Charity Bazaar</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
           <Link
             href="/login"
-            className="w-full sm:w-auto px-7 py-3.5 bg-card border border-border/80 text-foreground font-semibold rounded-xl hover:bg-card-hover transition-all flex items-center justify-center gap-2 text-sm"
+            className="w-full sm:w-auto px-8 py-4 glass-panel text-foreground font-semibold rounded-2xl hover:bg-card-hover transition-all flex items-center justify-center gap-2 text-sm shadow-xl"
           >
             <span>Sign In to Donate</span>
           </Link>
         </div>
 
         {/* Value Props Cards Grid */}
-        <div className="mt-14 sm:mt-20 grid grid-cols-1 sm:grid-cols-3 gap-5 max-w-5xl text-left w-full">
-          <Link href="/pantry" className="p-5 sm:p-6 rounded-2xl bg-card/80 backdrop-blur-md border border-border/60 shadow-sm hover:border-accent/40 transition-all group">
-            <div className="w-10 h-10 rounded-xl bg-teal-500/10 text-teal-400 flex items-center justify-center mb-4">
-              <BookOpen className="w-5 h-5" />
+        <div className="mt-16 sm:mt-24 grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl text-left w-full">
+          <Link href="/pantry" className="p-6 sm:p-7 rounded-3xl glass-panel glass-card-hover group">
+            <div className="w-12 h-12 rounded-2xl bg-teal-500/15 text-teal-400 flex items-center justify-center mb-5 shadow-lg shadow-teal-500/10">
+              <BookOpen className="w-6 h-6" />
             </div>
             <h3 className="text-base sm:text-lg font-bold mb-2 group-hover:text-accent transition-colors">Academic Pantry</h3>
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
@@ -97,9 +99,9 @@ export default function LandingPage() {
             </p>
           </Link>
 
-          <Link href="/bazaar" className="p-5 sm:p-6 rounded-2xl bg-card/80 backdrop-blur-md border border-border/60 shadow-sm hover:border-accent/40 transition-all group">
-            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center mb-4">
-              <ShieldCheck className="w-5 h-5" />
+          <Link href="/bazaar" className="p-6 sm:p-7 rounded-3xl glass-panel glass-card-hover group">
+            <div className="w-12 h-12 rounded-2xl bg-cyan-500/15 text-cyan-400 flex items-center justify-center mb-5 shadow-lg shadow-cyan-500/10">
+              <ShieldCheck className="w-6 h-6" />
             </div>
             <h3 className="text-base sm:text-lg font-bold mb-2 group-hover:text-accent transition-colors">Verified Quality Score</h3>
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
@@ -107,9 +109,9 @@ export default function LandingPage() {
             </p>
           </Link>
 
-          <Link href="/leaderboard" className="p-5 sm:p-6 rounded-2xl bg-card/80 backdrop-blur-md border border-border/60 shadow-sm hover:border-accent/40 transition-all group">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center mb-4">
-              <Award className="w-5 h-5" />
+          <Link href="/leaderboard" className="p-6 sm:p-7 rounded-3xl glass-panel glass-card-hover group">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-400 flex items-center justify-center mb-5 shadow-lg shadow-amber-500/10">
+              <Award className="w-6 h-6" />
             </div>
             <h3 className="text-base sm:text-lg font-bold mb-2 group-hover:text-accent transition-colors">Generosity Olympics</h3>
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
@@ -120,7 +122,7 @@ export default function LandingPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border/60 py-6 sm:py-8 text-center text-xs text-muted-foreground px-4">
+      <footer className="border-t border-border/60 py-6 sm:py-8 text-center text-xs text-muted-foreground px-4 backdrop-blur-xl bg-card/40 relative z-10">
         <p>© 2026 PEER'S CHARITY — "We don't sell notes. We perform academic charity."</p>
       </footer>
     </div>

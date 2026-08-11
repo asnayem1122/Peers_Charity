@@ -32,14 +32,14 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 border-r border-border/80 bg-card/60 backdrop-blur-xl flex flex-col h-screen sticky top-0 hidden md:flex shrink-0">
+    <aside className="w-64 border-r border-border/80 bg-card/50 backdrop-blur-2xl flex flex-col h-screen sticky top-0 hidden md:flex shrink-0 shadow-xl z-30">
       {/* Brand Header - Clicking navigates to Home Page (/) */}
       <Link
         href="/"
         className="p-6 border-b border-border/60 flex items-center gap-3 hover:bg-card-hover/80 transition-all group cursor-pointer"
         title="Go to Home Landing Page"
       >
-        <div className="w-9 h-9 rounded-xl bg-accent flex items-center justify-center text-white shadow-md shadow-accent/20 group-hover:scale-105 transition-transform">
+        <div className="w-9 h-9 rounded-xl bg-accent flex items-center justify-center text-white shadow-lg shadow-accent/30 group-hover:scale-105 transition-transform">
           <HeartHandshake className="w-5 h-5" />
         </div>
         <div>
@@ -62,11 +62,11 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-sm font-medium transition-all ${
                 isActive
-                  ? 'bg-accent text-accent-foreground font-semibold shadow-md shadow-accent/20'
+                  ? 'bg-accent text-accent-foreground font-semibold shadow-lg shadow-accent/25 backdrop-blur-md'
                   : item.highlight
-                  ? 'bg-accent/10 text-accent hover:bg-accent/20 font-semibold'
+                  ? 'bg-accent/15 text-accent hover:bg-accent/25 font-semibold backdrop-blur-sm'
                   : 'text-muted-foreground hover:bg-card-hover hover:text-foreground'
               }`}
             >
