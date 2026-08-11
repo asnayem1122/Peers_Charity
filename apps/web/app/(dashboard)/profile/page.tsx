@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Award,
@@ -17,13 +17,13 @@ import {
   Clock,
   MessageSquare,
   PlusCircle,
-  Edit3,
   Camera,
   Upload,
   Gamepad2,
   X,
   Check,
 } from 'lucide-react';
+import { useAuth } from '@/lib/auth-context';
 
 // Authentic SVG Vector Logos for Valorant & PC Gaming Characters
 const makeSvgLogo = (
@@ -161,26 +161,40 @@ const GAMING_AVATARS = [
 ];
 
 export default function CharityCardProfilePage() {
+  const { user, updateProfile } = useAuth();
   const [activeTab, setActiveTab] = useState<'donations' | 'achievements' | 'reviews' | 'circle' | 'activity'>('donations');
   const [copied, setCopied] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [selectedAvatarCategory, setSelectedAvatarCategory] = useState<'ALL' | 'Valorant' | 'PC Legends'>('ALL');
 
-  // Profile State initialized with official Jett (Valorant) Logo
+  // Dynamic Profile State bound to active user
   const [profile, setProfile] = useState({
-    name: 'Nayem',
-    email: 'nayem@student.university.edu',
-    bio: 'Academic Benefactor & Computer Science Student',
+    name: user?.name || 'Benefactor',
+    email: user?.email || 'user@university.edu',
+    bio: user?.role === 'ADMIN' ? 'System Administrator & Benefactor Overseer' : 'Academic Benefactor & Computer Science Student',
     university: 'State University of Technology',
     department: 'Computer Science & Engineering',
-    semester: 'Level 3 / Term 2',
-    studentId: '2024-CSE-042',
-    avatarUrl: GAMING_AVATARS[0].url,
-    avatarName: 'Jett (Valorant Official Logo)',
-    charityPoints: 0,
-    donationsCount: 0,
-    studentsHelped: 0,
+    semester: user?.role === 'ADMIN' ? 'Faculty Admin' : 'Level 3 / Term 2',
+    studentId: user?.role === 'ADMIN' ? 'ADMIN-001' : '2024-CSE-042',
+    avatarUrl: user?.avatarUrl || GAMING_AVATARS[0].url,
+    avatarName: user?.avatarName || 'Jett (Valorant Official Logo)',
+    charityPoints: user?.role === 'ADMIN' ? 1000 : 0,
+    donationsCount: user?.role === 'ADMIN' ? 5 : 0,
+    studentsHelped: user?.role === 'ADMIN' ? 42 : 0,
   });
+
+  // Sync profile when auth user changes
+  useEffect(() => {
+    if (user) {
+      setProfile((prev) => ({
+        ...prev,
+        name: user.name,
+        email: user.email,
+        avatarUrl: user.avatarUrl || prev.avatarUrl,
+        avatarName: user.avatarName || prev.avatarName,
+      }));
+    }
+  }, [user]);
 
   const [draft, setDraft] = useState({ ...profile });
 
@@ -219,6 +233,12 @@ export default function CharityCardProfilePage() {
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
     setProfile({ ...draft });
+    // Update global auth context state so Topbar avatar and name update instantly!
+    updateProfile({
+      name: draft.name,
+      avatarUrl: draft.avatarUrl,
+      avatarName: draft.avatarName,
+    });
     setIsEditing(false);
   };
 
@@ -230,15 +250,18 @@ export default function CharityCardProfilePage() {
 
   return (
     <div className="space-y-8">
-      {/* Login Required Banner */}
-      <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-center space-y-2">
-        <p className="text-sm font-bold text-amber-400">🔒 Sign in to access your Charity Card profile</p>
-        <Link href="/login" className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-accent text-white text-xs font-semibold hover:bg-accent/90 transition-all shadow-md shadow-accent/20">
-          Sign In to Continue
-        </Link>
-      </div>
+      {/* Login Required Banner ONLY if user is guest/unauthenticated */}
+      {!user && (
+        <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-center space-y-2">
+          <p className="text-sm font-bold text-amber-400">🔒 Sign in to access your Charity Card profile</p>
+          <Link href="/login" className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-accent text-white text-xs font-semibold hover:bg-accent/90 transition-all shadow-md shadow-accent/20">
+            Sign In to Continue
+          </Link>
+        </div>
+      )}
+
       {/* Clean Profile Header Container */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-card border border-border/80 shadow-2xl relative">
+      <div className="p-6 sm:p-8 rounded-3xl glass-panel relative">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           {/* Avatar & Identity */}
           <div className="flex flex-col sm:flex-row items-center sm:items-center gap-6 text-center sm:text-left">
@@ -273,7 +296,7 @@ export default function CharityCardProfilePage() {
                 <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">{profile.name}</h1>
                 <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-accent/10 text-accent border border-accent/30 flex items-center gap-1">
                   <Trophy className="w-3.5 h-3.5" />
-                  <span>New Benefactor</span>
+                  <span>{user?.role === 'ADMIN' ? 'System Overseer' : 'Academic Benefactor'}</span>
                 </span>
                 <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-purple-500/10 text-purple-400 border border-purple-500/30">
                   🎮 {profile.avatarName}
@@ -284,18 +307,18 @@ export default function CharityCardProfilePage() {
                 {profile.department} • {profile.semester} • {profile.university}
               </p>
 
-              <p className="text-xs text-slate-300 italic max-w-lg">
+              <p className="text-xs text-muted-foreground italic max-w-lg">
                 "{profile.bio}"
               </p>
 
               <div className="flex items-center justify-center sm:justify-start gap-3 pt-2 text-xs">
                 <span className="inline-flex items-center gap-1 text-accent font-semibold bg-accent/10 px-2.5 py-0.5 rounded-full">
                   <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>Verified Student (ID: {profile.studentId})</span>
+                  <span>Verified ({profile.studentId})</span>
                 </span>
                 <span className="inline-flex items-center gap-1 text-muted-foreground">
                   <Calendar className="w-3.5 h-3.5" />
-                  <span>Joined Semester 1, 2024</span>
+                  <span>Joined 2024</span>
                 </span>
               </div>
             </div>
@@ -334,7 +357,7 @@ export default function CharityCardProfilePage() {
 
         {/* Reputation Metric Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 pt-6 border-t border-border/60">
-          <div className="p-4 rounded-2xl bg-card-hover border border-border/60 text-center relative group">
+          <div className="p-4 rounded-2xl bg-card/60 border border-border/60 text-center relative group">
             <div className="flex justify-center text-amber-400 mb-1">
               <Award className="w-5 h-5" />
             </div>
@@ -342,13 +365,9 @@ export default function CharityCardProfilePage() {
             <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
               Charity Points
             </span>
-            <div className="w-full h-1 rounded-full bg-muted mt-2 overflow-hidden">
-              <div className="h-full bg-amber-400 rounded-full" style={{ width: '0%' }} />
-            </div>
-            <span className="text-[9px] text-muted-foreground mt-1 block">+10 pts per note uploaded</span>
           </div>
 
-          <div className="p-4 rounded-2xl bg-card-hover border border-border/60 text-center">
+          <div className="p-4 rounded-2xl bg-card/60 border border-border/60 text-center">
             <div className="flex justify-center text-accent mb-1">
               <FileText className="w-5 h-5" />
             </div>
@@ -356,10 +375,9 @@ export default function CharityCardProfilePage() {
             <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
               Donations Shared
             </span>
-            <span className="text-[9px] text-muted-foreground mt-2 block font-semibold">No notes yet</span>
           </div>
 
-          <div className="p-4 rounded-2xl bg-card-hover border border-border/60 text-center">
+          <div className="p-4 rounded-2xl bg-card/60 border border-border/60 text-center">
             <div className="flex justify-center text-purple-400 mb-1">
               <Users className="w-5 h-5" />
             </div>
@@ -367,18 +385,16 @@ export default function CharityCardProfilePage() {
             <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
               Classmates Saved
             </span>
-            <span className="text-[9px] text-muted-foreground mt-2 block font-semibold">Awaiting peer reach</span>
           </div>
 
-          <div className="p-4 rounded-2xl bg-card-hover border border-border/60 text-center">
+          <div className="p-4 rounded-2xl bg-card/60 border border-border/60 text-center">
             <div className="flex justify-center text-emerald-400 mb-1">
               <Star className="w-5 h-5" />
             </div>
-            <span className="block text-2xl font-black text-emerald-400">—</span>
+            <span className="block text-2xl font-black text-emerald-400">{user?.role === 'ADMIN' ? '5.0' : '—'}</span>
             <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
               Avg Trust Score
             </span>
-            <span className="text-[9px] text-muted-foreground mt-2 block font-semibold">0 Peer Ratings</span>
           </div>
         </div>
       </div>
@@ -392,7 +408,7 @@ export default function CharityCardProfilePage() {
           }`}
         >
           <FileText className="w-4 h-4" />
-          <span>Donations (0)</span>
+          <span>Donations ({profile.donationsCount})</span>
         </button>
 
         <button
@@ -402,7 +418,7 @@ export default function CharityCardProfilePage() {
           }`}
         >
           <Award className="w-4 h-4" />
-          <span>Achievements (0)</span>
+          <span>Achievements</span>
         </button>
 
         <button
@@ -412,35 +428,15 @@ export default function CharityCardProfilePage() {
           }`}
         >
           <MessageSquare className="w-4 h-4" />
-          <span>Peer Reviews (0)</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('circle')}
-          className={`pb-3 border-b-2 shrink-0 transition-all flex items-center gap-2 ${
-            activeTab === 'circle' ? 'border-accent text-accent' : 'border-transparent text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          <UserCheck className="w-4 h-4" />
-          <span>Charity Circle (0)</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('activity')}
-          className={`pb-3 border-b-2 shrink-0 transition-all flex items-center gap-2 ${
-            activeTab === 'activity' ? 'border-accent text-accent' : 'border-transparent text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          <TrendingUp className="w-4 h-4" />
-          <span>Contribution Trail</span>
+          <span>Peer Reviews</span>
         </button>
       </div>
 
       {/* Tab Contents */}
       {activeTab === 'donations' && (
-        <div className="p-8 rounded-2xl bg-card border border-border/80 text-center space-y-4 flex flex-col items-center justify-center min-h-[220px]">
+        <div className="p-8 rounded-2xl glass-panel text-center space-y-4 flex flex-col items-center justify-center min-h-[200px]">
           <FileText className="w-8 h-8 text-muted-foreground" />
-          <h3 className="text-base font-bold">You haven't uploaded any notes yet</h3>
+          <h3 className="text-base font-bold">Academic Benefactor Vault</h3>
           <p className="text-xs text-muted-foreground max-w-sm">
             "Share lecture notes, class slides, or solved exam banks to start your academic charity journey."
           </p>
@@ -454,64 +450,24 @@ export default function CharityCardProfilePage() {
         </div>
       )}
 
-      {activeTab === 'achievements' && (
-        <div className="p-8 rounded-2xl bg-card border border-border/80 text-center space-y-3">
-          <Award className="w-8 h-8 text-amber-400 mx-auto" />
-          <h3 className="text-base font-bold">No Badges Unlocked Yet</h3>
-          <p className="text-xs text-muted-foreground">
-            "Donate notes and help peers to unlock badges like First Donation, Exam Savior, and Top Benefactor!"
-          </p>
-        </div>
-      )}
-
-      {activeTab === 'reviews' && (
-        <div className="p-8 rounded-2xl bg-card border border-border/80 text-center space-y-3">
-          <MessageSquare className="w-8 h-8 text-muted-foreground mx-auto" />
-          <h3 className="text-base font-bold">No Peer Reviews Yet</h3>
-          <p className="text-xs text-muted-foreground">
-            "Peer thank-you ratings and reviews will appear here once classmates download your shared resources."
-          </p>
-        </div>
-      )}
-
-      {activeTab === 'circle' && (
-        <div className="p-8 rounded-2xl bg-card border border-border/80 text-center space-y-3">
-          <UserCheck className="w-8 h-8 text-muted-foreground mx-auto" />
-          <h3 className="text-base font-bold">Your Charity Circle is Empty</h3>
-          <p className="text-xs text-muted-foreground">
-            "Follow classmates and professors to stay notified of their latest academic uploads."
-          </p>
-        </div>
-      )}
-
-      {activeTab === 'activity' && (
-        <div className="p-6 rounded-2xl bg-card border border-border/60 shadow-sm space-y-4 text-xs">
-          <h2 className="font-bold text-sm flex items-center gap-2">
-            <Clock className="w-4 h-4 text-accent" />
-            <span>Recent Academic Altruism Activity</span>
-          </h2>
-          <p className="text-muted-foreground">No recent activity. Your contribution timeline will record every note you share.</p>
-        </div>
-      )}
-
       {/* Edit Profile & Character Logo Modal */}
       {isEditing && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-          <div className="w-full max-w-2xl bg-[#131b2e] border border-slate-700 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 text-white max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-2xl bg-card border border-border rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 text-foreground max-h-[90vh] overflow-y-auto">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-slate-700 pb-4">
+            <div className="flex items-center justify-between border-b border-border pb-4">
               <div className="flex items-center gap-2.5">
                 <div className="w-10 h-10 rounded-xl bg-accent/20 text-accent flex items-center justify-center">
                   <Gamepad2 className="w-6 h-6" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-extrabold text-white">Select Official Character Logo or Upload</h2>
-                  <p className="text-xs text-slate-400">Choose official Valorant character emblems or upload from PC.</p>
+                  <h2 className="text-lg font-extrabold">Select Official Character Logo or Upload</h2>
+                  <p className="text-xs text-muted-foreground">Choose official Valorant character emblems or upload from PC.</p>
                 </div>
               </div>
               <button
                 onClick={() => setIsEditing(false)}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                className="p-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-card-hover transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -519,7 +475,7 @@ export default function CharityCardProfilePage() {
 
             <form onSubmit={handleSaveProfile} className="space-y-6 text-xs">
               {/* Picture Picker */}
-              <div className="space-y-3 p-5 rounded-2xl bg-slate-900/80 border border-slate-800">
+              <div className="space-y-3 p-5 rounded-2xl bg-background border border-border">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
                     <img
@@ -528,7 +484,7 @@ export default function CharityCardProfilePage() {
                       className="w-16 h-16 rounded-2xl object-cover ring-2 ring-accent"
                     />
                     <div>
-                      <span className="block font-bold text-sm text-white">Active Logo Emblem</span>
+                      <span className="block font-bold text-sm">Active Logo Emblem</span>
                       <span className="text-[11px] text-accent font-semibold">{draft.avatarName}</span>
                     </div>
                   </div>
@@ -547,19 +503,19 @@ export default function CharityCardProfilePage() {
                 </div>
 
                 {/* Official Game Character Logos Gallery */}
-                <div className="pt-4 border-t border-slate-800 space-y-3">
+                <div className="pt-4 border-t border-border space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-200 uppercase tracking-wider text-[11px]">
+                    <span className="font-bold text-muted-foreground uppercase tracking-wider text-[11px]">
                       Official Character Logos:
                     </span>
 
                     {/* Filter Category Tabs */}
-                    <div className="flex items-center gap-1 bg-slate-800/80 p-1 rounded-lg">
+                    <div className="flex items-center gap-1 bg-card/80 p-1 rounded-lg">
                       <button
                         type="button"
                         onClick={() => setSelectedAvatarCategory('ALL')}
                         className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-all ${
-                          selectedAvatarCategory === 'ALL' ? 'bg-accent text-white' : 'text-slate-400 hover:text-white'
+                          selectedAvatarCategory === 'ALL' ? 'bg-accent text-white' : 'text-muted-foreground hover:text-foreground'
                         }`}
                       >
                         All
@@ -568,7 +524,7 @@ export default function CharityCardProfilePage() {
                         type="button"
                         onClick={() => setSelectedAvatarCategory('Valorant')}
                         className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-all ${
-                          selectedAvatarCategory === 'Valorant' ? 'bg-accent text-white' : 'text-slate-400 hover:text-white'
+                          selectedAvatarCategory === 'Valorant' ? 'bg-accent text-white' : 'text-muted-foreground hover:text-foreground'
                         }`}
                       >
                         Valorant Logos
@@ -577,7 +533,7 @@ export default function CharityCardProfilePage() {
                         type="button"
                         onClick={() => setSelectedAvatarCategory('PC Legends')}
                         className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-all ${
-                          selectedAvatarCategory === 'PC Legends' ? 'bg-accent text-white' : 'text-slate-400 hover:text-white'
+                          selectedAvatarCategory === 'PC Legends' ? 'bg-accent text-white' : 'text-muted-foreground hover:text-foreground'
                         }`}
                       >
                         PC Legends
@@ -597,7 +553,7 @@ export default function CharityCardProfilePage() {
                           className={`p-2.5 rounded-2xl border text-center transition-all flex flex-col items-center gap-1.5 relative group ${
                             isSelected
                               ? 'bg-accent/20 border-accent ring-2 ring-accent'
-                              : 'bg-slate-800/60 border-slate-700/80 hover:border-slate-500 hover:bg-slate-800'
+                              : 'bg-card border-border hover:border-accent/40'
                           }`}
                         >
                           <img
@@ -605,7 +561,7 @@ export default function CharityCardProfilePage() {
                             alt={av.name}
                             className="w-14 h-14 rounded-xl object-contain shadow-md"
                           />
-                          <span className="font-bold text-[11px] text-white truncate w-full">
+                          <span className="font-bold text-[11px] truncate w-full">
                             {av.name}
                           </span>
                           <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold border ${av.badgeColor}`}>
@@ -626,64 +582,64 @@ export default function CharityCardProfilePage() {
               {/* Section 2: Profile Metadata Form */}
               <div className="space-y-4">
                 <div>
-                  <label className="block text-slate-300 font-semibold mb-1">Full Name</label>
+                  <label className="block font-semibold mb-1">Full Name</label>
                   <input
                     type="text"
                     required
                     value={draft.name}
                     onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-900 text-white focus:outline-none focus:border-accent font-semibold"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:border-accent font-semibold"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-slate-300 font-semibold mb-1">Bio / Motto</label>
+                  <label className="block font-semibold mb-1">Bio / Motto</label>
                   <textarea
                     rows={2}
                     value={draft.bio}
                     onChange={(e) => setDraft({ ...draft, bio: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-900 text-white focus:outline-none focus:border-accent"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:border-accent"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-slate-300 font-semibold mb-1">Department</label>
+                    <label className="block font-semibold mb-1">Department</label>
                     <input
                       type="text"
                       value={draft.department}
                       onChange={(e) => setDraft({ ...draft, department: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-900 text-white focus:outline-none focus:border-accent"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:border-accent"
                     />
                   </div>
                   <div>
-                    <label className="block text-slate-300 font-semibold mb-1">Semester / Level</label>
+                    <label className="block font-semibold mb-1">Semester / Level</label>
                     <input
                       type="text"
                       value={draft.semester}
                       onChange={(e) => setDraft({ ...draft, semester: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-900 text-white focus:outline-none focus:border-accent"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:border-accent"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-slate-300 font-semibold mb-1">Student ID Number</label>
+                  <label className="block font-semibold mb-1">Student ID Number</label>
                   <input
                     type="text"
                     value={draft.studentId}
                     onChange={(e) => setDraft({ ...draft, studentId: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-900 text-white focus:outline-none focus:border-accent"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:border-accent"
                   />
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex justify-end gap-3 pt-3 border-t border-slate-700">
+              <div className="flex justify-end gap-3 pt-3 border-t border-border">
                 <button
                   type="button"
                   onClick={() => setIsEditing(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 font-semibold"
+                  className="px-4 py-2 rounded-xl border border-border text-muted-foreground hover:text-foreground font-semibold"
                 >
                   Cancel
                 </button>
