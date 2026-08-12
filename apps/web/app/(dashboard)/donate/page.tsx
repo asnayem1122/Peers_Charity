@@ -271,7 +271,7 @@ export default function DonateKnowledgePage() {
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="px-8 py-3 bg-foreground text-background font-bold rounded-xl hover:opacity-90 transition-all shadow-md flex items-center gap-2 text-sm disabled:opacity-50"
+              className="liquid-metal-btn px-8 py-3 text-sm font-bold flex items-center gap-2 uppercase tracking-wide disabled:opacity-50"
             >
               {loading ? (
                 <>

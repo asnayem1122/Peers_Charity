@@ -131,7 +131,7 @@ export default function LandingPage() {
                 <div className="flex items-center gap-3">
                   <Link
                     href="/hq"
-                    className="px-3.5 py-2 text-xs sm:text-sm font-bold bg-foreground text-background rounded-xl hover:opacity-90 transition-all shadow-md flex items-center gap-1.5 font-mono"
+                    className="liquid-metal-btn px-4 py-2 text-xs font-bold flex items-center gap-1.5 font-mono"
                   >
                     <LayoutDashboard className="w-4 h-4" />
                     <span>Enter HQ</span>
@@ -192,7 +192,7 @@ export default function LandingPage() {
                   </Link>
                   <Link
                     href="/register"
-                    className="px-4 py-2 text-xs font-bold bg-foreground text-background rounded-xl hover:opacity-90 transition-all shadow-md"
+                    className="liquid-metal-btn px-5 py-2 text-xs font-bold"
                   >
                     Get Started
                   </Link>
@@ -318,10 +318,10 @@ export default function LandingPage() {
         </p>
 
         {/* Dynamic Hero CTA Buttons */}
-        <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center w-full sm:w-auto px-4">
+        <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-4 justify-center items-center w-full sm:w-auto px-4">
           <Link
             href="/bazaar"
-            className="w-full sm:w-auto px-8 py-4 bg-foreground text-background font-bold rounded-2xl hover:opacity-90 transition-all shadow-xl flex items-center justify-center gap-2 group text-sm"
+            className="liquid-metal-btn w-full sm:w-auto px-8 py-4 text-sm font-bold flex items-center justify-center gap-2 group tracking-wider uppercase shadow-2xl"
           >
             <span>Explore Charity Bazaar</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -330,7 +330,7 @@ export default function LandingPage() {
           {user ? (
             <Link
               href="/donate"
-              className="w-full sm:w-auto px-8 py-4 glass-panel text-foreground font-bold rounded-2xl hover:bg-card-hover transition-all flex items-center justify-center gap-2 text-sm shadow-xl"
+              className="liquid-metal-btn-secondary w-full sm:w-auto px-8 py-4 text-sm font-bold flex items-center justify-center gap-2 group tracking-wider uppercase shadow-xl"
             >
               <PlusCircle className="w-4 h-4" />
               <span>Donate Knowledge</span>
@@ -338,7 +338,7 @@ export default function LandingPage() {
           ) : (
             <Link
               href="/login"
-              className="w-full sm:w-auto px-8 py-4 glass-panel text-foreground font-bold rounded-2xl hover:bg-card-hover transition-all flex items-center justify-center gap-2 text-sm shadow-xl"
+              className="liquid-metal-btn-secondary w-full sm:w-auto px-8 py-4 text-sm font-bold flex items-center justify-center gap-2 group tracking-wider uppercase shadow-xl"
             >
               <span>Sign In to Donate</span>
             </Link>

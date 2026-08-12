@@ -161,7 +161,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-2 py-3.5 bg-accent text-white font-semibold rounded-xl hover:bg-accent/90 transition-all shadow-lg shadow-accent/25 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+            className="liquid-metal-btn w-full mt-2 py-3.5 text-sm font-bold font-mono flex items-center justify-center gap-2 uppercase tracking-wide disabled:opacity-50"
           >
             {loading ? (
               <>

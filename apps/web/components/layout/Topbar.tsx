@@ -356,9 +356,9 @@ export default function Topbar() {
           ) : (
             <Link
               href="/login"
-              className="flex items-center gap-1 px-3 sm:px-4 py-2 rounded-xl bg-foreground text-background font-bold text-xs hover:opacity-90 transition-all shadow-md font-mono"
+              className="liquid-metal-btn px-4 py-2 text-xs font-bold font-mono flex items-center gap-1.5 shadow-md"
             >
-              <LogIn className="w-4 h-4" />
+              <LogIn className="w-3.5 h-3.5" />
               <span>Sign In</span>
             </Link>
           )}
