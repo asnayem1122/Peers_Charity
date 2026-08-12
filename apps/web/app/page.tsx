@@ -1,12 +1,31 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { BookOpen, ShieldCheck, HeartHandshake, Sparkles, ArrowRight, Award, Sun, Moon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import {
+  BookOpen,
+  ShieldCheck,
+  HeartHandshake,
+  Sparkles,
+  ArrowRight,
+  Award,
+  Sun,
+  Moon,
+  LogOut,
+  User,
+  LayoutDashboard,
+  PlusCircle,
+} from 'lucide-react';
 import ConstellationGrid from '@/components/ui/constellation-grid';
+import { useAuth } from '@/lib/auth-context';
 
 export default function LandingPage() {
+  const router = useRouter();
+  const { user, logout } = useAuth();
   const [isDark, setIsDark] = useState(true);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
 
   // Initialize theme from localStorage or default to dark
   useEffect(() => {
@@ -20,6 +39,17 @@ export default function LandingPage() {
     }
   }, []);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setIsProfileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const toggleTheme = () => {
     const newIsDark = !isDark;
     setIsDark(newIsDark);
@@ -31,6 +61,16 @@ export default function LandingPage() {
       localStorage.setItem('peers-charity-theme', 'light');
     }
   };
+
+  const handleLogout = () => {
+    setIsProfileOpen(false);
+    logout();
+  };
+
+  // Get user initials for avatar fallback
+  const initials = user?.name
+    ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
+    : '??';
 
   return (
     <div className="flex flex-col min-h-screen relative overflow-hidden bg-background font-sans">
@@ -79,18 +119,79 @@ export default function LandingPage() {
               {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-foreground" />}
             </button>
 
-            <Link
-              href="/login"
-              className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Sign In
-            </Link>
-            <Link
-              href="/register"
-              className="px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold bg-foreground text-background rounded-xl hover:opacity-90 transition-all shadow-md"
-            >
-              Get Started
-            </Link>
+            {/* Dynamic Auth Header: Displays Profile / HQ button if logged in, or Sign In / Register if guest */}
+            {user ? (
+              <div className="flex items-center gap-3">
+                <Link
+                  href="/hq"
+                  className="px-3.5 py-2 text-xs sm:text-sm font-bold bg-foreground text-background rounded-xl hover:opacity-90 transition-all shadow-md flex items-center gap-1.5 font-mono"
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  <span className="hidden sm:inline">Enter HQ</span>
+                </Link>
+
+                <div className="relative" ref={profileRef}>
+                  <button
+                    onClick={() => setIsProfileOpen(!isProfileOpen)}
+                    className="flex items-center gap-2 p-1 rounded-xl hover:bg-card-hover transition-all"
+                  >
+                    {user.avatarUrl ? (
+                      <img
+                        src={user.avatarUrl}
+                        alt={user.name}
+                        className="w-8 h-8 rounded-xl object-cover ring-2 ring-foreground/20"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-xl bg-foreground text-background flex items-center justify-center text-xs font-bold font-mono">
+                        {initials}
+                      </div>
+                    )}
+                  </button>
+
+                  {/* Profile Dropdown */}
+                  {isProfileOpen && (
+                    <div className="absolute right-0 top-full mt-2 w-52 rounded-2xl glass-panel shadow-2xl z-50 overflow-hidden text-left">
+                      <div className="p-3 border-b border-border">
+                        <span className="block text-xs font-bold">{user.name}</span>
+                        <span className="block text-[10px] text-muted-foreground truncate">{user.email}</span>
+                      </div>
+                      <div className="p-1.5 space-y-1">
+                        <Link
+                          href="/profile"
+                          onClick={() => setIsProfileOpen(false)}
+                          className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold hover:bg-card-hover"
+                        >
+                          <User className="w-4 h-4" />
+                          <span>My Charity Card</span>
+                        </Link>
+                        <button
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-red-400 hover:bg-red-500/10"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          <span>Sign Out</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 sm:gap-4">
+                <Link
+                  href="/login"
+                  className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/register"
+                  className="px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold bg-foreground text-background rounded-xl hover:opacity-90 transition-all shadow-md"
+                >
+                  Get Started
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </header>
@@ -113,6 +214,7 @@ export default function LandingPage() {
           Your classmates already survived the course. Discover verified academic donations, rate resources, and help your peers thrive.
         </p>
 
+        {/* Dynamic Hero CTA Buttons */}
         <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center w-full sm:w-auto px-4 pointer-events-auto">
           <Link
             href="/bazaar"
@@ -121,12 +223,23 @@ export default function LandingPage() {
             <span>Explore Charity Bazaar</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
-          <Link
-            href="/login"
-            className="w-full sm:w-auto px-8 py-4 glass-panel text-foreground font-bold rounded-2xl hover:bg-card-hover transition-all flex items-center justify-center gap-2 text-sm shadow-xl"
-          >
-            <span>Sign In to Donate</span>
-          </Link>
+
+          {user ? (
+            <Link
+              href="/donate"
+              className="w-full sm:w-auto px-8 py-4 glass-panel text-foreground font-bold rounded-2xl hover:bg-card-hover transition-all flex items-center justify-center gap-2 text-sm shadow-xl"
+            >
+              <PlusCircle className="w-4 h-4" />
+              <span>Donate Knowledge</span>
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="w-full sm:w-auto px-8 py-4 glass-panel text-foreground font-bold rounded-2xl hover:bg-card-hover transition-all flex items-center justify-center gap-2 text-sm shadow-xl"
+            >
+              <span>Sign In to Donate</span>
+            </Link>
+          )}
         </div>
 
         {/* Value Props Cards Grid */}
