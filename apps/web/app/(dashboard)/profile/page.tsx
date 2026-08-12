@@ -25,138 +25,114 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 
-// Authentic SVG Vector Logos for Valorant & PC Gaming Characters
-const makeSvgLogo = (
+// SVG Vector Generator for Google Play Account Avatars
+const makePlayAvatarSvg = (
   bgGradient: string,
   iconPath: string,
   label: string
 ) => {
   const svgString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
     <defs>
-      <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <linearGradient id="gPlay" x1="0%" y1="0%" x2="100%" y2="100%">
         ${bgGradient}
       </linearGradient>
     </defs>
-    <rect width="100" height="100" rx="28" fill="url(#g)" />
+    <rect width="100" height="100" rx="30" fill="url(#gPlay)" />
     <path d="${iconPath}" fill="#ffffff" />
-    <text x="50%" y="86%" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="900" font-family="sans-serif" opacity="0.95">${label}</text>
+    <text x="50%" y="87%" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="900" font-family="'Geist Mono', sans-serif" letter-spacing="1" opacity="0.95">${label}</text>
   </svg>`;
   return `data:image/svg+xml;utf8,${encodeURIComponent(svgString)}`;
 };
 
-const GAMING_AVATARS = [
-  // Valorant Characters
+// Official Google Play Account Avatars
+const GOOGLE_PLAY_AVATARS = [
   {
-    id: 'val-jett',
-    name: 'Jett',
-    game: 'Valorant',
-    url: makeSvgLogo(
-      `<stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#1d4ed8"/>`,
-      `M50 18 L68 45 L50 40 L32 45 Z M50 44 L75 75 L50 68 L25 75 Z`,
-      `JETT`
-    ),
-    badgeColor: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
-  },
-  {
-    id: 'val-reyna',
-    name: 'Reyna',
-    game: 'Valorant',
-    url: makeSvgLogo(
-      `<stop offset="0%" stop-color="#a855f7"/><stop offset="100%" stop-color="#be185d"/>`,
-      `M50 18 C65 18 78 30 78 45 C78 65 50 80 50 80 C50 80 22 65 22 45 C22 30 35 18 50 18 Z M50 32 A12 12 0 1 0 50 56 A12 12 0 1 0 50 32 Z`,
-      `REYNA`
-    ),
-    badgeColor: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-  },
-  {
-    id: 'val-omen',
-    name: 'Omen',
-    game: 'Valorant',
-    url: makeSvgLogo(
-      `<stop offset="0%" stop-color="#0f172a"/><stop offset="100%" stop-color="#312e81"/>`,
-      `M30 25 L70 25 L78 60 L50 78 L22 60 Z M38 42 H46 V48 H38 Z M54 42 H62 V48 H54 Z M46 56 H54 V62 H46 Z`,
-      `OMEN`
-    ),
-    badgeColor: 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30',
-  },
-  {
-    id: 'val-sage',
-    name: 'Sage',
-    game: 'Valorant',
-    url: makeSvgLogo(
-      `<stop offset="0%" stop-color="#10b981"/><stop offset="100%" stop-color="#0891b2"/>`,
-      `M50 16 L72 38 L50 80 L28 38 Z M50 32 L60 44 L50 64 L40 44 Z`,
-      `SAGE`
-    ),
-    badgeColor: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
-  },
-  {
-    id: 'val-phoenix',
-    name: 'Phoenix',
-    game: 'Valorant',
-    url: makeSvgLogo(
-      `<stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#b91c1c"/>`,
-      `M50 16 C55 30 75 35 75 55 C75 68 64 78 50 78 C36 78 25 68 25 55 C25 35 45 30 50 16 Z M50 42 C45 50 40 54 40 62 C40 67 44 71 50 71 C56 71 60 67 60 62 C60 54 55 50 50 42 Z`,
-      `PHOENIX`
-    ),
-    badgeColor: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
-  },
-  {
-    id: 'val-chamber',
-    name: 'Chamber',
-    game: 'Valorant',
-    url: makeSvgLogo(
-      `<stop offset="0%" stop-color="#eab308"/><stop offset="100%" stop-color="#854d0e"/>`,
-      `M50 18 L70 35 L62 75 L50 68 L38 75 L30 35 Z M50 28 L58 40 L50 60 L42 40 Z`,
-      `CHAMBER`
-    ),
-    badgeColor: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-  },
-
-  // Famous PC Gaming Legends
-  {
-    id: 'pc-geralt',
-    name: 'Geralt of Rivia',
-    game: 'The Witcher 3',
-    url: makeSvgLogo(
-      `<stop offset="0%" stop-color="#475569"/><stop offset="100%" stop-color="#0f172a"/>`,
-      `M50 18 L72 32 L66 65 L50 78 L34 65 L28 32 Z M42 38 L48 44 L42 50 Z M58 38 L52 44 L58 50 Z M50 58 L44 64 H56 Z`,
-      `WITCHER`
+    id: 'play-ninja',
+    name: 'Shadow Ninja',
+    game: 'Google Play',
+    url: makePlayAvatarSvg(
+      `<stop offset="0%" stop-color="#0f172a"/><stop offset="100%" stop-color="#1e293b"/>`,
+      `M50 18 C30 18 20 32 20 50 C20 68 35 80 50 80 C65 80 80 68 80 50 C80 32 70 18 50 18 Z M32 44 H68 V52 H32 Z M40 46 A3 3 0 1 1 40 46.1 Z M60 46 A3 3 0 1 1 60 46.1 Z`,
+      `PLAY NINJA`
     ),
     badgeColor: 'bg-slate-500/20 text-slate-300 border-slate-500/30',
   },
   {
-    id: 'pc-kratos',
-    name: 'Kratos',
-    game: 'God of War',
-    url: makeSvgLogo(
-      `<stop offset="0%" stop-color="#dc2626"/><stop offset="100%" stop-color="#1c1917"/>`,
-      `M50 16 C68 16 80 30 80 48 C80 62 68 76 54 78 V64 C62 62 68 54 68 46 C68 36 60 28 50 28 C40 28 32 36 32 46 C32 54 38 62 46 64 V78 C32 76 20 62 20 48 C20 30 32 16 50 16 Z`,
-      `KRATOS`
-    ),
-    badgeColor: 'bg-red-500/20 text-red-400 border-red-500/30',
-  },
-  {
-    id: 'pc-masterchief',
-    name: 'Master Chief',
-    game: 'Halo',
-    url: makeSvgLogo(
-      `<stop offset="0%" stop-color="#15803d"/><stop offset="100%" stop-color="#064e3b"/>`,
-      `M25 30 L75 30 L80 50 L70 75 L30 75 L20 50 Z M32 40 H68 V55 H32 Z`,
-      `HALO`
+    id: 'play-android',
+    name: 'Android Bot',
+    game: 'Google Play',
+    url: makePlayAvatarSvg(
+      `<stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#15803d"/>`,
+      `M32 22 L25 15 M68 22 L75 15 M25 35 C25 22 75 22 75 35 H25 Z M38 32 A3 3 0 1 1 38 32.1 Z M62 32 A3 3 0 1 1 62 32.1 Z M25 40 H75 V68 C75 74 68 78 50 78 C32 78 25 74 25 68 Z`,
+      `ANDROID`
     ),
     badgeColor: 'bg-green-500/20 text-green-400 border-green-500/30',
   },
   {
-    id: 'pc-cyberpunk',
-    name: 'Cyberpunk V',
-    game: 'Cyberpunk 2077',
-    url: makeSvgLogo(
-      `<stop offset="0%" stop-color="#facc15"/><stop offset="100%" stop-color="#06b6d4"/>`,
-      `M20 25 L80 25 L70 45 L80 65 L20 65 L30 45 Z M35 38 H65 V52 H35 Z`,
+    id: 'play-astronaut',
+    name: 'Cosmic Astro',
+    game: 'Google Play',
+    url: makePlayAvatarSvg(
+      `<stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/>`,
+      `M50 16 C30 16 22 30 22 48 C22 66 32 78 50 78 C68 78 78 66 78 48 C78 30 70 16 50 16 Z M35 34 H65 C70 34 72 40 72 48 C72 56 70 62 65 62 H35 C30 62 28 56 28 48 C28 40 30 34 35 34 Z`,
+      `ASTRO`
+    ),
+    badgeColor: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+  },
+  {
+    id: 'play-panther',
+    name: 'Neon Panther',
+    game: 'Google Play',
+    url: makePlayAvatarSvg(
+      `<stop offset="0%" stop-color="#ec4899"/><stop offset="100%" stop-color="#be185d"/>`,
+      `M20 22 L35 35 L50 20 L65 35 L80 22 L75 52 L50 78 L25 52 Z M36 44 L44 48 L36 52 Z M64 44 L56 48 L64 52 Z`,
+      `PANTHER`
+    ),
+    badgeColor: 'bg-pink-500/20 text-pink-400 border-pink-500/30',
+  },
+  {
+    id: 'play-phoenix',
+    name: 'Flame Bird',
+    game: 'Google Play',
+    url: makePlayAvatarSvg(
+      `<stop offset="0%" stop-color="#f97316"/><stop offset="100%" stop-color="#c2410c"/>`,
+      `M50 16 C60 28 78 32 78 52 C78 66 66 78 50 78 C34 78 22 66 22 52 C22 32 40 28 50 16 Z M50 40 C44 48 40 52 40 60 C40 65 44 69 50 69 C56 69 60 65 60 60 C60 52 56 48 50 40 Z`,
+      `FLAME`
+    ),
+    badgeColor: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
+  },
+  {
+    id: 'play-knight',
+    name: 'Pixel Knight',
+    game: 'Google Play',
+    url: makePlayAvatarSvg(
+      `<stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#4338ca"/>`,
+      `M50 16 L76 30 V52 C76 68 60 78 50 82 C40 78 24 68 24 52 V30 Z M34 40 H66 V46 H34 Z M47 46 H53 V66 H47 Z`,
+      `KNIGHT`
+    ),
+    badgeColor: 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30',
+  },
+  {
+    id: 'play-samurai',
+    name: 'Cyber Samurai',
+    game: 'Google Play',
+    url: makePlayAvatarSvg(
+      `<stop offset="0%" stop-color="#14b8a6"/><stop offset="100%" stop-color="#0f766e"/>`,
+      `M20 28 L50 16 L80 28 L72 45 L80 65 L50 78 L20 65 L28 45 Z M35 42 H65 V50 H35 Z`,
       `SAMURAI`
     ),
-    badgeColor: 'bg-yellow-400/20 text-yellow-300 border-yellow-400/30',
+    badgeColor: 'bg-teal-500/20 text-teal-400 border-teal-500/30',
+  },
+  {
+    id: 'play-arcade',
+    name: 'Game Master',
+    game: 'Google Play',
+    url: makePlayAvatarSvg(
+      `<stop offset="0%" stop-color="#eab308"/><stop offset="100%" stop-color="#a16207"/>`,
+      `M22 32 C22 24 35 22 50 22 C65 22 78 24 78 32 V58 C78 68 68 78 58 78 C52 78 48 72 44 72 H56 C52 72 48 78 42 78 C32 78 22 68 22 58 Z M32 40 H40 V48 H32 Z M36 36 V52 Z M62 40 A3 3 0 1 1 62 40.1 Z M68 46 A3 3 0 1 1 68 46.1 Z`,
+      `MASTER`
+    ),
+    badgeColor: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
   },
 ];
 
@@ -165,7 +141,6 @@ export default function CharityCardProfilePage() {
   const [activeTab, setActiveTab] = useState<'donations' | 'achievements' | 'reviews' | 'circle' | 'activity'>('donations');
   const [copied, setCopied] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [selectedAvatarCategory, setSelectedAvatarCategory] = useState<'ALL' | 'Valorant' | 'PC Legends'>('ALL');
 
   // Dynamic Profile State bound to active user
   const [profile, setProfile] = useState({
@@ -176,8 +151,8 @@ export default function CharityCardProfilePage() {
     department: 'Computer Science & Engineering',
     semester: user?.role === 'ADMIN' ? 'Faculty Admin' : 'Level 3 / Term 2',
     studentId: user?.role === 'ADMIN' ? 'ADMIN-001' : '2024-CSE-042',
-    avatarUrl: user?.avatarUrl || GAMING_AVATARS[0].url,
-    avatarName: user?.avatarName || 'Jett (Valorant Official Logo)',
+    avatarUrl: user?.avatarUrl || GOOGLE_PLAY_AVATARS[0].url,
+    avatarName: user?.avatarName || 'Shadow Ninja (Google Play)',
     charityPoints: user?.role === 'ADMIN' ? 1000 : 0,
     donationsCount: user?.role === 'ADMIN' ? 5 : 0,
     studentsHelped: user?.role === 'ADMIN' ? 42 : 0,
@@ -222,7 +197,7 @@ export default function CharityCardProfilePage() {
     }
   };
 
-  const handleSelectGameAvatar = (avatar: (typeof GAMING_AVATARS)[0]) => {
+  const handleSelectPlayAvatar = (avatar: (typeof GOOGLE_PLAY_AVATARS)[0]) => {
     setDraft((prev) => ({
       ...prev,
       avatarUrl: avatar.url,
@@ -242,19 +217,13 @@ export default function CharityCardProfilePage() {
     setIsEditing(false);
   };
 
-  const filteredAvatars = GAMING_AVATARS.filter((av) => {
-    if (selectedAvatarCategory === 'Valorant') return av.game === 'Valorant';
-    if (selectedAvatarCategory === 'PC Legends') return av.game !== 'Valorant';
-    return true;
-  });
-
   return (
     <div className="space-y-8">
       {/* Login Required Banner ONLY if user is guest/unauthenticated */}
       {!user && (
         <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-center space-y-2">
           <p className="text-sm font-bold text-amber-400">🔒 Sign in to access your Charity Card profile</p>
-          <Link href="/login" className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-accent text-white text-xs font-semibold hover:bg-accent/90 transition-all shadow-md shadow-accent/20">
+          <Link href="/login" className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-foreground text-background text-xs font-bold hover:opacity-90 transition-all shadow-md">
             Sign In to Continue
           </Link>
         </div>
@@ -265,12 +234,12 @@ export default function CharityCardProfilePage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           {/* Avatar & Identity */}
           <div className="flex flex-col sm:flex-row items-center sm:items-center gap-6 text-center sm:text-left">
-            {/* Profile Picture / Vector Logo with Edit Overlay */}
+            {/* Profile Picture / Google Play Avatar Logo with Edit Overlay */}
             <div className="relative group shrink-0">
               <img
                 src={profile.avatarUrl}
                 alt={profile.name}
-                className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl object-cover ring-4 ring-accent/30 shadow-xl"
+                className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl object-cover ring-4 ring-border shadow-xl"
               />
               <button
                 onClick={() => {
@@ -280,7 +249,7 @@ export default function CharityCardProfilePage() {
                 className="absolute inset-0 bg-black/60 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-xs font-semibold gap-1"
                 title="Change Avatar or Upload Picture"
               >
-                <Camera className="w-5 h-5 text-accent" />
+                <Camera className="w-5 h-5 text-white" />
                 <span className="text-[10px]">Change Logo</span>
               </button>
               <span
@@ -294,11 +263,11 @@ export default function CharityCardProfilePage() {
             <div className="space-y-1.5">
               <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
                 <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">{profile.name}</h1>
-                <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-accent/10 text-accent border border-accent/30 flex items-center gap-1">
+                <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-foreground/10 text-foreground border border-border flex items-center gap-1 font-mono">
                   <Trophy className="w-3.5 h-3.5" />
                   <span>{user?.role === 'ADMIN' ? 'System Overseer' : 'Academic Benefactor'}</span>
                 </span>
-                <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-purple-500/10 text-purple-400 border border-purple-500/30">
+                <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-foreground/10 text-muted-foreground border border-border font-mono">
                   🎮 {profile.avatarName}
                 </span>
               </div>
@@ -312,7 +281,7 @@ export default function CharityCardProfilePage() {
               </p>
 
               <div className="flex items-center justify-center sm:justify-start gap-3 pt-2 text-xs">
-                <span className="inline-flex items-center gap-1 text-accent font-semibold bg-accent/10 px-2.5 py-0.5 rounded-full">
+                <span className="inline-flex items-center gap-1 text-foreground font-semibold bg-foreground/10 px-2.5 py-0.5 rounded-full border border-border">
                   <ShieldCheck className="w-3.5 h-3.5" />
                   <span>Verified ({profile.studentId})</span>
                 </span>
@@ -333,8 +302,8 @@ export default function CharityCardProfilePage() {
               }}
               className="px-4 py-2.5 rounded-xl border border-border hover:bg-card-hover text-xs font-semibold flex items-center gap-1.5 transition-all"
             >
-              <Gamepad2 className="w-4 h-4 text-accent" />
-              <span>Change Character Logo</span>
+              <Gamepad2 className="w-4 h-4 text-foreground" />
+              <span>Change Play Avatar</span>
             </button>
 
             <button
@@ -347,7 +316,7 @@ export default function CharityCardProfilePage() {
 
             <Link
               href="/donate"
-              className="px-4 py-2.5 rounded-xl bg-accent text-white font-semibold text-xs hover:bg-accent/90 transition-all shadow-lg shadow-accent/25 flex items-center gap-1.5"
+              className="px-4 py-2.5 rounded-xl bg-foreground text-background font-semibold text-xs hover:opacity-90 transition-all shadow-md flex items-center gap-1.5"
             >
               <Sparkles className="w-4 h-4" />
               <span>Donate</span>
@@ -368,10 +337,10 @@ export default function CharityCardProfilePage() {
           </div>
 
           <div className="p-4 rounded-2xl bg-card/60 border border-border/60 text-center">
-            <div className="flex justify-center text-accent mb-1">
+            <div className="flex justify-center text-foreground mb-1">
               <FileText className="w-5 h-5" />
             </div>
-            <span className="block text-2xl font-black text-accent">{profile.donationsCount}</span>
+            <span className="block text-2xl font-black text-foreground">{profile.donationsCount}</span>
             <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
               Donations Shared
             </span>
@@ -404,7 +373,7 @@ export default function CharityCardProfilePage() {
         <button
           onClick={() => setActiveTab('donations')}
           className={`pb-3 border-b-2 shrink-0 transition-all flex items-center gap-2 ${
-            activeTab === 'donations' ? 'border-accent text-accent' : 'border-transparent text-muted-foreground hover:text-foreground'
+            activeTab === 'donations' ? 'border-foreground text-foreground font-bold' : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
         >
           <FileText className="w-4 h-4" />
@@ -414,7 +383,7 @@ export default function CharityCardProfilePage() {
         <button
           onClick={() => setActiveTab('achievements')}
           className={`pb-3 border-b-2 shrink-0 transition-all flex items-center gap-2 ${
-            activeTab === 'achievements' ? 'border-accent text-accent' : 'border-transparent text-muted-foreground hover:text-foreground'
+            activeTab === 'achievements' ? 'border-foreground text-foreground font-bold' : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
         >
           <Award className="w-4 h-4" />
@@ -424,7 +393,7 @@ export default function CharityCardProfilePage() {
         <button
           onClick={() => setActiveTab('reviews')}
           className={`pb-3 border-b-2 shrink-0 transition-all flex items-center gap-2 ${
-            activeTab === 'reviews' ? 'border-accent text-accent' : 'border-transparent text-muted-foreground hover:text-foreground'
+            activeTab === 'reviews' ? 'border-foreground text-foreground font-bold' : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
         >
           <MessageSquare className="w-4 h-4" />
@@ -442,7 +411,7 @@ export default function CharityCardProfilePage() {
           </p>
           <Link
             href="/donate"
-            className="px-5 py-2 rounded-xl bg-accent text-white font-semibold text-xs hover:bg-accent/90 transition-all shadow-md shadow-accent/20 flex items-center gap-2"
+            className="px-5 py-2 rounded-xl bg-foreground text-background font-bold text-xs hover:opacity-90 transition-all shadow-md flex items-center gap-2"
           >
             <PlusCircle className="w-4 h-4" />
             <span>Donate Your First Note</span>
@@ -450,19 +419,19 @@ export default function CharityCardProfilePage() {
         </div>
       )}
 
-      {/* Edit Profile & Character Logo Modal */}
+      {/* Edit Profile & Google Play Avatar Modal */}
       {isEditing && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
           <div className="w-full max-w-2xl bg-card border border-border rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 text-foreground max-h-[90vh] overflow-y-auto">
             {/* Header */}
             <div className="flex items-center justify-between border-b border-border pb-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-xl bg-accent/20 text-accent flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-foreground/10 text-foreground flex items-center justify-center">
                   <Gamepad2 className="w-6 h-6" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-extrabold">Select Official Character Logo or Upload</h2>
-                  <p className="text-xs text-muted-foreground">Choose official Valorant character emblems or upload from PC.</p>
+                  <h2 className="text-lg font-extrabold">Select Official Google Play Avatar or Upload</h2>
+                  <p className="text-xs text-muted-foreground">Choose official Google Play account style avatars or upload from PC.</p>
                 </div>
               </div>
               <button
@@ -481,16 +450,16 @@ export default function CharityCardProfilePage() {
                     <img
                       src={draft.avatarUrl}
                       alt="Avatar Preview"
-                      className="w-16 h-16 rounded-2xl object-cover ring-2 ring-accent"
+                      className="w-16 h-16 rounded-2xl object-cover ring-2 ring-foreground"
                     />
                     <div>
-                      <span className="block font-bold text-sm">Active Logo Emblem</span>
-                      <span className="text-[11px] text-accent font-semibold">{draft.avatarName}</span>
+                      <span className="block font-bold text-sm">Active Play Logo</span>
+                      <span className="text-[11px] text-muted-foreground font-semibold font-mono">{draft.avatarName}</span>
                     </div>
                   </div>
 
                   {/* Direct Local PC File Upload Button */}
-                  <label className="px-4 py-2.5 rounded-xl bg-accent text-white font-semibold cursor-pointer hover:bg-accent/90 transition-all flex items-center gap-2 text-xs shadow-md shadow-accent/20">
+                  <label className="px-4 py-2.5 rounded-xl bg-foreground text-background font-bold cursor-pointer hover:opacity-90 transition-all flex items-center gap-2 text-xs shadow-md">
                     <Upload className="w-4 h-4" />
                     <span>Upload Picture from PC</span>
                     <input
@@ -502,73 +471,40 @@ export default function CharityCardProfilePage() {
                   </label>
                 </div>
 
-                {/* Official Game Character Logos Gallery */}
+                {/* Google Play Account Avatars Gallery */}
                 <div className="pt-4 border-t border-border space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-muted-foreground uppercase tracking-wider text-[11px]">
-                      Official Character Logos:
-                    </span>
-
-                    {/* Filter Category Tabs */}
-                    <div className="flex items-center gap-1 bg-card/80 p-1 rounded-lg">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedAvatarCategory('ALL')}
-                        className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-all ${
-                          selectedAvatarCategory === 'ALL' ? 'bg-accent text-white' : 'text-muted-foreground hover:text-foreground'
-                        }`}
-                      >
-                        All
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setSelectedAvatarCategory('Valorant')}
-                        className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-all ${
-                          selectedAvatarCategory === 'Valorant' ? 'bg-accent text-white' : 'text-muted-foreground hover:text-foreground'
-                        }`}
-                      >
-                        Valorant Logos
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setSelectedAvatarCategory('PC Legends')}
-                        className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-all ${
-                          selectedAvatarCategory === 'PC Legends' ? 'bg-accent text-white' : 'text-muted-foreground hover:text-foreground'
-                        }`}
-                      >
-                        PC Legends
-                      </button>
-                    </div>
-                  </div>
+                  <span className="font-mono font-bold text-muted-foreground uppercase tracking-wider text-[11px] block">
+                    Google Play Avatars Gallery:
+                  </span>
 
                   {/* Avatars Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 max-h-56 overflow-y-auto p-1">
-                    {filteredAvatars.map((av) => {
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-h-60 overflow-y-auto p-1">
+                    {GOOGLE_PLAY_AVATARS.map((av) => {
                       const isSelected = draft.avatarUrl === av.url;
                       return (
                         <button
                           key={av.id}
                           type="button"
-                          onClick={() => handleSelectGameAvatar(av)}
-                          className={`p-2.5 rounded-2xl border text-center transition-all flex flex-col items-center gap-1.5 relative group ${
+                          onClick={() => handleSelectPlayAvatar(av)}
+                          className={`p-3 rounded-2xl border text-center transition-all flex flex-col items-center gap-2 relative group ${
                             isSelected
-                              ? 'bg-accent/20 border-accent ring-2 ring-accent'
-                              : 'bg-card border-border hover:border-accent/40'
+                              ? 'bg-foreground/15 border-foreground ring-2 ring-foreground'
+                              : 'bg-card border-border hover:border-foreground/50'
                           }`}
                         >
                           <img
                             src={av.url}
                             alt={av.name}
-                            className="w-14 h-14 rounded-xl object-contain shadow-md"
+                            className="w-16 h-16 rounded-2xl object-contain shadow-md"
                           />
                           <span className="font-bold text-[11px] truncate w-full">
                             {av.name}
                           </span>
-                          <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold border ${av.badgeColor}`}>
+                          <span className={`px-2 py-0.5 rounded text-[8px] font-bold border font-mono ${av.badgeColor}`}>
                             {av.game}
                           </span>
                           {isSelected && (
-                            <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-accent text-white flex items-center justify-center text-[10px] font-bold shadow-md">
+                            <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-foreground text-background flex items-center justify-center text-[10px] font-bold shadow-md">
                               ✓
                             </div>
                           )}
@@ -588,7 +524,7 @@ export default function CharityCardProfilePage() {
                     required
                     value={draft.name}
                     onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:border-accent font-semibold"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:border-foreground font-semibold"
                   />
                 </div>
 
@@ -598,7 +534,7 @@ export default function CharityCardProfilePage() {
                     rows={2}
                     value={draft.bio}
                     onChange={(e) => setDraft({ ...draft, bio: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:border-accent"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:border-foreground"
                   />
                 </div>
 
@@ -609,7 +545,7 @@ export default function CharityCardProfilePage() {
                       type="text"
                       value={draft.department}
                       onChange={(e) => setDraft({ ...draft, department: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:border-accent"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:border-foreground"
                     />
                   </div>
                   <div>
@@ -618,7 +554,7 @@ export default function CharityCardProfilePage() {
                       type="text"
                       value={draft.semester}
                       onChange={(e) => setDraft({ ...draft, semester: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:border-accent"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:border-foreground"
                     />
                   </div>
                 </div>
@@ -629,7 +565,7 @@ export default function CharityCardProfilePage() {
                     type="text"
                     value={draft.studentId}
                     onChange={(e) => setDraft({ ...draft, studentId: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:border-accent"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:border-foreground"
                   />
                 </div>
               </div>
@@ -645,7 +581,7 @@ export default function CharityCardProfilePage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 rounded-xl bg-accent text-white font-semibold hover:bg-accent/90 flex items-center gap-1.5 shadow-md shadow-accent/25"
+                  className="px-6 py-2 rounded-xl bg-foreground text-background font-bold hover:opacity-90 flex items-center gap-1.5 shadow-md"
                 >
                   <Check className="w-4 h-4" />
                   <span>Save Profile</span>
