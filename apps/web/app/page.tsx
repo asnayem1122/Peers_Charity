@@ -347,31 +347,31 @@ export default function LandingPage() {
 
         {/* Value Props Cards Grid */}
         <div className="mt-16 sm:mt-20 grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl text-left w-full">
-          <Link href="/pantry" className="p-6 sm:p-7 rounded-3xl glass-panel glass-card-hover group">
+          <Link href="/pantry" className="relative z-10 p-6 sm:p-7 rounded-3xl bg-card border border-border shadow-lg backdrop-blur-2xl hover:border-foreground/40 hover:bg-card-hover hover:-translate-y-1 transition-all duration-300 group">
             <div className="w-12 h-12 rounded-2xl bg-foreground/10 text-foreground flex items-center justify-center mb-5 shadow-sm">
               <BookOpen className="w-6 h-6" />
             </div>
-            <h3 className="text-base sm:text-lg font-bold mb-2 group-hover:text-muted-foreground transition-colors">Academic Pantry</h3>
+            <h3 className="text-base sm:text-lg font-bold text-foreground mb-2 group-hover:text-muted-foreground transition-colors">Academic Pantry</h3>
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
               Courses structured by university, department, and term with real pantry coverage metrics.
             </p>
           </Link>
 
-          <Link href="/bazaar" className="p-6 sm:p-7 rounded-3xl glass-panel glass-card-hover group">
+          <Link href="/bazaar" className="relative z-10 p-6 sm:p-7 rounded-3xl bg-card border border-border shadow-lg backdrop-blur-2xl hover:border-foreground/40 hover:bg-card-hover hover:-translate-y-1 transition-all duration-300 group">
             <div className="w-12 h-12 rounded-2xl bg-foreground/10 text-foreground flex items-center justify-center mb-5 shadow-sm">
               <ShieldCheck className="w-6 h-6" />
             </div>
-            <h3 className="text-base sm:text-lg font-bold mb-2 group-hover:text-muted-foreground transition-colors">Verified Quality Score</h3>
+            <h3 className="text-base sm:text-lg font-bold text-foreground mb-2 group-hover:text-muted-foreground transition-colors">Verified Quality Score</h3>
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
               Bayesian confidence ratings and cryptographic hash deduplication protect against duplicate spam.
             </p>
           </Link>
 
-          <Link href="/leaderboard" className="p-6 sm:p-7 rounded-3xl glass-panel glass-card-hover group">
+          <Link href="/leaderboard" className="relative z-10 p-6 sm:p-7 rounded-3xl bg-card border border-border shadow-lg backdrop-blur-2xl hover:border-foreground/40 hover:bg-card-hover hover:-translate-y-1 transition-all duration-300 group">
             <div className="w-12 h-12 rounded-2xl bg-foreground/10 text-foreground flex items-center justify-center mb-5 shadow-sm">
               <Award className="w-6 h-6" />
             </div>
-            <h3 className="text-base sm:text-lg font-bold mb-2 group-hover:text-muted-foreground transition-colors">Generosity Olympics</h3>
+            <h3 className="text-base sm:text-lg font-bold text-foreground mb-2 group-hover:text-muted-foreground transition-colors">Generosity Olympics</h3>
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
               Earn Charity Points, badges, and recognition as a top benefactor saving peer semesters.
             </p>
