@@ -20,16 +20,6 @@ interface ConstellationGridProps {
 
 export default function ConstellationGrid({ showOverlayTitle = false }: ConstellationGridProps) {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
-
-    // Sync theme preference
-    useEffect(() => {
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        setIsDarkMode(mediaQuery.matches);
-        const handler = (e: MediaQueryListEvent) => setIsDarkMode(e.matches);
-        mediaQuery.addEventListener('change', handler);
-        return () => mediaQuery.removeEventListener('change', handler);
-    }, []);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -115,6 +105,9 @@ export default function ConstellationGrid({ showOverlayTitle = false }: Constell
             const dt = Math.min((now - lastTime) / 1000, 0.05);
             lastTime = now;
 
+            // Check theme dynamically every frame
+            const isDarkMode = document.documentElement.classList.contains('dark');
+
             // Mouse velocity calculation
             mouse.vx = (mouse.x - mouse.prevX) / (dt * 1000 || 1);
             mouse.vy = (mouse.y - mouse.prevY) / (dt * 1000 || 1);
@@ -126,9 +119,10 @@ export default function ConstellationGrid({ showOverlayTitle = false }: Constell
             // Clear canvas for transparent layering
             ctx.clearRect(0, 0, width, height);
 
-            // High-Contrast Monochrome Color Palette
-            const nodeColor = isDarkMode ? '255, 255, 255' : '15, 15, 18';
+            // High-Contrast Monochrome Color Palette per theme
+            const nodeColor = isDarkMode ? '255, 255, 255' : '24, 24, 27';
             const accentColor = isDarkMode ? '255, 255, 255' : '0, 0, 0';
+            const baseConnAlpha = isDarkMode ? 0.35 : 0.45;
 
             // Node Physics Engine (Hooke's Law Spring-Mass-Damping system)
             const SPRING_K = 18;
@@ -182,10 +176,10 @@ export default function ConstellationGrid({ showOverlayTitle = false }: Constell
 
                     if (distSq < MAX_CONN_DIST_SQ) {
                         const nDist = Math.sqrt(distSq);
-                        const alpha = (1 - nDist / MAX_CONN_DIST) * (isDarkMode ? 0.3 : 0.15);
+                        const alpha = (1 - nDist / MAX_CONN_DIST) * baseConnAlpha;
 
                         ctx.strokeStyle = `rgba(${nodeColor}, ${alpha})`;
-                        ctx.lineWidth = 0.8;
+                        ctx.lineWidth = isDarkMode ? 0.8 : 1.0;
                         ctx.beginPath();
                         ctx.moveTo(n.x, n.y);
                         ctx.lineTo(n2.x, n2.y);
@@ -202,7 +196,7 @@ export default function ConstellationGrid({ showOverlayTitle = false }: Constell
                 const dist = Math.sqrt(dx * dx + dy * dy);
                 const isNear = dist < mouse.radius;
 
-                const baseAlpha = isNear ? 0.95 : 0.35 + Math.sin(n.pulse) * 0.15;
+                const baseAlpha = isNear ? 0.95 : (isDarkMode ? 0.35 : 0.6) + Math.sin(n.pulse) * 0.15;
 
                 ctx.fillStyle = isNear
                     ? `rgba(${accentColor}, ${baseAlpha})`
@@ -213,12 +207,12 @@ export default function ConstellationGrid({ showOverlayTitle = false }: Constell
                     : n.radius + Math.sin(n.pulse) * 0.3;
 
                 ctx.beginPath();
-                ctx.arc(n.x, n.y, Math.max(0.8, currentRadius), 0, Math.PI * 2);
+                ctx.arc(n.x, n.y, Math.max(1.0, currentRadius), 0, Math.PI * 2);
                 ctx.fill();
 
                 if (dist < 90) {
                     const pulseRing = ((n.pulse * 20) % 30) + 4;
-                    const ringAlpha = (1 - pulseRing / 34) * 0.5;
+                    const ringAlpha = (1 - pulseRing / 34) * 0.6;
 
                     ctx.strokeStyle = `rgba(${accentColor}, ${ringAlpha})`;
                     ctx.lineWidth = 1;
@@ -243,7 +237,7 @@ export default function ConstellationGrid({ showOverlayTitle = false }: Constell
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseleave', handleMouseLeave);
         };
-    }, [isDarkMode]);
+    }, []);
 
     return (
         <div className="relative w-full h-full min-h-screen overflow-hidden select-none pointer-events-none">

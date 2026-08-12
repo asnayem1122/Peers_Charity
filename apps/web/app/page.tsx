@@ -35,7 +35,7 @@ export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen relative overflow-hidden bg-background font-sans">
       {/* Interactive Constellation Grid Canvas Layer */}
-      <div className="fixed inset-0 z-0 opacity-70 dark:opacity-85 pointer-events-auto">
+      <div className="fixed inset-0 z-0 opacity-85 dark:opacity-85 pointer-events-auto">
         <ConstellationGrid />
       </div>
 
@@ -44,7 +44,7 @@ export default function LandingPage() {
       <div className="fixed bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-foreground/5 rounded-full blur-[160px] pointer-events-none" />
 
       {/* Header Navigation */}
-      <header className="border-b border-border bg-card backdrop-blur-2xl sticky top-0 z-50 transition-all shadow-sm">
+      <header className="border-b border-border bg-card/80 backdrop-blur-2xl sticky top-0 z-50 transition-all shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-foreground text-background flex items-center justify-center font-bold shadow-md shrink-0">
@@ -97,7 +97,7 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <main className="flex-1 flex flex-col justify-center items-center text-center px-4 sm:px-6 py-12 sm:py-24 relative z-10 pointer-events-none">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-border bg-card backdrop-blur-xl text-foreground text-xs font-mono font-semibold mb-6 shadow-sm pointer-events-auto">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-border bg-card/90 backdrop-blur-xl text-foreground text-xs font-mono font-semibold mb-6 shadow-sm pointer-events-auto">
           <Sparkles className="w-3.5 h-3.5 shrink-0" />
           <span className="truncate">Non-monetary Academic Knowledge Sharing</span>
         </div>
