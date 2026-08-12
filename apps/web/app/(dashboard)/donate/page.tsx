@@ -63,7 +63,7 @@ export default function DonateKnowledgePage() {
       {!user && (
         <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-center space-y-2 mb-6">
           <p className="text-sm font-bold text-amber-400">🔒 Sign in required to upload & donate notes</p>
-          <Link href="/login" className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-accent text-white text-xs font-semibold hover:bg-accent/90 transition-all shadow-md shadow-accent/20">
+          <Link href="/login" className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-foreground text-background text-xs font-bold hover:opacity-90 transition-all shadow-md">
             Sign In to Continue
           </Link>
         </div>
@@ -71,11 +71,11 @@ export default function DonateKnowledgePage() {
 
       {/* Page Title & Tagline */}
       <div className="text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-accent/30 bg-accent/10 text-accent text-xs font-semibold mb-3">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-card text-foreground text-xs font-mono font-semibold mb-3">
           <Sparkles className="w-3.5 h-3.5" />
           <span>Earn +10 Charity Points Per Donation</span>
         </div>
-        <h1 className="text-3xl font-extrabold tracking-tight">
+        <h1 className="text-3xl font-black tracking-tight uppercase font-mono">
           {PRODUCT_TERMINOLOGY.upload}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
@@ -84,7 +84,7 @@ export default function DonateKnowledgePage() {
       </div>
 
       {/* Multi-Step Wizard Indicator */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-2 font-mono">
         {[
           { num: 1, label: '01 File' },
           { num: 2, label: '02 Details' },
@@ -95,10 +95,10 @@ export default function DonateKnowledgePage() {
             key={item.num}
             className={`p-3 rounded-xl border text-center transition-all ${
               step === item.num
-                ? 'bg-accent text-white border-accent font-bold shadow-md shadow-accent/20'
+                ? 'bg-foreground text-background border-foreground font-bold shadow-md'
                 : step > item.num
-                ? 'bg-accent/10 text-accent border-accent/30 font-semibold'
-                : 'bg-card border-border/60 text-muted-foreground'
+                ? 'bg-foreground/10 text-foreground border-border font-semibold'
+                : 'bg-card border-border text-muted-foreground'
             }`}
           >
             <span className="text-xs">{item.label}</span>
@@ -108,8 +108,8 @@ export default function DonateKnowledgePage() {
 
       {/* Step 01: File Selection */}
       {step === 1 && (
-        <div className="p-8 rounded-2xl bg-card border border-border/80 shadow-sm space-y-6 text-center">
-          <div className="border-2 border-dashed border-border/80 hover:border-accent/60 rounded-2xl p-10 transition-all cursor-pointer bg-background/50 relative">
+        <div className="p-8 rounded-2xl bg-card border border-border shadow-sm space-y-6 text-center">
+          <div className="border-2 border-dashed border-border hover:border-foreground rounded-2xl p-10 transition-all cursor-pointer bg-background/50 relative">
             <input
               type="file"
               onChange={handleFileDrop}
@@ -117,25 +117,25 @@ export default function DonateKnowledgePage() {
               className="absolute inset-0 opacity-0 cursor-pointer"
             />
             <div className="flex flex-col items-center justify-center space-y-3">
-              <div className="w-14 h-14 rounded-2xl bg-accent/10 text-accent flex items-center justify-center">
+              <div className="w-14 h-14 rounded-2xl bg-foreground/10 text-foreground flex items-center justify-center">
                 <UploadCloud className="w-8 h-8" />
               </div>
-              <h3 className="text-base font-bold">
+              <h3 className="text-base font-bold font-mono">
                 {file ? file.name : 'Drag and drop your academic file here'}
               </h3>
-              <p className="text-xs text-muted-foreground max-w-sm">
+              <p className="text-xs text-muted-foreground max-w-sm font-sans">
                 Supported formats: PDF, DOC, DOCX, PPT, PPTX, PNG, JPG (Max 50MB)
               </p>
             </div>
           </div>
 
           {file && (
-            <div className="p-4 rounded-xl bg-accent/10 border border-accent/30 text-xs text-accent flex items-center justify-between">
+            <div className="p-4 rounded-xl bg-foreground/10 border border-border text-xs text-foreground flex items-center justify-between font-mono">
               <div className="flex items-center gap-2 font-semibold">
                 <FileCheck className="w-4 h-4" />
                 <span>{file.name} ({(file.size / (1024 * 1024)).toFixed(2)} MB)</span>
               </div>
-              <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-accent text-white">
+              <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-foreground text-background">
                 Ready
               </span>
             </div>
@@ -145,7 +145,7 @@ export default function DonateKnowledgePage() {
             <button
               disabled={!file}
               onClick={handleNext}
-              className="px-6 py-3 bg-accent text-white font-semibold rounded-xl hover:bg-accent/90 transition-all shadow-md shadow-accent/20 flex items-center gap-2 text-sm disabled:opacity-40"
+              className="px-6 py-3 bg-foreground text-background font-bold rounded-xl hover:opacity-90 transition-all shadow-md flex items-center gap-2 text-sm disabled:opacity-40"
             >
               <span>Next: Details</span>
               <ArrowRight className="w-4 h-4" />
@@ -156,9 +156,9 @@ export default function DonateKnowledgePage() {
 
       {/* Step 02: Metadata Tagging */}
       {step === 2 && (
-        <div className="p-8 rounded-2xl bg-card border border-border/80 shadow-sm space-y-5">
+        <div className="p-8 rounded-2xl bg-card border border-border shadow-sm space-y-5">
           <div>
-            <label className="block text-xs font-semibold uppercase text-muted-foreground mb-1.5">
+            <label className="block text-xs font-bold uppercase text-muted-foreground mb-1.5 font-mono">
               Resource Title
             </label>
             <input
@@ -167,31 +167,31 @@ export default function DonateKnowledgePage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Dynamic Programming Survival Notes"
-              className="w-full px-4 py-2.5 rounded-xl border border-border bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+              className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm focus:outline-none focus:border-foreground"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase text-muted-foreground mb-1.5">
+              <label className="block text-xs font-bold uppercase text-muted-foreground mb-1.5 font-mono">
                 Course Code
               </label>
               <input
                 type="text"
                 value={courseCode}
                 onChange={(e) => setCourseCode(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-border bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm focus:outline-none focus:border-foreground font-semibold"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase text-muted-foreground mb-1.5">
+              <label className="block text-xs font-bold uppercase text-muted-foreground mb-1.5 font-mono">
                 Resource Type
               </label>
               <select
                 value={resourceType}
                 onChange={(e) => setResourceType(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-border bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm focus:outline-none focus:border-foreground font-semibold"
               >
                 <option value="Lecture Notes">Lecture Notes</option>
                 <option value="Class Notes">Class Notes</option>
@@ -204,7 +204,7 @@ export default function DonateKnowledgePage() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase text-muted-foreground mb-1.5">
+            <label className="block text-xs font-bold uppercase text-muted-foreground mb-1.5 font-mono">
               Topics / Tags (comma separated)
             </label>
             <input
@@ -212,14 +212,14 @@ export default function DonateKnowledgePage() {
               value={topics}
               onChange={(e) => setTopics(e.target.value)}
               placeholder="Dynamic Programming, Graphs, Memoization"
-              className="w-full px-4 py-2.5 rounded-xl border border-border bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+              className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm focus:outline-none focus:border-foreground"
             />
           </div>
 
           <div className="flex justify-between pt-4">
             <button
               onClick={handleBack}
-              className="px-5 py-2.5 rounded-xl border border-border hover:bg-card-hover text-sm font-semibold flex items-center gap-2"
+              className="px-5 py-2.5 rounded-xl border border-border hover:bg-card-hover text-sm font-bold flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back</span>
@@ -227,7 +227,7 @@ export default function DonateKnowledgePage() {
             <button
               disabled={!title}
               onClick={handleNext}
-              className="px-6 py-2.5 bg-accent text-white font-semibold rounded-xl hover:bg-accent/90 transition-all shadow-md shadow-accent/20 flex items-center gap-2 text-sm disabled:opacity-40"
+              className="px-6 py-2.5 bg-foreground text-background font-bold rounded-xl hover:opacity-90 transition-all shadow-md flex items-center gap-2 text-sm disabled:opacity-40"
             >
               <span>Next: Review</span>
               <ArrowRight className="w-4 h-4" />
@@ -238,32 +238,32 @@ export default function DonateKnowledgePage() {
 
       {/* Step 03: Review & Hash Duplicate Check */}
       {step === 3 && (
-        <div className="p-8 rounded-2xl bg-card border border-border/80 shadow-sm space-y-6">
-          <h3 className="text-lg font-bold">Review Your Donation</h3>
+        <div className="p-8 rounded-2xl bg-card border border-border shadow-sm space-y-6">
+          <h3 className="text-lg font-bold font-mono">Review Your Donation</h3>
 
-          <div className="space-y-3 text-xs bg-background/50 p-4 rounded-xl border border-border">
-            <div className="flex justify-between py-1 border-b border-border/40">
+          <div className="space-y-3 text-xs bg-background p-4 rounded-xl border border-border font-mono">
+            <div className="flex justify-between py-1 border-b border-border">
               <span className="text-muted-foreground">Title:</span>
               <span className="font-bold">{title}</span>
             </div>
-            <div className="flex justify-between py-1 border-b border-border/40">
+            <div className="flex justify-between py-1 border-b border-border">
               <span className="text-muted-foreground">Course:</span>
               <span className="font-semibold">{courseCode}</span>
             </div>
-            <div className="flex justify-between py-1 border-b border-border/40">
+            <div className="flex justify-between py-1 border-b border-border">
               <span className="text-muted-foreground">Type:</span>
               <span className="font-semibold">{resourceType}</span>
             </div>
             <div className="flex justify-between py-1">
               <span className="text-muted-foreground">File:</span>
-              <span className="font-mono text-accent">{file?.name}</span>
+              <span className="font-mono text-foreground font-bold">{file?.name}</span>
             </div>
           </div>
 
           <div className="flex justify-between pt-4">
             <button
               onClick={handleBack}
-              className="px-5 py-2.5 rounded-xl border border-border hover:bg-card-hover text-sm font-semibold flex items-center gap-2"
+              className="px-5 py-2.5 rounded-xl border border-border hover:bg-card-hover text-sm font-bold flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back</span>
@@ -271,7 +271,7 @@ export default function DonateKnowledgePage() {
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="px-8 py-3 bg-accent text-white font-semibold rounded-xl hover:bg-accent/90 transition-all shadow-lg shadow-accent/25 flex items-center gap-2 text-sm disabled:opacity-50"
+              className="px-8 py-3 bg-foreground text-background font-bold rounded-xl hover:opacity-90 transition-all shadow-md flex items-center gap-2 text-sm disabled:opacity-50"
             >
               {loading ? (
                 <>
@@ -291,12 +291,12 @@ export default function DonateKnowledgePage() {
 
       {/* Step 04: Completion Success */}
       {step === 4 && (
-        <div className="p-10 rounded-2xl bg-card border border-border/80 shadow-2xl text-center space-y-6">
+        <div className="p-10 rounded-2xl bg-card border border-border shadow-2xl text-center space-y-6">
           <div className="w-16 h-16 rounded-full bg-success/10 text-success flex items-center justify-center mx-auto">
             <CheckCircle2 className="w-10 h-10" />
           </div>
 
-          <h2 className="text-2xl font-extrabold">Donation Published!</h2>
+          <h2 className="text-2xl font-black font-mono">Donation Published!</h2>
           <p className="text-sm text-muted-foreground max-w-md mx-auto">
             Your notes have been published to the Charity Bazaar. You just earned{' '}
             <span className="font-bold text-amber-400">+10 Charity Points</span>!
@@ -305,7 +305,7 @@ export default function DonateKnowledgePage() {
           <div className="flex justify-center gap-4 pt-4">
             <button
               onClick={() => router.push('/hq')}
-              className="px-6 py-2.5 bg-accent text-white font-semibold rounded-xl hover:bg-accent/90 transition-all shadow-md shadow-accent/20 text-sm"
+              className="px-6 py-2.5 bg-foreground text-background font-bold rounded-xl hover:opacity-90 transition-all shadow-md text-sm"
             >
               Back to Charity HQ
             </button>

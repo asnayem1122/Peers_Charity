@@ -41,21 +41,21 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center px-4 py-12 bg-background text-foreground relative overflow-hidden">
+    <div className="min-h-screen flex flex-col justify-center items-center px-4 py-12 bg-background text-foreground relative overflow-hidden font-sans">
       <div className="w-full max-w-md bg-card border border-border rounded-3xl p-8 shadow-2xl relative z-10">
         <div className="flex flex-col items-center text-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-accent flex items-center justify-center text-white mb-3 shadow-lg shadow-accent/30">
+          <div className="w-14 h-14 rounded-2xl bg-foreground text-background flex items-center justify-center font-bold mb-3 shadow-lg">
             <HeartHandshake className="w-8 h-8" />
           </div>
-          <h1 className="text-2xl font-extrabold tracking-tight">Welcome Back, Benefactor</h1>
+          <h1 className="text-2xl font-black tracking-tight font-mono uppercase">Welcome Back, Benefactor</h1>
           <p className="text-xs text-muted-foreground mt-1">
             "Ready to perform some academic charity?"
           </p>
         </div>
 
         {/* Demo Credentials Helper */}
-        <div className="mb-6 p-3 rounded-xl bg-accent/10 border border-accent/30 text-xs space-y-1">
-          <p className="font-bold text-accent">Demo Accounts:</p>
+        <div className="mb-6 p-3.5 rounded-xl bg-muted border border-border text-xs space-y-1 font-mono">
+          <p className="font-bold text-foreground">Demo Accounts:</p>
           <p className="text-muted-foreground">
             <span className="font-semibold text-foreground">Student:</span> nayem@student.university.edu / password123
           </p>
@@ -76,7 +76,7 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5 font-mono">
               University Email
             </label>
             <div className="relative">
@@ -87,17 +87,17 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="nayem@student.university.edu"
-                className="w-full pl-10 pr-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/40 font-medium transition-all"
+                className="w-full pl-10 pr-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:border-foreground font-medium transition-all"
               />
             </div>
           </div>
 
           <div>
-            <div className="flex justify-between items-center mb-1.5">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <div className="flex justify-between items-center mb-1.5 font-mono">
+              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 Password
               </label>
-              <Link href="#" className="text-xs text-accent hover:underline font-semibold">
+              <Link href="#" className="text-xs text-foreground hover:underline font-bold">
                 Forgot password?
               </Link>
             </div>
@@ -109,7 +109,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-11 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/40 font-medium transition-all"
+                className="w-full pl-10 pr-11 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:border-foreground font-medium transition-all"
               />
               <button
                 type="button"
@@ -125,7 +125,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 bg-accent text-white font-semibold rounded-xl hover:bg-accent/90 transition-all shadow-lg shadow-accent/25 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+            className="w-full py-3.5 bg-foreground text-background font-bold rounded-xl hover:opacity-90 transition-all shadow-lg flex items-center justify-center gap-2 text-sm disabled:opacity-50"
           >
             {loading ? (
               <>
@@ -143,7 +143,7 @@ export default function LoginPage() {
 
         <div className="mt-8 text-center text-xs text-muted-foreground">
           New to Peer's Charity?{' '}
-          <Link href="/register" className="font-semibold text-accent hover:underline">
+          <Link href="/register" className="font-bold text-foreground hover:underline">
             Register as a Benefactor
           </Link>
         </div>
