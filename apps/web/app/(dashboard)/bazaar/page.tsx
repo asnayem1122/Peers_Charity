@@ -24,10 +24,10 @@ export default function CharityBazaarPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight">
+          <h1 className="text-2xl font-black tracking-tight font-mono uppercase">
             {PRODUCT_TERMINOLOGY.discovery}
           </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
+          <p className="text-sm text-muted-foreground mt-0.5 font-sans">
             Discover, evaluate, and download verified academic donations.
           </p>
         </div>
@@ -37,8 +37,10 @@ export default function CharityBazaarPage() {
           <div className="flex items-center gap-1 bg-card border border-border p-1 rounded-xl">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-                viewMode === 'grid' ? 'bg-accent text-white' : 'text-muted-foreground hover:text-foreground'
+              className={`p-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
+                viewMode === 'grid'
+                  ? 'bg-foreground text-background shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               <Grid className="w-4 h-4" />
@@ -46,8 +48,10 @@ export default function CharityBazaarPage() {
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-                viewMode === 'list' ? 'bg-accent text-white' : 'text-muted-foreground hover:text-foreground'
+              className={`p-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
+                viewMode === 'list'
+                  ? 'bg-foreground text-background shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               <List className="w-4 h-4" />
@@ -57,7 +61,7 @@ export default function CharityBazaarPage() {
 
           <Link
             href="/donate"
-            className="px-4 py-2 rounded-xl bg-accent text-white font-semibold text-xs hover:bg-accent/90 transition-all flex items-center gap-1.5 shadow-md shadow-accent/20"
+            className="px-4 py-2 rounded-xl bg-foreground text-background font-bold text-xs hover:opacity-90 transition-all flex items-center gap-1.5 shadow-md"
           >
             <PlusCircle className="w-4 h-4" />
             <span>Donate Knowledge</span>
@@ -66,7 +70,7 @@ export default function CharityBazaarPage() {
       </div>
 
       {/* Search & Filters Bar */}
-      <div className="p-4 rounded-2xl bg-card border border-border/80 shadow-sm flex flex-col md:flex-row gap-3 items-center">
+      <div className="p-4 rounded-2xl bg-card border border-border shadow-sm flex flex-col md:flex-row gap-3 items-center">
         <div className="relative flex-1 w-full">
           <Search className="w-4 h-4 absolute left-3.5 top-3.5 text-muted-foreground" />
           <input
@@ -74,7 +78,7 @@ export default function CharityBazaarPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search your academic treasure..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm focus:outline-none focus:border-foreground"
           />
         </div>
 
@@ -82,7 +86,7 @@ export default function CharityBazaarPage() {
           <select
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
-            className="px-3 py-2.5 rounded-xl border border-border bg-background/50 text-xs focus:outline-none focus:ring-2 focus:ring-accent"
+            className="px-3 py-2.5 rounded-xl border border-border bg-background text-foreground text-xs focus:outline-none focus:border-foreground font-semibold"
           >
             <option value="ALL">All Resource Types</option>
             <option value="Lecture Notes">Lecture Notes</option>
@@ -91,7 +95,7 @@ export default function CharityBazaarPage() {
             <option value="Cheat Sheets">Cheat Sheets</option>
           </select>
 
-          <select className="px-3 py-2.5 rounded-xl border border-border bg-background/50 text-xs focus:outline-none focus:ring-2 focus:ring-accent">
+          <select className="px-3 py-2.5 rounded-xl border border-border bg-background text-foreground text-xs focus:outline-none focus:border-foreground font-semibold">
             <option value="quality">Sort: Quality Score</option>
             <option value="rating">Sort: Highest Rated</option>
             <option value="downloads">Sort: Most Downloaded</option>
@@ -102,17 +106,17 @@ export default function CharityBazaarPage() {
 
       {/* Fresh Empty State */}
       {resources.length === 0 ? (
-        <div className="p-12 rounded-2xl bg-card border border-border/80 text-center space-y-4 flex flex-col items-center justify-center min-h-[350px]">
-          <div className="w-16 h-16 rounded-2xl bg-accent/10 text-accent flex items-center justify-center">
+        <div className="p-12 rounded-2xl bg-card border border-border text-center space-y-4 flex flex-col items-center justify-center min-h-[350px]">
+          <div className="w-16 h-16 rounded-2xl bg-foreground/10 text-foreground flex items-center justify-center">
             <Compass className="w-8 h-8" />
           </div>
-          <h3 className="text-xl font-bold">The Charity Bazaar is Fresh & Empty</h3>
+          <h3 className="text-xl font-bold font-mono">The Charity Bazaar is Fresh & Empty</h3>
           <p className="text-xs text-muted-foreground max-w-sm">
             "No academic notes have been uploaded yet. Be the first benefactor to share your lecture notes or exam questions!"
           </p>
           <Link
             href="/donate"
-            className="px-6 py-2.5 rounded-xl bg-accent text-white font-semibold text-xs hover:bg-accent/90 transition-all shadow-md shadow-accent/20 flex items-center gap-2 mt-2"
+            className="px-6 py-2.5 rounded-xl bg-foreground text-background font-bold text-xs hover:opacity-90 transition-all shadow-md flex items-center gap-2 mt-2"
           >
             <PlusCircle className="w-4 h-4" />
             <span>Donate Knowledge Now</span>
