@@ -87,8 +87,9 @@ export default function MyTreasurePage() {
 
               <div className="flex items-center gap-2">
                 <Link
-                  href={`/resources/${item.id}`}
+                  href="/bazaar"
                   className="p-2 rounded-lg bg-foreground/10 text-foreground hover:bg-foreground/20 text-xs font-semibold"
+                  title="View in Bazaar"
                 >
                   <Eye className="w-4 h-4" />
                 </Link>
