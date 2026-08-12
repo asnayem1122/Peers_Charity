@@ -16,6 +16,10 @@ import {
   User,
   LayoutDashboard,
   PlusCircle,
+  Menu,
+  X,
+  Compass,
+  Flame,
 } from 'lucide-react';
 import ConstellationGrid from '@/components/ui/constellation-grid';
 import { useAuth } from '@/lib/auth-context';
@@ -25,6 +29,7 @@ export default function LandingPage() {
   const { user, logout } = useAuth();
   const [isDark, setIsDark] = useState(true);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
 
   // Initialize theme from localStorage or default to dark
@@ -64,10 +69,10 @@ export default function LandingPage() {
 
   const handleLogout = () => {
     setIsProfileOpen(false);
+    setIsMobileMenuOpen(false);
     logout();
   };
 
-  // Get user initials for avatar fallback
   const initials = user?.name
     ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
     : '??';
@@ -84,7 +89,7 @@ export default function LandingPage() {
       <div className="fixed bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-foreground/5 rounded-full blur-[160px] pointer-events-none" />
 
       {/* Header Navigation */}
-      <header className="border-b border-border bg-card/80 backdrop-blur-2xl sticky top-0 z-50 transition-all shadow-sm">
+      <header className="border-b border-border bg-card/90 backdrop-blur-2xl sticky top-0 z-50 transition-all shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-foreground text-background flex items-center justify-center font-bold shadow-md shrink-0">
@@ -100,8 +105,8 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Public Navigation Links */}
-          <nav className="hidden md:flex items-center gap-6 text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground">
+          {/* Desktop Navigation Links */}
+          <nav className="hidden md:flex items-center gap-6 text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">
             <Link href="/hq" className="hover:text-foreground transition-colors">HQ</Link>
             <Link href="/bazaar" className="hover:text-foreground transition-colors">Bazaar</Link>
             <Link href="/pantry" className="hover:text-foreground transition-colors">Pantry</Link>
@@ -119,81 +124,178 @@ export default function LandingPage() {
               {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-foreground" />}
             </button>
 
-            {/* Dynamic Auth Header: Displays Profile / HQ button if logged in, or Sign In / Register if guest */}
-            {user ? (
-              <div className="flex items-center gap-3">
-                <Link
-                  href="/hq"
-                  className="px-3.5 py-2 text-xs sm:text-sm font-bold bg-foreground text-background rounded-xl hover:opacity-90 transition-all shadow-md flex items-center gap-1.5 font-mono"
-                >
-                  <LayoutDashboard className="w-4 h-4" />
-                  <span className="hidden sm:inline">Enter HQ</span>
-                </Link>
-
-                <div className="relative" ref={profileRef}>
-                  <button
-                    onClick={() => setIsProfileOpen(!isProfileOpen)}
-                    className="flex items-center gap-2 p-1 rounded-xl hover:bg-card-hover transition-all"
+            {/* Desktop Auth Controls */}
+            <div className="hidden sm:flex items-center gap-3">
+              {user ? (
+                <div className="flex items-center gap-3">
+                  <Link
+                    href="/hq"
+                    className="px-3.5 py-2 text-xs sm:text-sm font-bold bg-foreground text-background rounded-xl hover:opacity-90 transition-all shadow-md flex items-center gap-1.5 font-mono"
                   >
-                    {user.avatarUrl ? (
-                      <img
-                        src={user.avatarUrl}
-                        alt={user.name}
-                        className="w-8 h-8 rounded-xl object-cover ring-2 ring-foreground/20"
-                      />
-                    ) : (
-                      <div className="w-8 h-8 rounded-xl bg-foreground text-background flex items-center justify-center text-xs font-bold font-mono">
-                        {initials}
+                    <LayoutDashboard className="w-4 h-4" />
+                    <span>Enter HQ</span>
+                  </Link>
+
+                  <div className="relative" ref={profileRef}>
+                    <button
+                      onClick={() => setIsProfileOpen(!isProfileOpen)}
+                      className="flex items-center gap-2 p-1 rounded-xl hover:bg-card-hover transition-all"
+                    >
+                      {user.avatarUrl ? (
+                        <img
+                          src={user.avatarUrl}
+                          alt={user.name}
+                          className="w-8 h-8 rounded-xl object-cover ring-2 ring-foreground/20"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-xl bg-foreground text-background flex items-center justify-center text-xs font-bold font-mono">
+                          {initials}
+                        </div>
+                      )}
+                    </button>
+
+                    {isProfileOpen && (
+                      <div className="absolute right-0 top-full mt-2 w-52 rounded-2xl glass-panel shadow-2xl z-50 overflow-hidden text-left">
+                        <div className="p-3 border-b border-border">
+                          <span className="block text-xs font-bold">{user.name}</span>
+                          <span className="block text-[10px] text-muted-foreground truncate">{user.email}</span>
+                        </div>
+                        <div className="p-1.5 space-y-1 font-mono">
+                          <Link
+                            href="/profile"
+                            onClick={() => setIsProfileOpen(false)}
+                            className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold hover:bg-card-hover"
+                          >
+                            <User className="w-4 h-4" />
+                            <span>My Charity Card</span>
+                          </Link>
+                          <button
+                            onClick={handleLogout}
+                            className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-red-400 hover:bg-red-500/10"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            <span>Sign Out</span>
+                          </button>
+                        </div>
                       </div>
                     )}
-                  </button>
-
-                  {/* Profile Dropdown */}
-                  {isProfileOpen && (
-                    <div className="absolute right-0 top-full mt-2 w-52 rounded-2xl glass-panel shadow-2xl z-50 overflow-hidden text-left">
-                      <div className="p-3 border-b border-border">
-                        <span className="block text-xs font-bold">{user.name}</span>
-                        <span className="block text-[10px] text-muted-foreground truncate">{user.email}</span>
-                      </div>
-                      <div className="p-1.5 space-y-1">
-                        <Link
-                          href="/profile"
-                          onClick={() => setIsProfileOpen(false)}
-                          className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold hover:bg-card-hover"
-                        >
-                          <User className="w-4 h-4" />
-                          <span>My Charity Card</span>
-                        </Link>
-                        <button
-                          onClick={handleLogout}
-                          className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-red-400 hover:bg-red-500/10"
-                        >
-                          <LogOut className="w-4 h-4" />
-                          <span>Sign Out</span>
-                        </button>
-                      </div>
-                    </div>
-                  )}
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 sm:gap-4">
-                <Link
-                  href="/login"
-                  className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  href="/register"
-                  className="px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold bg-foreground text-background rounded-xl hover:opacity-90 transition-all shadow-md"
-                >
-                  Get Started
-                </Link>
-              </div>
-            )}
+              ) : (
+                <div className="flex items-center gap-3 font-mono">
+                  <Link
+                    href="/login"
+                    className="px-4 py-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="px-4 py-2 text-xs font-bold bg-foreground text-background rounded-xl hover:opacity-90 transition-all shadow-md"
+                  >
+                    Get Started
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Mobile Hamburger Menu Button (Visible on Phones < md) */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 rounded-xl border border-border bg-card text-foreground hover:bg-card-hover transition-all"
+              aria-label="Toggle mobile menu"
+            >
+              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Dropdown Menu Panel (Appears on Mobile when Hamburger is tapped) */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t border-border bg-card/95 backdrop-blur-2xl px-4 py-4 space-y-3 font-mono text-sm animate-in slide-in-from-top-2 duration-200 shadow-2xl">
+            <div className="grid grid-cols-2 gap-2 text-xs font-bold uppercase tracking-wider">
+              <Link
+                href="/hq"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-3 rounded-xl bg-background border border-border flex items-center gap-2 text-foreground"
+              >
+                <LayoutDashboard className="w-4 h-4" />
+                <span>HQ</span>
+              </Link>
+              <Link
+                href="/bazaar"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-3 rounded-xl bg-background border border-border flex items-center gap-2 text-foreground"
+              >
+                <Compass className="w-4 h-4" />
+                <span>Bazaar</span>
+              </Link>
+              <Link
+                href="/pantry"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-3 rounded-xl bg-background border border-border flex items-center gap-2 text-foreground"
+              >
+                <BookOpen className="w-4 h-4" />
+                <span>Pantry</span>
+              </Link>
+              <Link
+                href="/exam"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-3 rounded-xl bg-background border border-border flex items-center gap-2 text-foreground"
+              >
+                <Flame className="w-4 h-4" />
+                <span>Exam Room</span>
+              </Link>
+              <Link
+                href="/leaderboard"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-3 rounded-xl bg-background border border-border flex items-center gap-2 text-foreground col-span-2"
+              >
+                <Award className="w-4 h-4 text-amber-400" />
+                <span>Generosity Leaderboard</span>
+              </Link>
+            </div>
+
+            <div className="pt-2 border-t border-border flex flex-col gap-2">
+              {user ? (
+                <>
+                  <Link
+                    href="/profile"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full py-3 rounded-xl bg-foreground text-background font-bold text-center text-xs shadow-md flex items-center justify-center gap-2"
+                  >
+                    <User className="w-4 h-4" />
+                    <span>My Charity Card ({user.name})</span>
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full py-2.5 rounded-xl border border-red-500/30 text-red-400 font-bold text-xs hover:bg-red-500/10 transition-all flex items-center justify-center gap-2"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Sign Out</span>
+                  </button>
+                </>
+              ) : (
+                <div className="flex gap-2">
+                  <Link
+                    href="/login"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex-1 py-3 rounded-xl border border-border text-center font-bold text-xs hover:bg-card-hover"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/register"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex-1 py-3 rounded-xl bg-foreground text-background font-bold text-center text-xs shadow-md"
+                  >
+                    Get Started
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Hero Section */}

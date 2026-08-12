@@ -17,11 +17,11 @@ import {
   ChevronDown,
   CheckCheck,
   Trophy,
-  Award,
   ShieldCheck,
   FileText,
   X,
   LogIn,
+  HeartHandshake,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 
@@ -132,23 +132,32 @@ export default function Topbar() {
     setUnreadCount((prev) => Math.max(0, prev - 1));
   };
 
-  // Get user initials for avatar fallback
   const initials = user?.name
     ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
     : '??';
 
   return (
     <>
-      <header className="h-16 border-b border-border bg-card/80 backdrop-blur-md px-4 sm:px-8 flex items-center justify-between sticky top-0 z-40">
+      <header className="h-16 border-b border-border bg-card/90 backdrop-blur-2xl px-3 sm:px-8 flex items-center justify-between sticky top-0 z-40 gap-2">
+        {/* Mobile Brand Logo (Visible only on mobile devices where sidebar is hidden) */}
+        <Link href="/" className="md:hidden flex items-center gap-2 shrink-0">
+          <div className="w-8 h-8 rounded-xl bg-foreground text-background flex items-center justify-center font-bold shadow-md">
+            <HeartHandshake className="w-4 h-4" />
+          </div>
+          <span className="font-mono font-black text-xs tracking-tighter text-foreground uppercase hidden sm:inline">
+            PEER'S
+          </span>
+        </Link>
+
         {/* Global Search Bar (Cmd+K trigger) */}
-        <div className="flex-1 max-w-md">
+        <div className="flex-1 max-w-md min-w-0">
           <button
             onClick={() => setIsCmdOpen(true)}
-            className="w-full flex items-center justify-between px-3.5 py-2 rounded-xl bg-background border border-border text-xs text-muted-foreground hover:border-foreground/50 transition-all group font-mono"
+            className="w-full flex items-center justify-between px-3 py-1.5 sm:py-2 rounded-xl bg-background border border-border text-xs text-muted-foreground hover:border-foreground/50 transition-all group font-mono"
           >
-            <div className="flex items-center gap-2">
-              <Search className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
-              <span>Search your academic treasure...</span>
+            <div className="flex items-center gap-2 min-w-0 truncate">
+              <Search className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors shrink-0" />
+              <span className="truncate">Search notes...</span>
             </div>
             <kbd className="hidden sm:inline-flex items-center gap-0.5 px-2 py-0.5 rounded bg-muted border border-border text-[10px] font-mono text-muted-foreground">
               <Command className="w-3 h-3" /> K
@@ -157,7 +166,7 @@ export default function Topbar() {
         </div>
 
         {/* Topbar Actions */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <Link
             href={user ? '/donate' : '/login'}
             className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-foreground text-background font-bold text-xs hover:opacity-90 transition-all shadow-md font-mono"
@@ -175,12 +184,12 @@ export default function Topbar() {
             {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-foreground" />}
           </button>
 
-          {/* Interactive Notifications Bell Dropdown */}
+          {/* Notifications Bell */}
           <div className="relative" ref={notifRef}>
             <button
               onClick={() => setIsNotifOpen(!isNotifOpen)}
               className="p-2 rounded-xl border border-border bg-background hover:bg-card-hover text-muted-foreground hover:text-foreground transition-all relative"
-              title="Charity Bells & Notifications"
+              title="Notifications"
             >
               <Bell className="w-4 h-4" />
               {unreadCount > 0 && (
@@ -193,7 +202,6 @@ export default function Topbar() {
             {/* Notification Dropdown Panel */}
             {isNotifOpen && (
               <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 rounded-2xl glass-panel shadow-2xl z-50 overflow-hidden text-left font-sans">
-                {/* Header */}
                 <div className="p-4 border-b border-border flex items-center justify-between">
                   <div className="flex items-center gap-2 font-mono">
                     <Bell className="w-4 h-4 text-foreground" />
@@ -216,7 +224,6 @@ export default function Topbar() {
                   )}
                 </div>
 
-                {/* Notifications List */}
                 <div className="max-h-72 overflow-y-auto divide-y divide-border/40 p-1">
                   {notifications.length === 0 ? (
                     <div className="p-6 text-center text-xs text-muted-foreground font-mono">
@@ -257,7 +264,6 @@ export default function Topbar() {
                   )}
                 </div>
 
-                {/* Footer */}
                 <div className="p-2.5 border-t border-border bg-muted/30 text-center font-mono">
                   <Link
                     href="/hq"
@@ -276,7 +282,7 @@ export default function Topbar() {
             <div className="relative" ref={profileRef}>
               <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-xl hover:bg-card-hover transition-all"
+                className="flex items-center gap-2 pl-1.5 pr-1 py-1 rounded-xl hover:bg-card-hover transition-all"
               >
                 {user.avatarUrl ? (
                   <img
@@ -296,10 +302,8 @@ export default function Topbar() {
                 <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
               </button>
 
-              {/* Dropdown Menu */}
               {isProfileOpen && (
                 <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl glass-panel shadow-2xl z-50 overflow-hidden font-sans">
-                  {/* User Info Header */}
                   <div className="p-4 border-b border-border flex items-center gap-3">
                     {user.avatarUrl ? (
                       <img
@@ -318,7 +322,6 @@ export default function Topbar() {
                     </div>
                   </div>
 
-                  {/* Menu Items */}
                   <div className="p-1.5 space-y-1 font-mono">
                     <Link
                       href="/profile"
@@ -338,7 +341,6 @@ export default function Topbar() {
                     </Link>
                   </div>
 
-                  {/* Logout */}
                   <div className="p-1.5 border-t border-border">
                     <button
                       onClick={handleLogout}
@@ -354,7 +356,7 @@ export default function Topbar() {
           ) : (
             <Link
               href="/login"
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-foreground text-background font-bold text-xs hover:opacity-90 transition-all shadow-md font-mono"
+              className="flex items-center gap-1 px-3 sm:px-4 py-2 rounded-xl bg-foreground text-background font-bold text-xs hover:opacity-90 transition-all shadow-md font-mono"
             >
               <LogIn className="w-4 h-4" />
               <span>Sign In</span>

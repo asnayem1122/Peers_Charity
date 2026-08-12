@@ -1,7 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import Sidebar from '@/components/layout/Sidebar';
 import Topbar from '@/components/layout/Topbar';
@@ -13,34 +11,15 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, isLoading } = useAuth();
-  const router = useRouter();
+  const { isLoading } = useAuth();
 
-  useEffect(() => {
-    if (!isLoading && !user) {
-      router.push('/login');
-    }
-  }, [user, isLoading, router]);
-
-  // Show loading spinner while checking auth
+  // Show loading spinner while checking auth status
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex min-h-screen items-center justify-center bg-background text-foreground font-mono">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-accent" />
-          <span className="text-sm text-muted-foreground font-medium">Loading...</span>
-        </div>
-      </div>
-    );
-  }
-
-  // Redirect if not logged in
-  if (!user) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-accent" />
-          <span className="text-sm text-muted-foreground font-medium">Redirecting to login...</span>
+          <Loader2 className="w-8 h-8 animate-spin text-foreground" />
+          <span className="text-sm text-muted-foreground font-bold">Loading Academic HQ...</span>
         </div>
       </div>
     );
