@@ -34,8 +34,8 @@ export default function LandingPage() {
 
   return (
     <div className="flex flex-col min-h-screen relative overflow-hidden bg-background">
-      {/* Interactive Constellation Grid Canvas Background */}
-      <div className="absolute inset-0 z-0 opacity-50 dark:opacity-60 pointer-events-auto">
+      {/* Interactive Constellation Grid Canvas Layer */}
+      <div className="fixed inset-0 z-0 opacity-75 dark:opacity-85 pointer-events-auto">
         <ConstellationGrid />
       </div>
 
