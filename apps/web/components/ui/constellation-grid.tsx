@@ -50,7 +50,7 @@ export default function ConstellationGrid({ showOverlayTitle = false }: Constell
             prevY: -1000,
             vx: 0,
             vy: 0,
-            radius: 220,
+            radius: 240,
         };
 
         let nodes: Node[] = [];
@@ -126,8 +126,9 @@ export default function ConstellationGrid({ showOverlayTitle = false }: Constell
             // Clear canvas for transparent layering
             ctx.clearRect(0, 0, width, height);
 
-            const nodeColor = isDarkMode ? '20, 184, 166' : '13, 148, 136'; // Cyan / Teal Accent
-            const accentColor = isDarkMode ? '45, 212, 191' : '15, 118, 110';
+            // High-Contrast Monochrome Color Palette
+            const nodeColor = isDarkMode ? '255, 255, 255' : '15, 15, 18';
+            const accentColor = isDarkMode ? '255, 255, 255' : '0, 0, 0';
 
             // Node Physics Engine (Hooke's Law Spring-Mass-Damping system)
             const SPRING_K = 18;
@@ -145,7 +146,7 @@ export default function ConstellationGrid({ showOverlayTitle = false }: Constell
                 // Dynamic shockwave repulsion based on cursor speed
                 if (dist < mouse.radius && dist > 0) {
                     const power = (1 - dist / mouse.radius);
-                    const force = power * (1500 + speed * 150);
+                    const force = power * (1600 + speed * 160);
                     const angle = Math.atan2(dy, dx);
 
                     n.vx -= Math.cos(angle) * force * dt;
@@ -181,7 +182,7 @@ export default function ConstellationGrid({ showOverlayTitle = false }: Constell
 
                     if (distSq < MAX_CONN_DIST_SQ) {
                         const nDist = Math.sqrt(distSq);
-                        const alpha = (1 - nDist / MAX_CONN_DIST) * (isDarkMode ? 0.35 : 0.2);
+                        const alpha = (1 - nDist / MAX_CONN_DIST) * (isDarkMode ? 0.3 : 0.15);
 
                         ctx.strokeStyle = `rgba(${nodeColor}, ${alpha})`;
                         ctx.lineWidth = 0.8;
@@ -201,7 +202,7 @@ export default function ConstellationGrid({ showOverlayTitle = false }: Constell
                 const dist = Math.sqrt(dx * dx + dy * dy);
                 const isNear = dist < mouse.radius;
 
-                const baseAlpha = isNear ? 0.95 : 0.4 + Math.sin(n.pulse) * 0.15;
+                const baseAlpha = isNear ? 0.95 : 0.35 + Math.sin(n.pulse) * 0.15;
 
                 ctx.fillStyle = isNear
                     ? `rgba(${accentColor}, ${baseAlpha})`
@@ -225,7 +226,7 @@ export default function ConstellationGrid({ showOverlayTitle = false }: Constell
                     ctx.arc(n.x, n.y, pulseRing, 0, Math.PI * 2);
                     ctx.stroke();
 
-                    ctx.font = '8px ui-monospace, SFMono-Regular, Consolas, monospace';
+                    ctx.font = '8px "Geist Mono", SFMono-Regular, Consolas, monospace';
                     ctx.fillStyle = `rgba(${accentColor}, 0.9)`;
                     ctx.fillText(n.label, n.x + 10, n.y - 10);
                 }

@@ -3,38 +3,38 @@
 @tailwind utilities;
 
 @layer base {
-  /* Light Mode Glassmorphism — Warm Sand Cream Glass */
+  /* Light Mode — Crisp Pure White & Pitch Black (Ultra-Modern Minimalist) */
   :root {
-    --background: #f5f1e8;
-    --foreground: #1e1b18;
-    --card: rgba(253, 251, 247, 0.65);
-    --card-hover: rgba(245, 241, 232, 0.85);
-    --border: rgba(223, 212, 193, 0.6);
-    --accent: #0d9488;
-    --accent-secondary: #06b6d4;
+    --background: #ffffff;
+    --foreground: #09090b;
+    --card: rgba(255, 255, 255, 0.85);
+    --card-hover: rgba(244, 244, 245, 0.95);
+    --border: #e4e4e7;
+    --accent: #09090b;
+    --accent-secondary: #27272a;
     --accent-foreground: #ffffff;
-    --muted: rgba(234, 227, 213, 0.5);
-    --muted-foreground: #786c5a;
+    --muted: #f4f4f5;
+    --muted-foreground: #71717a;
     --success: #10b981;
   }
 
-  /* Dark Mode Glassmorphism — Deep Obsidian Cyber Teal Glass */
+  /* Dark Mode — Deep OLED Black & Pure White */
   .dark {
-    --background: #051013;
-    --foreground: #f0fdfa;
-    --card: rgba(13, 35, 40, 0.55);
-    --card-hover: rgba(21, 52, 59, 0.75);
-    --border: rgba(31, 72, 82, 0.6);
-    --accent: #14b8a6;
-    --accent-secondary: #22d3ee;
-    --accent-foreground: #ffffff;
-    --muted: rgba(10, 27, 31, 0.6);
-    --muted-foreground: #99f6e4;
+    --background: #000000;
+    --foreground: #fafafa;
+    --card: rgba(18, 18, 20, 0.75);
+    --card-hover: rgba(30, 30, 35, 0.9);
+    --border: #27272a;
+    --accent: #ffffff;
+    --accent-secondary: #e4e4e7;
+    --accent-foreground: #000000;
+    --muted: #18181b;
+    --muted-foreground: #a1a1aa;
     --success: #34d399;
   }
 }
 
-/* macOS Glassmorphism Typography & Layout */
+/* Modern Geist / SF Pro Display Monochrome Typography */
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -45,19 +45,19 @@ html {
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: 'Geist', -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
   transition: background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   overflow-x: hidden;
   word-break: break-word;
 }
 
-/* Glassmorphism Utilities */
+/* Glassmorphism Black & White Utilities */
 .glass-panel {
   background: var(--card);
-  backdrop-filter: blur(20px) saturate(190%);
-  -webkit-backdrop-filter: blur(20px) saturate(190%);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
   border: 1px solid var(--border);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2), inset 0 1px 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.12), inset 0 1px 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .glass-card-hover {
@@ -66,17 +66,18 @@ body {
 
 .glass-card-hover:hover {
   background: var(--card-hover);
-  border-color: var(--accent);
+  border-color: var(--foreground);
   transform: translateY(-2px);
-  box-shadow: 0 12px 40px 0 rgba(20, 184, 166, 0.15), inset 0 1px 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.25), inset 0 1px 1px 0 rgba(255, 255, 255, 0.2);
 }
 
-/* Prevent text overflow and title overlapping */
+/* Typography Headings */
 h1, h2, h3, h4, h5, h6 {
+  font-family: 'Geist', -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  letter-spacing: -0.03em;
   overflow-wrap: break-word;
   word-wrap: break-word;
-  hyphens: auto;
-  line-height: 1.25;
+  line-height: 1.2;
 }
 
 p, span, label {
@@ -85,34 +86,34 @@ p, span, label {
 
 /* Dark mode input styling */
 .dark input, .dark select, .dark textarea {
-  color: #f0fdfa !important;
+  color: #fafafa !important;
 }
 
 /* Light mode input styling */
 input, select, textarea {
-  color: #1e1b18 !important;
+  color: #09090b !important;
 }
 
 .dark input:-webkit-autofill,
 .dark input:-webkit-autofill:hover, 
 .dark input:-webkit-autofill:focus {
-  -webkit-text-fill-color: #f0fdfa !important;
-  -webkit-box-shadow: 0 0 0px 1000px #0d2328 inset !important;
+  -webkit-text-fill-color: #fafafa !important;
+  -webkit-box-shadow: 0 0 0px 1000px #121214 inset !important;
   transition: background-color 5000s ease-in-out 0s;
 }
 
 input:-webkit-autofill,
 input:-webkit-autofill:hover, 
 input:-webkit-autofill:focus {
-  -webkit-text-fill-color: #1e1b18 !important;
-  -webkit-box-shadow: 0 0 0px 1000px #f5f1e8 inset !important;
+  -webkit-text-fill-color: #09090b !important;
+  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
   transition: background-color 5000s ease-in-out 0s;
 }
 
-/* Apple Glass Scrollbar */
+/* Minimalist Scrollbar */
 ::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -125,5 +126,5 @@ input:-webkit-autofill:focus {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent);
+  background: var(--foreground);
 }
