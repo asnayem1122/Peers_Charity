@@ -571,3 +571,14 @@ export function resolveReport(reportId: string, status: 'RESOLVED' | 'DISMISSED'
     }
   }
 }
+
+export function resetAllUserData(): void {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem(STORAGE_KEY_RESOURCES);
+  localStorage.removeItem(STORAGE_KEY_SAVED_IDS);
+  localStorage.removeItem(STORAGE_KEY_DOWNLOADED_IDS);
+  localStorage.removeItem(STORAGE_KEY_REPORTS);
+  localStorage.removeItem('peers-charity-user');
+  // Re-initialize default seed catalog
+  localStorage.setItem(STORAGE_KEY_RESOURCES, JSON.stringify(INITIAL_RESOURCES));
+}

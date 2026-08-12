@@ -22,8 +22,10 @@ import {
   X,
   LogIn,
   HeartHandshake,
+  RotateCcw,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
+import { resetAllUserData } from '@/lib/resources-data';
 
 export default function Topbar() {
   const { user, logout } = useAuth();
@@ -194,6 +196,20 @@ export default function Topbar() {
             title="Toggle theme"
           >
             {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-foreground" />}
+          </button>
+
+          {/* Reset Demo State Button */}
+          <button
+            onClick={() => {
+              if (window.confirm('Reset website state to fresh clean installation?')) {
+                resetAllUserData();
+                window.location.reload();
+              }
+            }}
+            className="p-2 rounded-xl border border-border bg-background hover:bg-card-hover text-muted-foreground hover:text-foreground transition-all"
+            title="Reset Website State to Fresh Installation"
+          >
+            <RotateCcw className="w-4 h-4" />
           </button>
 
           {/* Notifications Bell */}
