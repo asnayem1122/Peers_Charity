@@ -1,4 +1,4 @@
-<![CDATA[<div align="center">
+<div align="center">
 
 # PEER'S CHARITY
 
@@ -27,20 +27,12 @@ The platform runs on a **non-monetary, reputation-driven gamification ecosystem*
 
 ---
 
-## 🖥️ Screenshots
-
-| Landing Page (Dark Mode) | Dashboard HQ |
-|:---:|:---:|
-| Hero section with constellation grid, glassmorphism cards, and animated protocol flow | Personalized hub with course enrollment, contribution metrics, and recommendations |
-
----
-
 ## ✨ Key Features
 
 ### 🏠 Landing Experience
-- **Interactive Constellation Grid** — Animated canvas background with dynamic node connections that respond to cursor movement; auto-detects light/dark mode per frame
-- **Academic Protocol Flow** — Pinned step cards with animated SVG connecting paths showing the donate → verify → earn → access → save workflow
-- **Responsive Mobile Navigation** — Hamburger slide-down menu on phones with grid-layout nav items
+- **Interactive Constellation Grid** — Animated canvas background with dynamic node connections that respond to cursor movement; auto-detects light/dark mode per frame.
+- **Academic Protocol Flow** — Pinned step cards with animated SVG connecting paths showing the donate → verify → earn → access → save workflow.
+- **Responsive Mobile Navigation** — Hamburger slide-down menu on phones with grid-layout nav items.
 
 ### 📖 Academic Modules
 | Module | Route | Description |
@@ -54,32 +46,29 @@ The platform runs on a **non-monetary, reputation-driven gamification ecosystem*
 | **Donate Knowledge** | `/donate` | 4-step upload wizard with SHA-256 cryptographic file hash deduplication |
 
 ### 🔐 Auth & Access
-- **Dynamic Auth State** — Header, topbar, and mobile bottom nav react to login state (Sign In ↔ Enter HQ / Profile)
-- **Public Guest Browsing** — HQ, Bazaar, Pantry, Exam Room, and Leaderboard accessible without login
-- **Protected Actions** — Donation uploads, profile editing, and admin actions require authentication
-- **Charity Card Profile** — Public benefactor profile with reputation metrics, interactive tabs (Donations, Achievements, Peer Reviews, Charity Circle, Contribution Trail)
+- **Dynamic Auth State** — Header, topbar, and mobile bottom nav react dynamically to login state (Sign In ↔ Enter HQ / Profile).
+- **Public Guest Browsing** — HQ, Bazaar, Pantry, Exam Room, and Leaderboard accessible without login.
+- **Protected Actions** — Donation uploads, profile editing, and admin actions require authentication.
+- **Charity Card Profile** — Public benefactor profile with reputation metrics, interactive tabs (Donations, Achievements, Peer Reviews, Charity Circle, Contribution Trail).
 
 ### 🛡️ Admin & Moderation
-- **Admin HQ** (`/admin`) — Governance dashboard with Donation Vault review queue, Charity Police content moderation, and audit logs
-- **Flagging System** — Students flag suspicious notes; admins approve, quarantine, or delete
+- **Admin HQ** (`/admin`) — Governance dashboard with Donation Vault review queue, Content Moderation, and audit logs.
+- **Flagging System** — Students flag suspicious notes; admins approve, quarantine, or delete.
 
 ### 🎨 Design System
-- **OLED Monochrome Theme** — Pure white (`#ffffff`) light mode and deep OLED black (`#09090b`) dark mode with `localStorage` persistence
-- **Glassmorphism Panels** — Translucent `backdrop-blur-2xl` frosted glass cards with ambient glow orbs
-- **Geist Typography** — Apple SF Pro Display / Geist monochrome font stack with `-webkit-font-smoothing: antialiased`
-- **Theme Toggle** — ☀️ / 🌙 button in header with smooth CSS transitions
+- **OLED Monochrome Theme** — Pure white (`#ffffff`) light mode and deep OLED black (`#09090b`) dark mode with `localStorage` persistence.
+- **Glassmorphism Panels** — Translucent `backdrop-blur-2xl` frosted glass cards with ambient glow orbs.
+- **Geist Typography** — Apple SF Pro Display / Geist monochrome font stack with `-webkit-font-smoothing: antialiased`.
+- **Theme Toggle** — ☀️ / 🌙 button in header with smooth CSS transitions.
 
 ---
 
 ## 🔑 Demo Credentials
 
-| Role | Email | Password |
-|------|-------|----------|
-| **Admin** | `admin@university.edu` | `password123` |
-| **Student** | `nayem@student.university.edu` | `password123` |
-
-> **Admin** has full governance access, 1000 Charity Points, and 5.0 Trust Score.
-> **Student** can upload notes (+10 pts per upload), earn badges, and track contributions.
+| Role | Email | Password | Permissions & Features |
+|------|-------|----------|------------------------|
+| **System Admin** | `admin@university.edu` | `password123` | Full Governance Access, Moderation Queue, 1000 Charity Points, 5.0 Trust Score |
+| **Student User** | `nayem@student.university.edu` | `password123` | Upload Study Notes (+10 pts per upload), Earn Badges, Track Contributions |
 
 ---
 
@@ -90,27 +79,27 @@ The platform runs on a **non-monetary, reputation-driven gamification ecosystem*
 |-----------|---------|
 | **Next.js 14** (App Router) | React framework with static export (`output: 'export'`) |
 | **React 18** | UI component library |
-| **TypeScript** | Type safety |
+| **TypeScript** | Type safety across component props and state |
 | **Tailwind CSS 3** | Utility-first styling with custom CSS variables |
-| **Lucide React** | Icon system |
-| **Motion (Framer Motion)** | Animations and SVG path transitions |
-| **Better Auth** | Client-side auth context |
+| **Lucide React** | Modern SVG icon system |
+| **Motion (Framer Motion)** | Kinetic animations and SVG path transitions |
+| **Better Auth** | Client-side auth context & state management |
 
 ### Backend — `apps/api`
 | Technology | Purpose |
 |-----------|---------|
 | **Node.js + Express 4** | REST API server |
-| **TypeScript** | Type safety |
-| **MongoDB + Mongoose 8** | Database and ODM |
+| **TypeScript** | Type safety across controllers and middleware |
+| **MongoDB + Mongoose 8** | NoSQL database and schema ODM |
 | **Better Auth** | Server-side auth adapter |
 | **Multer** | File upload handling |
-| **Zod** | Request validation |
-| **Helmet + CORS** | Security middleware |
+| **Zod** | Schema validation |
+| **Helmet + CORS** | Security headers and cross-origin resource sharing |
 
-### Infrastructure
+### Infrastructure & CI/CD
 | Technology | Purpose |
 |-----------|---------|
-| **GitHub Actions** | CI/CD pipeline (`.github/workflows/deploy.yml`) |
+| **GitHub Actions** | Automated CI/CD build & deploy pipeline (`.github/workflows/deploy.yml`) |
 | **GitHub Pages** | Static frontend hosting at `/Peers_Charity` base path |
 | **npm Workspaces** | Monorepo package management |
 
@@ -173,13 +162,13 @@ peers-charity/
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start Guide
 
 ### Prerequisites
 - **Node.js** 18+ (recommended: 22)
 - **MongoDB** 7.0+ (local Community Server or [MongoDB Atlas](https://www.mongodb.com/atlas))
 
-### 1. Clone & Install
+### 1. Clone & Install Dependencies
 
 ```bash
 git clone https://github.com/asnayem1122/Peers_Charity.git
@@ -189,7 +178,7 @@ npm install
 
 ### 2. Configure Environment
 
-Copy the example env and update with your MongoDB URI:
+Create backend environment file:
 
 ```bash
 cp .env.example apps/api/.env
@@ -202,77 +191,66 @@ PORT=5000
 BETTER_AUTH_SECRET=your-secret-key
 ```
 
-### 3. Setup Database
+### 3. Initialize & Seed Database
 
 ```bash
-# Start MongoDB (if installed as a Windows service)
+# Start MongoDB service (Windows)
 net start MongoDB
 
-# Seed demo accounts and sample data
+# Seed demo accounts and initial sample materials
 npm run seed --prefix apps/api
 ```
 
-### 4. Run Development Servers
+### 4. Run Local Development Server
 
 ```bash
-# Start both frontend + backend concurrently
+# Concurrently start frontend + backend
 npm run dev
 ```
 
-| Service | URL |
-|---------|-----|
-| **Frontend** | [http://localhost:3000](http://localhost:3000) |
-| **Backend API** | [http://localhost:5000](http://localhost:5000) |
+- **Frontend Application:** [http://localhost:3000](http://localhost:3000)
+- **Backend REST API:** [http://localhost:5000](http://localhost:5000)
 
 ### 5. Build for Production
 
 ```bash
-npm run build:web    # Static export → apps/web/out/
-npm run build:api    # TypeScript compile → apps/api/dist/
+npm run build:web    # Generates static export in apps/web/out/
+npm run build:api    # Compiles TypeScript into apps/api/dist/
 ```
 
 ---
 
-## 🌐 Deployment
+## 🌐 Deployment Pipeline
 
-The frontend is automatically deployed to **GitHub Pages** on every push to `main`:
+The frontend automatically builds and deploys to **GitHub Pages** on every push to the `main` branch via GitHub Actions:
 
-1. GitHub Actions runs `npm install` and `npm run build` in `apps/web`
-2. The static export (`apps/web/out/`) is uploaded as a Pages artifact
-3. Deployed to `https://asnayem1122.github.io/Peers_Charity/`
-
-The `next.config.mjs` is configured with:
-```js
-{
-  output: 'export',
-  basePath: '/Peers_Charity',
-  assetPrefix: '/Peers_Charity/',
-  images: { unoptimized: true }
-}
-```
+1. `.github/workflows/deploy.yml` triggers on `push` to `main`.
+2. Runs `npm install` and `npm run build` in `apps/web`.
+3. Uploads `./apps/web/out` static artifact and deploys to GitHub Pages.
+4. Access live site at **[asnayem1122.github.io/Peers_Charity](https://asnayem1122.github.io/Peers_Charity/)**.
 
 ---
 
-## 📖 Documentation
+## 📖 Architecture & Documentation
 
-Detailed technical specifications are available in the [`docs/`](./docs/) directory:
+Comprehensive system design, security policies, and schema documents are stored in [`docs/`](./docs/):
 
-| Document | Description |
-|----------|-------------|
-| [`PROJECT_SPEC.md`](./docs/PROJECT_SPEC.md) | Product requirements and feature specifications |
-| [`ARCHITECTURE.md`](./docs/ARCHITECTURE.md) | System architecture and data flow diagrams |
-| [`DATABASE.md`](./docs/DATABASE.md) | MongoDB schema design and relationships |
-| [`API.md`](./docs/API.md) | REST API endpoint reference |
-| [`DESIGN_SYSTEM.md`](./docs/DESIGN_SYSTEM.md) | Theme tokens, components, and styling guidelines |
-| [`SECURITY.md`](./docs/SECURITY.md) | Authentication, authorization, and security policies |
-| [`DEPLOYMENT.md`](./docs/DEPLOYMENT.md) | CI/CD pipeline and hosting configuration |
-| [`ROADMAP.md`](./docs/ROADMAP.md) | Planned features and future development |
+| Document | Link | Focus Area |
+|----------|------|------------|
+| Product Specifications | [`PROJECT_SPEC.md`](./docs/PROJECT_SPEC.md) | Platform goals, functional & non-functional requirements |
+| Architecture Guide | [`ARCHITECTURE.md`](./docs/ARCHITECTURE.md) | System components, data pipelines, module structure |
+| Database Schemas | [`DATABASE.md`](./docs/DATABASE.md) | MongoDB collections, indexes, and entity relations |
+| REST API Reference | [`API.md`](./docs/API.md) | Endpoints, payload validation, status codes |
+| Design System | [`DESIGN_SYSTEM.md`](./docs/DESIGN_SYSTEM.md) | OLED monochrome tokens, glassmorphism specs |
+| Security Policy | [`SECURITY.md`](./docs/SECURITY.md) | Auth guards, CORS, deduplication security |
+| Deployment Guide | [`DEPLOYMENT.md`](./docs/DEPLOYMENT.md) | GitHub Actions workflow & static export pipeline |
+| Feature Roadmap | [`ROADMAP.md`](./docs/ROADMAP.md) | Future enhancements & upcoming milestones |
 
 ---
 
 ## 📜 License
 
-MIT License — Created for Programming Hero Portfolio & Academic Demonstration.
+Distributed under the **MIT License**. Created for Programming Hero Portfolio & Academic Demonstration.
 
 <div align="center">
 
@@ -281,4 +259,3 @@ MIT License — Created for Programming Hero Portfolio & Academic Demonstration.
 **Built with ❤️ for students who believe in sharing knowledge freely.**
 
 </div>
-]]>
