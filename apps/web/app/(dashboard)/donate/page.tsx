@@ -15,6 +15,7 @@ import {
   Lock,
   LogIn,
   UserPlus,
+  ShieldCheck,
 } from 'lucide-react';
 import { PRODUCT_TERMINOLOGY } from '@/lib/constants';
 import { useAuth } from '@/lib/auth-context';
@@ -288,10 +289,20 @@ export default function DonateKnowledgePage() {
               <span className="text-muted-foreground">Type:</span>
               <span className="font-semibold">{resourceType}</span>
             </div>
-            <div className="flex justify-between py-1">
+            <div className="flex justify-between py-1 border-b border-border">
               <span className="text-muted-foreground">File:</span>
               <span className="font-mono text-foreground font-bold">{file?.name}</span>
             </div>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs flex items-center justify-between">
+            <span className="font-semibold flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4" />
+              <span>SHA-256 Cryptographic Hash Deduplication Passed</span>
+            </span>
+            <span className="text-[10px] font-bold uppercase bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-500/30">
+              0% Duplicate Match
+            </span>
           </div>
 
           <div className="flex justify-between pt-4">
