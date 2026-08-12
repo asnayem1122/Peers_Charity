@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { BookOpen, ShieldCheck, HeartHandshake, Sparkles, ArrowRight, Award, Sun, Moon } from 'lucide-react';
+import ConstellationGrid from '@/components/ui/constellation-grid';
 
 export default function LandingPage() {
   const [isDark, setIsDark] = useState(true);
@@ -33,10 +34,14 @@ export default function LandingPage() {
 
   return (
     <div className="flex flex-col min-h-screen relative overflow-hidden bg-background">
+      {/* Interactive Constellation Grid Canvas Background */}
+      <div className="absolute inset-0 z-0 opacity-50 dark:opacity-60 pointer-events-auto">
+        <ConstellationGrid />
+      </div>
+
       {/* Ambient Glassmorphic Background Orbs */}
       <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-accent/20 rounded-full blur-[140px] pointer-events-none" />
       <div className="fixed bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-cyan-500/15 rounded-full blur-[160px] pointer-events-none" />
-      <div className="fixed top-[40%] right-[20%] w-[350px] h-[350px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
 
       {/* Header Navigation */}
       <header className="border-b border-border/60 bg-card/60 backdrop-blur-2xl sticky top-0 z-50 transition-all shadow-lg">
@@ -91,25 +96,25 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <main className="flex-1 flex flex-col justify-center items-center text-center px-4 sm:px-6 py-12 sm:py-24 relative z-10">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-accent/40 bg-accent/15 backdrop-blur-xl text-accent text-xs font-semibold mb-6 shadow-lg shadow-accent/10 animate-pulse">
+      <main className="flex-1 flex flex-col justify-center items-center text-center px-4 sm:px-6 py-12 sm:py-24 relative z-10 pointer-events-none">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-accent/40 bg-accent/15 backdrop-blur-xl text-accent text-xs font-semibold mb-6 shadow-lg shadow-accent/10 animate-pulse pointer-events-auto">
           <Sparkles className="w-3.5 h-3.5 shrink-0" />
           <span className="truncate">Non-monetary Academic Knowledge Sharing</span>
         </div>
 
-        <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight max-w-4xl leading-tight sm:leading-tight px-2 break-words">
+        <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight max-w-4xl leading-tight sm:leading-tight px-2 break-words pointer-events-auto">
           Give a Note. Get a Note.{' '}
           <span className="bg-gradient-to-r from-teal-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent block sm:inline mt-1 sm:mt-0">
             Save a Semester.
           </span>
         </h1>
 
-        <p className="mt-4 sm:mt-6 text-sm sm:text-lg text-muted-foreground max-w-2xl leading-relaxed px-2">
+        <p className="mt-4 sm:mt-6 text-sm sm:text-lg text-muted-foreground max-w-2xl leading-relaxed px-2 pointer-events-auto">
           Your classmates already survived the course. They probably left notes.
           Discover verified academic donations, rate resources, and help your peers thrive.
         </p>
 
-        <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center w-full sm:w-auto px-4">
+        <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center w-full sm:w-auto px-4 pointer-events-auto">
           <Link
             href="/bazaar"
             className="w-full sm:w-auto px-8 py-4 bg-accent text-white font-semibold rounded-2xl hover:bg-accent/90 transition-all shadow-xl shadow-accent/30 flex items-center justify-center gap-2 group text-sm"
@@ -126,7 +131,7 @@ export default function LandingPage() {
         </div>
 
         {/* Value Props Cards Grid */}
-        <div className="mt-16 sm:mt-24 grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl text-left w-full">
+        <div className="mt-16 sm:mt-24 grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl text-left w-full pointer-events-auto">
           <Link href="/pantry" className="p-6 sm:p-7 rounded-3xl glass-panel glass-card-hover group">
             <div className="w-12 h-12 rounded-2xl bg-teal-500/15 text-teal-400 flex items-center justify-center mb-5 shadow-lg shadow-teal-500/10">
               <BookOpen className="w-6 h-6" />
