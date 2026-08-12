@@ -32,21 +32,21 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 border-r border-border/80 bg-card/50 backdrop-blur-2xl flex flex-col h-screen sticky top-0 hidden md:flex shrink-0 shadow-xl z-30">
+    <aside className="w-64 border-r border-border bg-card flex flex-col h-screen sticky top-0 hidden md:flex shrink-0 shadow-sm z-30">
       {/* Brand Header - Clicking navigates to Home Page (/) */}
       <Link
         href="/"
-        className="p-6 border-b border-border/60 flex items-center gap-3 hover:bg-card-hover/80 transition-all group cursor-pointer"
+        className="p-6 border-b border-border flex items-center gap-3 hover:bg-card-hover transition-all group cursor-pointer"
         title="Go to Home Landing Page"
       >
-        <div className="w-9 h-9 rounded-xl bg-accent flex items-center justify-center text-white shadow-lg shadow-accent/30 group-hover:scale-105 transition-transform">
+        <div className="w-9 h-9 rounded-xl bg-foreground text-background flex items-center justify-center font-bold shadow-md group-hover:scale-105 transition-transform shrink-0">
           <HeartHandshake className="w-5 h-5" />
         </div>
         <div>
-          <span className="font-bold text-base tracking-tight text-foreground group-hover:text-accent transition-colors">
+          <span className="font-mono font-black text-base tracking-tighter text-foreground group-hover:text-muted-foreground transition-colors uppercase">
             PEER'S CHARITY
           </span>
-          <span className="block text-[10px] text-accent font-semibold tracking-wider uppercase">
+          <span className="block text-[10px] text-muted-foreground font-mono font-semibold tracking-widest uppercase">
             Academic SaaS
           </span>
         </div>
@@ -62,11 +62,11 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-sm font-medium transition-all ${
+              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-sm font-semibold transition-all ${
                 isActive
-                  ? 'bg-accent text-accent-foreground font-semibold shadow-lg shadow-accent/25 backdrop-blur-md'
+                  ? 'bg-foreground text-background font-bold shadow-md'
                   : item.highlight
-                  ? 'bg-accent/15 text-accent hover:bg-accent/25 font-semibold backdrop-blur-sm'
+                  ? 'bg-foreground/10 text-foreground hover:bg-foreground/20 font-bold'
                   : 'text-muted-foreground hover:bg-card-hover hover:text-foreground'
               }`}
             >
@@ -78,7 +78,7 @@ export default function Sidebar() {
       </nav>
 
       {/* Footer / Quote */}
-      <div className="p-4 border-t border-border/60 text-[11px] text-muted-foreground text-center">
+      <div className="p-4 border-t border-border text-[11px] text-muted-foreground text-center font-mono">
         <p className="italic">"We perform academic charity."</p>
       </div>
     </aside>
