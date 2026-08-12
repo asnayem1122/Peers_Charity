@@ -19,9 +19,9 @@
 
 ## 📚 About
 
-**Peer's Charity** is a full-stack academic resource sharing platform where university students help each other survive semesters by donating, discovering, and rating study materials — lecture notes, past exam questions, solved problem sets, cheat sheets, and presentations.
+**Peer's Charity** is a full-stack academic resource sharing platform where university students help each other survive semesters by donating, discovering, and rating study materials — handwritten notes, lecture slides, past exam questions, solved problem sets, cheat sheets, and external educational links.
 
-The platform runs on a **non-monetary, reputation-driven gamification ecosystem** — students earn **Charity Points**, unlock **badges**, climb the **Generosity Leaderboard**, and build their **Charity Card** profile as recognized academic benefactors.
+The platform operates on a **non-monetary, reputation-driven gamification ecosystem** — students earn **Charity Points**, unlock **badges**, climb the **Generosity Leaderboard**, and build their **Charity Card** profile as recognized academic benefactors.
 
 > **🔗 Live Demo:** [asnayem1122.github.io/Peers_Charity](https://asnayem1122.github.io/Peers_Charity/)
 
@@ -29,52 +29,59 @@ The platform runs on a **non-monetary, reputation-driven gamification ecosystem*
 
 ## ✨ Key Features
 
-### 🏠 Landing Experience
+### 🏠 Landing & Public Discovery
+- **Public Browsing Without Login** — Unauthenticated guests can search, filter, browse, and preview educational resources across `/bazaar`, `/pantry`, `/exam`, `/leaderboard`, and `/hq`. Account login is required only for contributing actions (downloading, saving, rating, uploading, reporting).
 - **Interactive Constellation Grid** — Animated canvas background with dynamic node connections that respond to cursor movement; auto-detects light/dark mode per frame.
 - **Academic Protocol Flow** — Pinned step cards with animated SVG connecting paths showing the donate → verify → earn → access → save workflow.
 - **Liquid Metal Button System** — Premium dark obsidian buttons with iridescent chrome rim gradients (`conic-gradient`), specular top-edge highlights, and animated diagonal sheen sweep on hover.
-- **Responsive Mobile Navigation** — Hamburger slide-down menu on phones with grid-layout nav items and sticky bottom navigation bar.
 
 ### 📖 Academic Modules
 | Module | Route | Description |
 |--------|-------|-------------|
-| **Charity HQ** | `/hq` | Personalized dashboard with course enrollment, pantry health gauges, and contribution metrics bound to active user |
-| **Charity Bazaar** | `/bazaar` | Resource discovery catalog with quality scores, trust ratings, bookmarking, and download state handlers |
+| **Charity HQ** | `/hq` | Personalized dashboard with course enrollment, pantry health gauges, and contribution metrics |
+| **Charity Bazaar** | `/bazaar` | Public resource discovery catalog with 25+ items, multi-filter search, sort controls, and grid/list views |
 | **Academic Pantry** | `/pantry` | Structured course library (CSE 2103, CSE 3101, CSE 3205) with 85%+ coverage metrics and nested course detail pages |
 | **Exam Emergency Room** | `/exam` | High-yield exam revision portal with emergency packs and one-click download buttons |
 | **Generosity Leaderboard** | `/leaderboard` | Ranked benefactor standings with Gold 🥇, Silver 🥈, Bronze 🥉 badges, Charity Points, and Trust Scores |
 | **Treasure Vault** | `/treasure` | Bookmarked and saved resources collection |
-| **Donate Knowledge** | `/donate` | 4-step upload wizard with SHA-256 cryptographic file hash deduplication verification |
+| **Donate Knowledge** | `/donate` | 4-step upload wizard with 4 core resource types, display identity options, and SHA-256 hash deduplication |
+
+### 🕵️ Anonymous Sharing & Public Display Identity
+- **Flexible Identity Options** — Uploaders can select how their identity appears on public cards:
+  - `○ My Profile`: Displays real name and academic level/term (e.g. *Nayem (Level 3 / Term 2)*)
+  - `○ Share Anonymously`: Publicly displays *"Shared Anonymously"* to peer scholars
+  - `○ Custom Display Name`: Displays a custom pseudonym (e.g. *AlgoNinja_42*)
+- **Admin Moderation Integrity** — Anonymous public display does **NOT** hide uploader identity from administrators (`/admin`). Admins see real uploader emails even for anonymous posts.
+
+### 📁 4 Core Resource Formats & Preview Modal
+- **Supported Formats**: `Notes`, `Slides`, `PDF`, and `External Link`.
+- **Resource Detail Modal (`components/ui/resource-detail-modal.tsx`)**:
+  - Displays description, tags, quality rating, download/bookmark counts.
+  - Interactive **Inline Text & PDF Simulator** or **External Link Launcher**.
+  - Student peer review section with 1–5 star rating submission form.
 
 ### 🎓 Level & Term System
 - **Dedicated Level & Term Badge** — Each student's Charity Card profile displays a high-contrast `LEVEL & TERM: Level 3 / Term 2` badge.
 - **Structured Selector** — Profile editor features a dropdown select with all combinations from `Level 1 / Term 1` through `Level 4 / Term 2` and `Faculty Admin`.
-- **Scoped Notifications** — Notification events (donation appreciation, pantry updates, badge unlocks) are dynamically filtered to match the student's enrolled Level & Term.
+- **Scoped Notifications** — Notification events are dynamically filtered to match the student's enrolled Level & Term.
 
 ### 🔐 Auth & Access Control
 - **Dynamic Auth State** — Header, topbar, sidebar, and mobile bottom nav react dynamically to login state (Sign In ↔ Enter HQ / Profile).
-- **Public Guest Browsing** — HQ, Bazaar, Pantry, Exam Room, and Leaderboard accessible without login.
-- **Strict Auth Lock Guards** — `/donate`, `/profile`, and `/admin` routes block unauthenticated guests with dedicated lock cards featuring Liquid Metal "Sign In to Continue" & "Create Account" buttons.
+- **Guest Auth Modal** — Attempting protected actions as a guest launches `GuestAuthModal` with login credentials hint.
 - **Role-Based Admin Guard** — `/admin` enforces `user.role === 'ADMIN'` check; non-admin students see a "System Admin Access Required" guard with admin credential hints.
 - **Charity Card Profile** — Public benefactor profile with reputation metrics, interactive tabs (Donations, Achievements, Peer Reviews, Charity Circle, Contribution Trail), and avatar gallery.
 
-### 🔔 Smart Notification System
-- **User-Scoped Notifications** — Charity Bells only display notifications relevant to the signed-in user's Level & Term and platform events (donations, badge unlocks, pantry updates).
-- **Zero-State Handling** — No notification badge appears when unread count is 0 or when unauthenticated; opening the dropdown shows "No new notifications."
-- **Interactive Controls** — Mark all read, dismiss individual notifications, and real-time unread counter badge with pulse animation.
-
-### 🛡️ Admin Governance & Moderation
-- **Admin HQ** (`/admin`) — Full governance dashboard with interactive Donation Vault review queue and Charity Police content moderation flags.
-- **Interactive Vault Actions** — Approve & Publish or Quarantine pending donations with real-time counter updates.
-- **Flagging Resolution** — Delete & Issue Warning or Dismiss Flag for moderation reports, with empty-state messaging when queues are cleared.
-- **SHA-256 Hash Deduplication** — Cryptographic file hash similarity checks prevent duplicate note uploads across the platform.
+### 🛡️ Admin Governance & Resource Moderation
+- **Resource Reports Queue** (`/admin`) — Moderation queue for reported resources (copyright concerns, incorrect info, spam, inappropriate content) with real uploader tracking.
+- **Interactive Resolution** — *Delete & Issue Warning* or *Dismiss Report* buttons with real-time queue updates.
+- **Donation Vault Review** — Approve & Publish or Quarantine pending uploads with real-time counter updates.
+- **Fresh Installation State Reset** — Topbar `RotateCcw` button and `resetAllUserData()` helper to restore fresh installation state.
 
 ### 🎨 Design System
 - **OLED Monochrome Theme** — Pure white (`#ffffff`) light mode and deep OLED black (`#09090b`) dark mode with `localStorage` persistence.
 - **Glassmorphism Panels** — Translucent `backdrop-blur-2xl` frosted glass cards with ambient glow orbs.
 - **Liquid Metal Buttons** — Multi-layered metallic chrome rim gradient (`conic-gradient`), specular top-edge highlights (`inset 0 1px 2px rgba(255,255,255,0.75)`), dark obsidian gradient core, and animated diagonal sweep sheen on hover.
 - **Geist Typography** — Apple SF Pro Display / Geist monochrome font stack with `-webkit-font-smoothing: antialiased`.
-- **Theme Toggle** — ☀️ / 🌙 button in header with smooth CSS transitions.
 
 ---
 
@@ -82,8 +89,8 @@ The platform runs on a **non-monetary, reputation-driven gamification ecosystem*
 
 | Role | Email | Password | Permissions & Features |
 |------|-------|----------|------------------------|
-| **System Admin** | `admin@university.edu` | `password123` | Full Governance Access, Donation Vault Review, Moderation Queue, Content Flagging |
-| **Student User** | `nayem@student.university.edu` | `password123` | Upload Notes (+10 pts), Earn Badges, Track Contributions, Level 3 / Term 2 |
+| **System Admin** | `admin@university.edu` | `password123` | Full Governance Access, Resource Reports Moderation, Vault Review, Real Uploader Tracking |
+| **Student User** | `nayem@student.university.edu` | `password123` | Upload Notes (+10 pts), Earn Badges, Choose Anonymous Display Identity, Level 3 / Term 2 |
 
 ---
 
@@ -136,24 +143,29 @@ peers-charity/
 │   │   │   └── (dashboard)/
 │   │   │       ├── layout.tsx        # Dashboard shell (sidebar + topbar + bottom nav)
 │   │   │       ├── hq/               # Charity HQ dashboard
-│   │   │       ├── bazaar/           # Resource discovery catalog
+│   │   │       ├── bazaar/           # Resource discovery catalog (25+ seed items)
 │   │   │       ├── pantry/           # Course library + [courseId] detail
 │   │   │       ├── exam/             # Exam emergency room
-│   │   │       ├── donate/           # 4-step upload wizard with SHA-256 hash check
+│   │   │       ├── donate/           # Upload wizard (4 formats + anonymous options)
 │   │   │       ├── leaderboard/      # Generosity rankings
 │   │   │       ├── treasure/         # Saved resources vault
 │   │   │       ├── profile/          # Charity Card profile with Level & Term
-│   │   │       └── admin/            # Admin governance HQ with interactive actions
+│   │   │       └── admin/            # Admin governance HQ (reports & real uploader tracking)
 │   │   ├── components/
 │   │   │   ├── ui/
 │   │   │   │   ├── constellation-grid.tsx   # Interactive canvas background
 │   │   │   │   ├── how-it-works.tsx         # Protocol flow step cards
-│   │   │   │   └── liquid-metal-button.tsx  # Reusable Liquid Metal button component
+│   │   │   │   ├── liquid-metal-button.tsx  # Reusable Liquid Metal button component
+│   │   │   │   ├── resource-detail-modal.tsx# Preview, review & download modal
+│   │   │   │   ├── report-resource-modal.tsx# Resource report modal
+│   │   │   │   ├── guest-auth-modal.tsx     # Guest action auth prompt modal
+│   │   │   │   └── about-project-modal.tsx  # Portfolio & about platform modal
 │   │   │   └── layout/
 │   │   │       ├── Sidebar.tsx        # Desktop sidebar navigation
-│   │   │       ├── Topbar.tsx         # Top bar with auth state & smart notifications
+│   │   │       ├── Topbar.tsx         # Top bar with auth state, notifications & reset button
 │   │   │       └── MobileBottomNav.tsx # Mobile bottom navigation
 │   │   ├── lib/
+│   │   │   ├── resources-data.ts      # Unified 25+ catalog, review & report state helpers
 │   │   │   ├── auth-context.tsx       # Auth provider with levelTerm support
 │   │   │   └── constants.ts           # Product terminology map
 │   │   ├── next.config.mjs            # Static export + basePath config
@@ -253,29 +265,14 @@ The frontend automatically builds and deploys to **GitHub Pages** on every push 
 
 | Rule | Implementation |
 |------|---------------|
-| **Auth Lock Guards** | `/donate`, `/profile`, `/admin` block unauthenticated guests with dedicated lock cards |
-| **Role-Based Access** | `/admin` requires `user.role === 'ADMIN'`; non-admins see credential hints |
+| **Public Discovery** | Unauthenticated guests can search, filter, and preview resources without login |
+| **Auth Lock Guards** | Protected actions (download, bookmark, rate, upload, report) prompt `GuestAuthModal` |
+| **Anonymous Upload Identity** | Uploaders can select `PROFILE`, `ANONYMOUS`, or `CUSTOM` display identity |
+| **Admin Moderation Integrity** | Anonymous public posts still track real uploader ID for admin moderation in `/admin` |
+| **4 Core Resource Formats** | Dedicated UI handling for Notes, Slides, PDFs, and External Links |
 | **SHA-256 Deduplication** | File hash verification in Step 3 of donate wizard prevents duplicate uploads |
-| **Interactive Admin Actions** | Vault approval/quarantine and flag resolution update counters in real-time |
-| **Level & Term Scoping** | Notifications and profile badges are tied to student's enrolled Level & Term |
-| **Zero-State Notifications** | No badge appears when unread count is 0 or user is unauthenticated |
-
----
-
-## 📖 Architecture & Documentation
-
-Comprehensive system design, security policies, and schema documents are stored in [`docs/`](./docs/):
-
-| Document | Link | Focus Area |
-|----------|------|------------|
-| Product Specifications | [`PROJECT_SPEC.md`](./docs/PROJECT_SPEC.md) | Platform goals, functional & non-functional requirements |
-| Architecture Guide | [`ARCHITECTURE.md`](./docs/ARCHITECTURE.md) | System components, data pipelines, module structure |
-| Database Schemas | [`DATABASE.md`](./docs/DATABASE.md) | MongoDB collections, indexes, and entity relations |
-| REST API Reference | [`API.md`](./docs/API.md) | Endpoints, payload validation, status codes |
-| Design System | [`DESIGN_SYSTEM.md`](./docs/DESIGN_SYSTEM.md) | OLED monochrome tokens, glassmorphism, liquid metal specs |
-| Security Policy | [`SECURITY.md`](./docs/SECURITY.md) | Auth guards, CORS, hash deduplication security |
-| Deployment Guide | [`DEPLOYMENT.md`](./docs/DEPLOYMENT.md) | GitHub Actions workflow & static export pipeline |
-| Feature Roadmap | [`ROADMAP.md`](./docs/ROADMAP.md) | Future enhancements & upcoming milestones |
+| **Interactive Admin Moderation** | Resource reports and vault approval/quarantine state update counters in real-time |
+| **Fresh State Reset** | Topbar `RotateCcw` button and `resetAllUserData()` restore initial installation state |
 
 ---
 
