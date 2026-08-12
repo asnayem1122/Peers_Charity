@@ -22,6 +22,7 @@ import {
   Flame,
 } from 'lucide-react';
 import ConstellationGrid from '@/components/ui/constellation-grid';
+import HowItWorks from '@/components/ui/how-it-works';
 import { useAuth } from '@/lib/auth-context';
 
 export default function LandingPage() {
@@ -299,7 +300,7 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <main className="flex-1 flex flex-col justify-center items-center text-center px-4 sm:px-6 py-12 sm:py-24 relative z-10 pointer-events-none">
+      <main className="flex-1 flex flex-col justify-center items-center text-center px-4 sm:px-6 py-12 sm:py-20 relative z-10 pointer-events-none">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-border bg-card/90 backdrop-blur-xl text-foreground text-xs font-mono font-semibold mb-6 shadow-sm pointer-events-auto">
           <Sparkles className="w-3.5 h-3.5 shrink-0" />
           <span className="truncate">Non-monetary Academic Knowledge Sharing</span>
@@ -345,7 +346,7 @@ export default function LandingPage() {
         </div>
 
         {/* Value Props Cards Grid */}
-        <div className="mt-16 sm:mt-24 grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl text-left w-full pointer-events-auto">
+        <div className="mt-16 sm:mt-20 grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl text-left w-full pointer-events-auto">
           <Link href="/pantry" className="p-6 sm:p-7 rounded-3xl glass-panel glass-card-hover group">
             <div className="w-12 h-12 rounded-2xl bg-foreground/10 text-foreground flex items-center justify-center mb-5 shadow-sm">
               <BookOpen className="w-6 h-6" />
@@ -375,6 +376,19 @@ export default function LandingPage() {
               Earn Charity Points, badges, and recognition as a top benefactor saving peer semesters.
             </p>
           </Link>
+        </div>
+
+        {/* How It Works Flow Section */}
+        <div className="mt-20 w-full pointer-events-auto">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl sm:text-4xl font-black font-mono uppercase tracking-tight">
+              Academic Protocol Flow
+            </h2>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-2 max-w-lg mx-auto">
+              How Peer's Charity protects students, verifies notes, and saves semesters step-by-step.
+            </p>
+          </div>
+          <HowItWorks />
         </div>
       </main>
 
