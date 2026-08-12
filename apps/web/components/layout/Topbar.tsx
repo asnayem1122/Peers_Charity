@@ -32,40 +32,52 @@ export default function Topbar() {
   const [isCmdOpen, setIsCmdOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(3);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const profileRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
 
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: 'Donation Appreciated! 🌟',
-      message: '3 classmates found your Dynamic Programming notes helpful.',
-      time: '10m ago',
-      read: false,
-      icon: FileText,
-      color: 'text-foreground bg-foreground/10 border-border',
-    },
-    {
-      id: 2,
-      title: 'Badge Unlocked! 🏆',
-      message: 'You earned the "First Benefactor" achievement (+10 pts).',
-      time: '1h ago',
-      read: false,
-      icon: Trophy,
-      color: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
-    },
-    {
-      id: 3,
-      title: 'Pantry Coverage Update 📚',
-      message: 'CSE 2103 Algorithm Pantry reached 85% course health.',
-      time: '3h ago',
-      read: false,
-      icon: ShieldCheck,
-      color: 'text-foreground bg-foreground/10 border-border',
-    },
-  ]);
+  // Notifications dynamically bound to active user and level/term events
+  const [notifications, setNotifications] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (!user) {
+      setNotifications([]);
+      setUnreadCount(0);
+    } else {
+      const levelTermLabel = user.levelTerm || 'Level 3 / Term 2';
+      setNotifications([
+        {
+          id: 1,
+          title: `Donation Appreciated! 🌟`,
+          message: `3 classmates from ${levelTermLabel} found your notes helpful.`,
+          time: '10m ago',
+          read: false,
+          icon: FileText,
+          color: 'text-foreground bg-foreground/10 border-border',
+        },
+        {
+          id: 2,
+          title: `Level & Term Update 📚`,
+          message: `New CSE 2103 notes uploaded for ${levelTermLabel} Pantry.`,
+          time: '45m ago',
+          read: false,
+          icon: ShieldCheck,
+          color: 'text-foreground bg-foreground/10 border-border',
+        },
+        {
+          id: 3,
+          title: `Badge Unlocked! 🏆`,
+          message: `You earned the "First Benefactor" achievement (+10 pts).`,
+          time: '2h ago',
+          read: false,
+          icon: Trophy,
+          color: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
+        },
+      ]);
+      setUnreadCount(3);
+    }
+  }, [user]);
 
   // Initialize theme from localStorage or default to dark
   useEffect(() => {

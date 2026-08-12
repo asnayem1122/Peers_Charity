@@ -306,8 +306,15 @@ export default function CharityCardProfilePage() {
                 </span>
               </div>
 
+              <div className="flex items-center justify-center sm:justify-start gap-2 pt-1 font-mono">
+                <span className="px-3.5 py-1.5 rounded-xl bg-foreground text-background font-black text-xs uppercase tracking-wider shadow-md inline-flex items-center gap-1.5">
+                  <Award className="w-4 h-4 text-amber-400" />
+                  <span>LEVEL & TERM: {profile.semester}</span>
+                </span>
+              </div>
+
               <p className="text-xs sm:text-sm text-muted-foreground font-semibold">
-                {profile.department} • {profile.semester} • {profile.university}
+                {profile.department} • {profile.university}
               </p>
 
               <p className="text-xs text-muted-foreground italic max-w-lg">
@@ -583,13 +590,22 @@ export default function CharityCardProfilePage() {
                     />
                   </div>
                   <div>
-                    <label className="block font-semibold mb-1">Semester / Level</label>
-                    <input
-                      type="text"
+                    <label className="block font-semibold mb-1">Level & Term</label>
+                    <select
                       value={draft.semester}
                       onChange={(e) => setDraft({ ...draft, semester: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:border-foreground"
-                    />
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:border-foreground font-semibold"
+                    >
+                      <option value="Level 1 / Term 1">Level 1 / Term 1</option>
+                      <option value="Level 1 / Term 2">Level 1 / Term 2</option>
+                      <option value="Level 2 / Term 1">Level 2 / Term 1</option>
+                      <option value="Level 2 / Term 2">Level 2 / Term 2</option>
+                      <option value="Level 3 / Term 1">Level 3 / Term 1</option>
+                      <option value="Level 3 / Term 2">Level 3 / Term 2</option>
+                      <option value="Level 4 / Term 1">Level 4 / Term 1</option>
+                      <option value="Level 4 / Term 2">Level 4 / Term 2</option>
+                      <option value="Faculty Admin">Faculty Admin</option>
+                    </select>
                   </div>
                 </div>
 

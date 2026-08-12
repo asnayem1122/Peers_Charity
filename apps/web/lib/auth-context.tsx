@@ -9,6 +9,7 @@ export interface User {
   role: 'STUDENT' | 'ADMIN';
   avatarUrl: string;
   avatarName: string;
+  levelTerm: string;
 }
 
 interface AuthContextType {
@@ -39,6 +40,7 @@ const DEMO_ACCOUNTS: { email: string; password: string; user: User }[] = [
       role: 'STUDENT',
       avatarUrl: '',
       avatarName: '',
+      levelTerm: 'Level 3 / Term 2',
     },
   },
   {
@@ -51,6 +53,7 @@ const DEMO_ACCOUNTS: { email: string; password: string; user: User }[] = [
       role: 'ADMIN',
       avatarUrl: '',
       avatarName: '',
+      levelTerm: 'Faculty / Admin',
     },
   },
 ];
