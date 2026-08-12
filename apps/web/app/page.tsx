@@ -300,25 +300,25 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <main className="flex-1 flex flex-col justify-center items-center text-center px-4 sm:px-6 py-12 sm:py-20 relative z-10 pointer-events-none">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-border bg-card/90 backdrop-blur-xl text-foreground text-xs font-mono font-semibold mb-6 shadow-sm pointer-events-auto">
+      <main className="flex-1 flex flex-col justify-center items-center text-center px-4 sm:px-6 py-12 sm:py-20 relative z-10 pointer-events-auto">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-border bg-card/90 backdrop-blur-xl text-foreground text-xs font-mono font-semibold mb-6 shadow-sm">
           <Sparkles className="w-3.5 h-3.5 shrink-0" />
           <span className="truncate">Non-monetary Academic Knowledge Sharing</span>
         </div>
 
-        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tighter max-w-4xl leading-none px-2 break-words pointer-events-auto uppercase">
+        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tighter max-w-4xl leading-none px-2 break-words uppercase">
           Give a Note. Get a Note.{' '}
           <span className="block sm:inline mt-2 sm:mt-0 text-muted-foreground font-mono font-normal tracking-normal text-3xl sm:text-5xl lg:text-6xl normal-case">
             Save a Semester.
           </span>
         </h1>
 
-        <p className="mt-6 text-sm sm:text-lg text-muted-foreground max-w-2xl leading-relaxed px-2 pointer-events-auto">
+        <p className="mt-6 text-sm sm:text-lg text-muted-foreground max-w-2xl leading-relaxed px-2">
           Your classmates already survived the course. Discover verified academic donations, rate resources, and help your peers thrive.
         </p>
 
         {/* Dynamic Hero CTA Buttons */}
-        <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center w-full sm:w-auto px-4 pointer-events-auto">
+        <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center w-full sm:w-auto px-4">
           <Link
             href="/bazaar"
             className="w-full sm:w-auto px-8 py-4 bg-foreground text-background font-bold rounded-2xl hover:opacity-90 transition-all shadow-xl flex items-center justify-center gap-2 group text-sm"
@@ -346,7 +346,7 @@ export default function LandingPage() {
         </div>
 
         {/* Value Props Cards Grid */}
-        <div className="mt-16 sm:mt-20 grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl text-left w-full pointer-events-auto">
+        <div className="mt-16 sm:mt-20 grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl text-left w-full">
           <Link href="/pantry" className="p-6 sm:p-7 rounded-3xl glass-panel glass-card-hover group">
             <div className="w-12 h-12 rounded-2xl bg-foreground/10 text-foreground flex items-center justify-center mb-5 shadow-sm">
               <BookOpen className="w-6 h-6" />
@@ -379,7 +379,7 @@ export default function LandingPage() {
         </div>
 
         {/* How It Works Flow Section */}
-        <div className="mt-20 w-full pointer-events-auto">
+        <div className="mt-20 w-full">
           <div className="text-center mb-6">
             <h2 className="text-2xl sm:text-4xl font-black font-mono uppercase tracking-tight">
               Academic Protocol Flow
