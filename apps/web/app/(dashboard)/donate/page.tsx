@@ -12,6 +12,9 @@ import {
   Sparkles,
   Loader2,
   CheckCircle2,
+  Lock,
+  LogIn,
+  UserPlus,
 } from 'lucide-react';
 import { PRODUCT_TERMINOLOGY } from '@/lib/constants';
 import { useAuth } from '@/lib/auth-context';
@@ -57,18 +60,49 @@ export default function DonateKnowledgePage() {
     }, 1500);
   };
 
-  return (
-    <div className="max-w-3xl mx-auto space-y-8">
-      {/* Login Required Banner ONLY if user is guest/unauthenticated */}
-      {!user && (
-        <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-center space-y-2 mb-6">
-          <p className="text-sm font-bold text-amber-400">🔒 Sign in required to upload & donate notes</p>
-          <Link href="/login" className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-foreground text-background text-xs font-bold hover:opacity-90 transition-all shadow-md">
-            Sign In to Continue
+  // Auth Guard: If guest (not logged in), block the form and show clean lock screen
+  if (!user) {
+    return (
+      <div className="max-w-xl mx-auto my-12 p-8 sm:p-10 rounded-3xl bg-card border border-border shadow-2xl text-center space-y-6 relative overflow-hidden font-sans">
+        <div className="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center justify-center mx-auto shadow-lg">
+          <Lock className="w-8 h-8" />
+        </div>
+
+        <div className="space-y-2">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-mono font-bold uppercase tracking-wider">
+            Authentication Guard
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-black font-mono uppercase tracking-tight text-foreground">
+            Sign In Required to Donate
+          </h1>
+          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-md mx-auto">
+            You must be logged in as a registered benefactor to upload study materials, run cryptographic deduplication checks, and earn +10 Charity Points.
+          </p>
+        </div>
+
+        <div className="pt-4 flex flex-col sm:flex-row gap-3 justify-center items-center">
+          <Link
+            href="/login"
+            className="liquid-metal-btn w-full sm:w-auto px-7 py-3.5 text-xs font-bold font-mono flex items-center justify-center gap-2 shadow-xl"
+          >
+            <LogIn className="w-4 h-4" />
+            <span>Sign In to Continue</span>
+          </Link>
+
+          <Link
+            href="/register"
+            className="liquid-metal-btn-secondary w-full sm:w-auto px-7 py-3.5 text-xs font-bold font-mono flex items-center justify-center gap-2 shadow-lg"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>Create Account</span>
           </Link>
         </div>
-      )}
+      </div>
+    );
+  }
 
+  return (
+    <div className="max-w-3xl mx-auto space-y-8">
       {/* Page Title & Tagline */}
       <div className="text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-card text-foreground text-xs font-mono font-semibold mb-3">

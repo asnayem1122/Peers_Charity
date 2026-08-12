@@ -22,6 +22,9 @@ import {
   Gamepad2,
   X,
   Check,
+  Lock,
+  LogIn,
+  UserPlus,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 
@@ -217,18 +220,49 @@ export default function CharityCardProfilePage() {
     setIsEditing(false);
   };
 
-  return (
-    <div className="space-y-8">
-      {/* Login Required Banner ONLY if user is guest/unauthenticated */}
-      {!user && (
-        <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-center space-y-2">
-          <p className="text-sm font-bold text-amber-400">🔒 Sign in to access your Charity Card profile</p>
-          <Link href="/login" className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-foreground text-background text-xs font-bold hover:opacity-90 transition-all shadow-md">
-            Sign In to Continue
+  // Auth Guard: If guest (not logged in), block profile and show clean lock screen
+  if (!user) {
+    return (
+      <div className="max-w-xl mx-auto my-12 p-8 sm:p-10 rounded-3xl bg-card border border-border shadow-2xl text-center space-y-6 relative overflow-hidden font-sans">
+        <div className="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center justify-center mx-auto shadow-lg">
+          <Lock className="w-8 h-8" />
+        </div>
+
+        <div className="space-y-2">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-mono font-bold uppercase tracking-wider">
+            Authentication Guard
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-black font-mono uppercase tracking-tight text-foreground">
+            Sign In Required to View Profile
+          </h1>
+          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-md mx-auto">
+            Sign in to access your personal Charity Card, customize your avatar, view earned badges, and track your student impact statistics.
+          </p>
+        </div>
+
+        <div className="pt-4 flex flex-col sm:flex-row gap-3 justify-center items-center">
+          <Link
+            href="/login"
+            className="liquid-metal-btn w-full sm:w-auto px-7 py-3.5 text-xs font-bold font-mono flex items-center justify-center gap-2 shadow-xl"
+          >
+            <LogIn className="w-4 h-4" />
+            <span>Sign In to Continue</span>
+          </Link>
+
+          <Link
+            href="/register"
+            className="liquid-metal-btn-secondary w-full sm:w-auto px-7 py-3.5 text-xs font-bold font-mono flex items-center justify-center gap-2 shadow-lg"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>Create Account</span>
           </Link>
         </div>
-      )}
+      </div>
+    );
+  }
 
+  return (
+    <div className="space-y-8">
       {/* Clean Profile Header Container */}
       <div className="p-6 sm:p-8 rounded-3xl glass-panel relative">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
