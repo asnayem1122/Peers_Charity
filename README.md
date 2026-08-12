@@ -23,7 +23,7 @@
 
 The platform runs on a **non-monetary, reputation-driven gamification ecosystem** — students earn **Charity Points**, unlock **badges**, climb the **Generosity Leaderboard**, and build their **Charity Card** profile as recognized academic benefactors.
 
-> **🔗 Live:** [asnayem1122.github.io/Peers_Charity](https://asnayem1122.github.io/Peers_Charity/)
+> **🔗 Live Demo:** [asnayem1122.github.io/Peers_Charity](https://asnayem1122.github.io/Peers_Charity/)
 
 ---
 
@@ -32,32 +32,47 @@ The platform runs on a **non-monetary, reputation-driven gamification ecosystem*
 ### 🏠 Landing Experience
 - **Interactive Constellation Grid** — Animated canvas background with dynamic node connections that respond to cursor movement; auto-detects light/dark mode per frame.
 - **Academic Protocol Flow** — Pinned step cards with animated SVG connecting paths showing the donate → verify → earn → access → save workflow.
-- **Responsive Mobile Navigation** — Hamburger slide-down menu on phones with grid-layout nav items.
+- **Liquid Metal Button System** — Premium dark obsidian buttons with iridescent chrome rim gradients (`conic-gradient`), specular top-edge highlights, and animated diagonal sheen sweep on hover.
+- **Responsive Mobile Navigation** — Hamburger slide-down menu on phones with grid-layout nav items and sticky bottom navigation bar.
 
 ### 📖 Academic Modules
 | Module | Route | Description |
 |--------|-------|-------------|
-| **Charity HQ** | `/hq` | Personalized dashboard with course enrollment, pantry health gauges, and contribution metrics |
-| **Charity Bazaar** | `/bazaar` | Resource discovery catalog with multi-filter search, sort controls, and grid/list views |
-| **Academic Pantry** | `/pantry` | Structured course library with coverage percentage metrics and nested course detail pages |
-| **Exam Emergency Room** | `/exam` | High-yield exam revision portal filtering past questions, solved problems, and topic frequency signals |
-| **Generosity Leaderboard** | `/leaderboard` | Ranked benefactor standings with Charity Points, badges, and contribution streaks |
+| **Charity HQ** | `/hq` | Personalized dashboard with course enrollment, pantry health gauges, and contribution metrics bound to active user |
+| **Charity Bazaar** | `/bazaar` | Resource discovery catalog with quality scores, trust ratings, bookmarking, and download state handlers |
+| **Academic Pantry** | `/pantry` | Structured course library (CSE 2103, CSE 3101, CSE 3205) with 85%+ coverage metrics and nested course detail pages |
+| **Exam Emergency Room** | `/exam` | High-yield exam revision portal with emergency packs and one-click download buttons |
+| **Generosity Leaderboard** | `/leaderboard` | Ranked benefactor standings with Gold 🥇, Silver 🥈, Bronze 🥉 badges, Charity Points, and Trust Scores |
 | **Treasure Vault** | `/treasure` | Bookmarked and saved resources collection |
-| **Donate Knowledge** | `/donate` | 4-step upload wizard with SHA-256 cryptographic file hash deduplication |
+| **Donate Knowledge** | `/donate` | 4-step upload wizard with SHA-256 cryptographic file hash deduplication verification |
 
-### 🔐 Auth & Access
-- **Dynamic Auth State** — Header, topbar, and mobile bottom nav react dynamically to login state (Sign In ↔ Enter HQ / Profile).
+### 🎓 Level & Term System
+- **Dedicated Level & Term Badge** — Each student's Charity Card profile displays a high-contrast `LEVEL & TERM: Level 3 / Term 2` badge.
+- **Structured Selector** — Profile editor features a dropdown select with all combinations from `Level 1 / Term 1` through `Level 4 / Term 2` and `Faculty Admin`.
+- **Scoped Notifications** — Notification events (donation appreciation, pantry updates, badge unlocks) are dynamically filtered to match the student's enrolled Level & Term.
+
+### 🔐 Auth & Access Control
+- **Dynamic Auth State** — Header, topbar, sidebar, and mobile bottom nav react dynamically to login state (Sign In ↔ Enter HQ / Profile).
 - **Public Guest Browsing** — HQ, Bazaar, Pantry, Exam Room, and Leaderboard accessible without login.
-- **Protected Actions** — Donation uploads, profile editing, and admin actions require authentication.
-- **Charity Card Profile** — Public benefactor profile with reputation metrics, interactive tabs (Donations, Achievements, Peer Reviews, Charity Circle, Contribution Trail).
+- **Strict Auth Lock Guards** — `/donate`, `/profile`, and `/admin` routes block unauthenticated guests with dedicated lock cards featuring Liquid Metal "Sign In to Continue" & "Create Account" buttons.
+- **Role-Based Admin Guard** — `/admin` enforces `user.role === 'ADMIN'` check; non-admin students see a "System Admin Access Required" guard with admin credential hints.
+- **Charity Card Profile** — Public benefactor profile with reputation metrics, interactive tabs (Donations, Achievements, Peer Reviews, Charity Circle, Contribution Trail), and avatar gallery.
 
-### 🛡️ Admin & Moderation
-- **Admin HQ** (`/admin`) — Governance dashboard with Donation Vault review queue, Content Moderation, and audit logs.
-- **Flagging System** — Students flag suspicious notes; admins approve, quarantine, or delete.
+### 🔔 Smart Notification System
+- **User-Scoped Notifications** — Charity Bells only display notifications relevant to the signed-in user's Level & Term and platform events (donations, badge unlocks, pantry updates).
+- **Zero-State Handling** — No notification badge appears when unread count is 0 or when unauthenticated; opening the dropdown shows "No new notifications."
+- **Interactive Controls** — Mark all read, dismiss individual notifications, and real-time unread counter badge with pulse animation.
+
+### 🛡️ Admin Governance & Moderation
+- **Admin HQ** (`/admin`) — Full governance dashboard with interactive Donation Vault review queue and Charity Police content moderation flags.
+- **Interactive Vault Actions** — Approve & Publish or Quarantine pending donations with real-time counter updates.
+- **Flagging Resolution** — Delete & Issue Warning or Dismiss Flag for moderation reports, with empty-state messaging when queues are cleared.
+- **SHA-256 Hash Deduplication** — Cryptographic file hash similarity checks prevent duplicate note uploads across the platform.
 
 ### 🎨 Design System
 - **OLED Monochrome Theme** — Pure white (`#ffffff`) light mode and deep OLED black (`#09090b`) dark mode with `localStorage` persistence.
 - **Glassmorphism Panels** — Translucent `backdrop-blur-2xl` frosted glass cards with ambient glow orbs.
+- **Liquid Metal Buttons** — Multi-layered metallic chrome rim gradient (`conic-gradient`), specular top-edge highlights (`inset 0 1px 2px rgba(255,255,255,0.75)`), dark obsidian gradient core, and animated diagonal sweep sheen on hover.
 - **Geist Typography** — Apple SF Pro Display / Geist monochrome font stack with `-webkit-font-smoothing: antialiased`.
 - **Theme Toggle** — ☀️ / 🌙 button in header with smooth CSS transitions.
 
@@ -67,8 +82,8 @@ The platform runs on a **non-monetary, reputation-driven gamification ecosystem*
 
 | Role | Email | Password | Permissions & Features |
 |------|-------|----------|------------------------|
-| **System Admin** | `admin@university.edu` | `password123` | Full Governance Access, Moderation Queue, 1000 Charity Points, 5.0 Trust Score |
-| **Student User** | `nayem@student.university.edu` | `password123` | Upload Study Notes (+10 pts per upload), Earn Badges, Track Contributions |
+| **System Admin** | `admin@university.edu` | `password123` | Full Governance Access, Donation Vault Review, Moderation Queue, Content Flagging |
+| **Student User** | `nayem@student.university.edu` | `password123` | Upload Notes (+10 pts), Earn Badges, Track Contributions, Level 3 / Term 2 |
 
 ---
 
@@ -113,7 +128,7 @@ peers-charity/
 │   ├── web/                          # Next.js 14 Frontend
 │   │   ├── app/
 │   │   │   ├── page.tsx              # Landing page (hero, constellation grid, protocol flow)
-│   │   │   ├── globals.css           # Theme variables, glassmorphism, typography
+│   │   │   ├── globals.css           # Theme variables, glassmorphism, liquid metal buttons
 │   │   │   ├── layout.tsx            # Root layout with meta tags
 │   │   │   ├── (auth)/
 │   │   │   │   ├── login/            # Sign in page
@@ -124,20 +139,23 @@ peers-charity/
 │   │   │       ├── bazaar/           # Resource discovery catalog
 │   │   │       ├── pantry/           # Course library + [courseId] detail
 │   │   │       ├── exam/             # Exam emergency room
-│   │   │       ├── donate/           # Upload wizard
+│   │   │       ├── donate/           # 4-step upload wizard with SHA-256 hash check
 │   │   │       ├── leaderboard/      # Generosity rankings
 │   │   │       ├── treasure/         # Saved resources vault
-│   │   │       ├── profile/          # Charity Card profile
-│   │   │       └── admin/            # Admin governance HQ
+│   │   │       ├── profile/          # Charity Card profile with Level & Term
+│   │   │       └── admin/            # Admin governance HQ with interactive actions
 │   │   ├── components/
 │   │   │   ├── ui/
 │   │   │   │   ├── constellation-grid.tsx   # Interactive canvas background
-│   │   │   │   └── how-it-works.tsx         # Protocol flow step cards
+│   │   │   │   ├── how-it-works.tsx         # Protocol flow step cards
+│   │   │   │   └── liquid-metal-button.tsx  # Reusable Liquid Metal button component
 │   │   │   └── layout/
 │   │   │       ├── Sidebar.tsx        # Desktop sidebar navigation
-│   │   │       ├── Topbar.tsx         # Top navigation bar with auth state
+│   │   │       ├── Topbar.tsx         # Top bar with auth state & smart notifications
 │   │   │       └── MobileBottomNav.tsx # Mobile bottom navigation
-│   │   ├── lib/                       # Auth context, utilities
+│   │   ├── lib/
+│   │   │   ├── auth-context.tsx       # Auth provider with levelTerm support
+│   │   │   └── constants.ts           # Product terminology map
 │   │   ├── next.config.mjs            # Static export + basePath config
 │   │   └── tailwind.config.js         # Theme color mappings
 │   │
@@ -231,6 +249,19 @@ The frontend automatically builds and deploys to **GitHub Pages** on every push 
 
 ---
 
+## 🔒 Business Rules & Security
+
+| Rule | Implementation |
+|------|---------------|
+| **Auth Lock Guards** | `/donate`, `/profile`, `/admin` block unauthenticated guests with dedicated lock cards |
+| **Role-Based Access** | `/admin` requires `user.role === 'ADMIN'`; non-admins see credential hints |
+| **SHA-256 Deduplication** | File hash verification in Step 3 of donate wizard prevents duplicate uploads |
+| **Interactive Admin Actions** | Vault approval/quarantine and flag resolution update counters in real-time |
+| **Level & Term Scoping** | Notifications and profile badges are tied to student's enrolled Level & Term |
+| **Zero-State Notifications** | No badge appears when unread count is 0 or user is unauthenticated |
+
+---
+
 ## 📖 Architecture & Documentation
 
 Comprehensive system design, security policies, and schema documents are stored in [`docs/`](./docs/):
@@ -241,8 +272,8 @@ Comprehensive system design, security policies, and schema documents are stored 
 | Architecture Guide | [`ARCHITECTURE.md`](./docs/ARCHITECTURE.md) | System components, data pipelines, module structure |
 | Database Schemas | [`DATABASE.md`](./docs/DATABASE.md) | MongoDB collections, indexes, and entity relations |
 | REST API Reference | [`API.md`](./docs/API.md) | Endpoints, payload validation, status codes |
-| Design System | [`DESIGN_SYSTEM.md`](./docs/DESIGN_SYSTEM.md) | OLED monochrome tokens, glassmorphism specs |
-| Security Policy | [`SECURITY.md`](./docs/SECURITY.md) | Auth guards, CORS, deduplication security |
+| Design System | [`DESIGN_SYSTEM.md`](./docs/DESIGN_SYSTEM.md) | OLED monochrome tokens, glassmorphism, liquid metal specs |
+| Security Policy | [`SECURITY.md`](./docs/SECURITY.md) | Auth guards, CORS, hash deduplication security |
 | Deployment Guide | [`DEPLOYMENT.md`](./docs/DEPLOYMENT.md) | GitHub Actions workflow & static export pipeline |
 | Feature Roadmap | [`ROADMAP.md`](./docs/ROADMAP.md) | Future enhancements & upcoming milestones |
 
