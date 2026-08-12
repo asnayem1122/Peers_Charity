@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   ShieldAlert,
@@ -10,19 +10,32 @@ import {
   AlertTriangle,
   Lock,
   LogIn,
-  UserCheck,
   Award,
   FileText,
   Users,
+  Flag,
+  Trash2,
+  Eye,
   Check,
 } from 'lucide-react';
 import { PRODUCT_TERMINOLOGY } from '@/lib/constants';
 import { useAuth } from '@/lib/auth-context';
+import { getResources, getReports, resolveReport, Resource, ResourceReport } from '@/lib/resources-data';
 
 export default function AdminHeadquartersPage() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'vault' | 'police' | 'analytics'>('vault');
-  const [publishedCount, setPublishedCount] = useState(18);
+  const [activeTab, setActiveTab] = useState<'vault' | 'reports'>('reports');
+  const [resources, setResources] = useState<Resource[]>([]);
+  const [reports, setReports] = useState<ResourceReport[]>([]);
+
+  const loadAdminData = () => {
+    setResources(getResources());
+    setReports(getReports());
+  };
+
+  useEffect(() => {
+    loadAdminData();
+  }, []);
 
   const [pendingVault, setPendingVault] = useState([
     {
@@ -45,28 +58,17 @@ export default function AdminHeadquartersPage() {
     },
   ]);
 
-  const [policeFlags, setPoliceFlags] = useState([
-    {
-      id: 'f-201',
-      title: 'Suspicious Duplicate PDF Upload',
-      reporter: 'anonymous_peer',
-      resource: 'CSE 3205 Artificial Intelligence Lecture 4 Slides',
-      reason: 'Cryptographic hash similarity threshold > 95%',
-      date: 'Yesterday',
-    },
-  ]);
-
   const handleApproveVault = (id: string) => {
     setPendingVault((prev) => prev.filter((i) => i.id !== id));
-    setPublishedCount((prev) => prev + 1);
   };
 
   const handleQuarantineVault = (id: string) => {
     setPendingVault((prev) => prev.filter((i) => i.id !== id));
   };
 
-  const handleResolveFlag = (id: string) => {
-    setPoliceFlags((prev) => prev.filter((f) => f.id !== id));
+  const handleResolveReportAction = (reportId: string, action: 'DELETE' | 'DISMISS') => {
+    resolveReport(reportId, action === 'DELETE' ? 'RESOLVED' : 'DISMISSED', action === 'DELETE');
+    loadAdminData();
   };
 
   // Role Guard: Block guests and non-admin users
@@ -85,7 +87,7 @@ export default function AdminHeadquartersPage() {
             System Admin Access Required
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-md mx-auto">
-            This dashboard is restricted to System Overseers and Moderation Admins. Sign in with administrative credentials to access the Donation Vault review queue and content moderation.
+            This dashboard is restricted to System Overseers and Moderation Admins. Sign in with administrative credentials to access moderation reports and real uploader identities.
           </p>
         </div>
 
@@ -119,13 +121,15 @@ export default function AdminHeadquartersPage() {
     );
   }
 
+  const pendingReports = reports.filter((r) => r.status === 'PENDING');
+
   return (
     <div className="space-y-8 font-sans">
       {/* Header */}
       <div className="p-6 rounded-3xl bg-card border border-border shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-foreground/10 border border-border text-foreground text-xs font-mono font-bold uppercase tracking-wider mb-2">
-            <ShieldCheck className="w-3.5 h-3.5" />
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
             <span>Authenticated System Overseer</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight flex items-center gap-2 font-mono uppercase">
@@ -133,7 +137,7 @@ export default function AdminHeadquartersPage() {
             <span>{PRODUCT_TERMINOLOGY.admin}</span>
           </h1>
           <p className="text-sm text-muted-foreground mt-0.5 font-sans">
-            Platform governance, Donation Vault review queue, and Charity Police content moderation.
+            Platform governance, resource reports moderation, and real uploader identity tracking.
           </p>
         </div>
 
@@ -148,20 +152,20 @@ export default function AdminHeadquartersPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 font-mono">
         <div className="p-5 rounded-3xl bg-card border border-border shadow-sm">
           <div className="flex items-center justify-between text-muted-foreground mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider">Total Benefactors</span>
-            <Users className="w-4 h-4 text-foreground" />
+            <span className="text-xs font-bold uppercase tracking-wider">Total Resources</span>
+            <FileText className="w-4 h-4 text-foreground" />
           </div>
-          <span className="block text-3xl font-black">42</span>
-          <span className="text-[11px] text-muted-foreground mt-1 block">Active students</span>
+          <span className="block text-3xl font-black">{resources.length}</span>
+          <span className="text-[11px] text-muted-foreground mt-1 block">Catalog items</span>
         </div>
 
         <div className="p-5 rounded-3xl bg-card border border-border shadow-sm">
-          <div className="flex items-center justify-between text-muted-foreground mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider">Published Notes</span>
-            <FileText className="w-4 h-4 text-foreground" />
+          <div className="flex items-center justify-between text-red-400 mb-2">
+            <span className="text-xs font-bold uppercase tracking-wider">Pending Reports</span>
+            <Flag className="w-4 h-4 text-red-400" />
           </div>
-          <span className="block text-3xl font-black text-foreground">{publishedCount}</span>
-          <span className="text-[11px] text-muted-foreground mt-1 block">Verified materials</span>
+          <span className="block text-3xl font-black text-red-400">{pendingReports.length}</span>
+          <span className="text-[11px] text-red-400/80 mt-1 block">Moderation flags</span>
         </div>
 
         <div className="p-5 rounded-3xl bg-card border border-border shadow-sm">
@@ -174,43 +178,109 @@ export default function AdminHeadquartersPage() {
         </div>
 
         <div className="p-5 rounded-3xl bg-card border border-border shadow-sm">
-          <div className="flex items-center justify-between text-red-400 mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider">Charity Police Flags</span>
-            <AlertTriangle className="w-4 h-4 text-red-400" />
+          <div className="flex items-center justify-between text-muted-foreground mb-2">
+            <span className="text-xs font-bold uppercase tracking-wider">Active Students</span>
+            <Users className="w-4 h-4 text-foreground" />
           </div>
-          <span className="block text-3xl font-black text-red-400">{policeFlags.length}</span>
-          <span className="text-[11px] text-red-400/80 mt-1 block">Flagged items</span>
+          <span className="block text-3xl font-black text-foreground">42</span>
+          <span className="text-[11px] text-muted-foreground mt-1 block">Registered benefactors</span>
         </div>
       </div>
 
       {/* Admin Navigation Tabs */}
       <div className="border-b border-border flex items-center gap-6 text-sm font-bold font-mono">
         <button
+          onClick={() => setActiveTab('reports')}
+          className={`pb-3 border-b-2 transition-all flex items-center gap-2 ${
+            activeTab === 'reports' ? 'border-foreground text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          <span>Resource Reports ({pendingReports.length})</span>
+          {pendingReports.length > 0 && (
+            <span className="px-2.5 py-0.5 rounded-full text-xs bg-red-500/10 text-red-400 border border-red-500/30">
+              {pendingReports.length} High Priority
+            </span>
+          )}
+        </button>
+
+        <button
           onClick={() => setActiveTab('vault')}
           className={`pb-3 border-b-2 transition-all flex items-center gap-2 ${
             activeTab === 'vault' ? 'border-foreground text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
         >
-          <span>{PRODUCT_TERMINOLOGY.resourceVault} Review Queue</span>
-          <span className="px-2.5 py-0.5 rounded-full text-xs bg-amber-500/10 text-amber-400 border border-amber-500/30">
-            {pendingVault.length}
-          </span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('police')}
-          className={`pb-3 border-b-2 transition-all flex items-center gap-2 ${
-            activeTab === 'police' ? 'border-foreground text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          <span>{PRODUCT_TERMINOLOGY.moderation} Flags</span>
-          <span className="px-2.5 py-0.5 rounded-full text-xs bg-red-500/10 text-red-400 border border-red-500/30">
-            {policeFlags.length}
-          </span>
+          <span>Donation Vault Review Queue ({pendingVault.length})</span>
         </button>
       </div>
 
-      {/* Tab Content: Vault Queue */}
+      {/* Tab Content 1: Resource Reports Moderation */}
+      {activeTab === 'reports' && (
+        <div className="space-y-4 font-mono text-xs">
+          {pendingReports.length === 0 ? (
+            <div className="p-10 bg-card border border-border rounded-3xl text-center space-y-2 text-muted-foreground">
+              <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto" />
+              <p className="font-bold text-foreground">No Pending Reports</p>
+              <p className="font-sans">All resource reports have been reviewed and resolved by System Overseers.</p>
+            </div>
+          ) : (
+            pendingReports.map((rep) => {
+              const targetRes = resources.find((r) => r.id === rep.resourceId);
+              return (
+                <div
+                  key={rep.id}
+                  className="p-6 rounded-3xl bg-card border border-red-500/30 shadow-sm space-y-4"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/60 pb-3">
+                    <div className="space-y-1">
+                      <span className="px-2.5 py-0.5 rounded bg-red-500/10 text-red-400 font-bold text-[10px]">
+                        Reason: {rep.reason}
+                      </span>
+                      <h3 className="text-sm font-bold text-foreground font-sans pt-1">{rep.resourceTitle}</h3>
+                    </div>
+                    <span className="text-[10px] text-muted-foreground">{rep.createdAt}</span>
+                  </div>
+
+                  {/* Real Uploader Tracking (Anonymous to public ≠ Anonymous to Admin) */}
+                  <div className="p-3.5 rounded-2xl bg-muted/60 border border-border space-y-1 font-sans">
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                      <span className="text-muted-foreground">
+                        Public Display Identity:{' '}
+                        <strong className="text-foreground">{targetRes?.publicDisplayIdentity || 'Shared Anonymously'}</strong>
+                      </span>
+                      <span className="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-[10px] font-bold">
+                        Uploader Verified: {targetRes?.realUploaderEmail || 'nayem@student.university.edu'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-foreground italic pt-1">
+                      Report Details: "{rep.details}" — Reported by {rep.reporterName}
+                    </p>
+                  </div>
+
+                  {/* Moderation Actions */}
+                  <div className="flex items-center justify-end gap-3 pt-1">
+                    <button
+                      onClick={() => handleResolveReportAction(rep.id, 'DISMISS')}
+                      className="px-4 py-2 rounded-xl border border-border text-muted-foreground hover:text-foreground font-bold transition-all"
+                    >
+                      Dismiss Report
+                    </button>
+
+                    <button
+                      onClick={() => handleResolveReportAction(rep.id, 'DELETE')}
+                      className="px-4 py-2 rounded-xl bg-red-500 text-white font-bold hover:bg-red-600 transition-all shadow-md flex items-center gap-1.5"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Delete Resource &amp; Issue Warning</span>
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
+
+      {/* Tab Content 2: Vault Review Queue */}
       {activeTab === 'vault' && (
         <div className="space-y-4">
           {pendingVault.length === 0 ? (
@@ -245,7 +315,7 @@ export default function AdminHeadquartersPage() {
                     className="px-4 py-2 rounded-xl bg-foreground text-background font-bold text-xs hover:opacity-90 transition-all flex items-center gap-1.5 shadow-md"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>Approve & Publish</span>
+                    <span>Approve &amp; Publish</span>
                   </button>
                   <button
                     onClick={() => handleQuarantineVault(item.id)}
@@ -253,51 +323,6 @@ export default function AdminHeadquartersPage() {
                   >
                     <XCircle className="w-3.5 h-3.5" />
                     <span>Quarantine</span>
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      )}
-
-      {/* Tab Content: Moderation Flags */}
-      {activeTab === 'police' && (
-        <div className="space-y-4">
-          {policeFlags.length === 0 ? (
-            <div className="p-8 bg-card border border-border rounded-3xl text-center space-y-2 text-xs text-muted-foreground font-mono">
-              <p className="font-bold text-foreground">No Moderation Reports</p>
-              <p>Charity Police moderation queue has zero active flags.</p>
-            </div>
-          ) : (
-            policeFlags.map((flag) => (
-              <div
-                key={flag.id}
-                className="p-6 rounded-3xl bg-card border border-red-500/30 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-mono text-xs"
-              >
-                <div className="space-y-1">
-                  <span className="px-2.5 py-0.5 rounded bg-red-500/10 text-red-400 font-bold text-[10px]">
-                    High Priority Flag
-                  </span>
-                  <h3 className="text-sm font-bold text-foreground font-sans">{flag.title}</h3>
-                  <p className="text-[11px] text-muted-foreground">
-                    Resource: <span className="text-foreground">{flag.resource}</span>
-                  </p>
-                  <p className="text-[11px] text-red-400 font-semibold">Reason: {flag.reason}</p>
-                </div>
-
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    onClick={() => handleResolveFlag(flag.id)}
-                    className="px-4 py-2 rounded-xl bg-red-500 text-white font-bold text-xs hover:bg-red-600 transition-all shadow-md"
-                  >
-                    Delete & Issue Warning
-                  </button>
-                  <button
-                    onClick={() => handleResolveFlag(flag.id)}
-                    className="px-3.5 py-2 rounded-xl border border-border text-muted-foreground hover:text-foreground font-bold text-xs transition-all"
-                  >
-                    Dismiss Flag
                   </button>
                 </div>
               </div>

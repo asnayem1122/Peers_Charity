@@ -1,56 +1,57 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Flame, Sparkles, BookOpen, PlusCircle, Download, Check, ShieldCheck, FileText } from 'lucide-react';
+import { Flame, Sparkles, BookOpen, PlusCircle, Download, Check, ShieldCheck, FileText, Star, Eye } from 'lucide-react';
 import { PRODUCT_TERMINOLOGY } from '@/lib/constants';
+import { useAuth } from '@/lib/auth-context';
+import { getResources, recordDownload, Resource } from '@/lib/resources-data';
+import ResourceDetailModal from '@/components/ui/resource-detail-modal';
+import ReportResourceModal from '@/components/ui/report-resource-modal';
+import GuestAuthModal from '@/components/ui/guest-auth-modal';
 
 export default function ExamEmergencyRoomPage() {
+  const { user } = useAuth();
   const [selectedCourse, setSelectedCourse] = useState('ALL');
   const [downloadedIds, setDownloadedIds] = useState<string[]>([]);
+  const [resources, setResources] = useState<Resource[]>([]);
 
-  const emergencyResources = [
-    {
-      id: 'e-1',
-      title: 'CSE 2103: Dynamic Programming & Graph Algorithms Exam Cheat Sheet',
-      course: 'CSE 2103',
-      type: 'Cheat Sheets',
-      yieldScore: '99% Exam Frequency',
-      downloadCount: 184,
-      fileSize: '3.8 MB',
-      date: 'Final Exam Pack',
-    },
-    {
-      id: 'e-2',
-      title: 'CSE 3101: Operating Systems Past 5 Years Solved Question Papers',
-      course: 'CSE 3101',
-      type: 'Solved Questions',
-      yieldScore: '97% Exam Frequency',
-      downloadCount: 260,
-      fileSize: '7.4 MB',
-      date: 'Midterm & Final',
-    },
-    {
-      id: 'e-3',
-      title: 'CSE 3205: Artificial Intelligence Machine Learning Formulas & Proofs',
-      course: 'CSE 3205',
-      type: 'Cheat Sheets',
-      yieldScore: '95% Exam Frequency',
-      downloadCount: 112,
-      fileSize: '5.1 MB',
-      date: 'High Yield',
-    },
-  ];
+  // Modals
+  const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [reportTarget, setReportTarget] = useState<{ id: string; title: string }>({ id: '', title: '' });
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authActionName, setAuthActionName] = useState('access this feature');
 
-  const handleDownload = (id: string) => {
-    if (!downloadedIds.includes(id)) {
-      setDownloadedIds((prev) => [...prev, id]);
-    }
+  const loadData = () => {
+    setResources(getResources());
   };
 
-  const filtered = emergencyResources.filter(
-    (res) => selectedCourse === 'ALL' || res.course === selectedCourse
-  );
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const handleRequireAuth = (actionName: string) => {
+    setAuthActionName(actionName);
+    setIsAuthModalOpen(true);
+  };
+
+  const handleDownload = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    if (!user) {
+      handleRequireAuth('download high-yield exam packs');
+      return;
+    }
+    const updated = recordDownload(id);
+    setDownloadedIds(updated);
+    loadData();
+  };
+
+  const examPackFilter = resources.filter((res) => {
+    const matchesCourse = selectedCourse === 'ALL' || res.courseCode === selectedCourse;
+    return matchesCourse;
+  });
 
   return (
     <div className="space-y-8 font-sans">
@@ -84,7 +85,7 @@ export default function ExamEmergencyRoomPage() {
       {/* Course Filter Bar */}
       <div className="flex items-center justify-between gap-4 font-mono text-xs">
         <div className="flex items-center gap-2 overflow-x-auto pb-1">
-          {['ALL', 'CSE 2103', 'CSE 3101', 'CSE 3205'].map((course) => (
+          {['ALL', 'CSE 2103', 'CSE 3101', 'CSE 3205', 'MATH 2101', 'EEE 2101'].map((course) => (
             <button
               key={course}
               onClick={() => setSelectedCourse(course)}
@@ -100,45 +101,48 @@ export default function ExamEmergencyRoomPage() {
         </div>
       </div>
 
-      {/* Emergency Resources Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {filtered.map((res) => {
-          const isDownloaded = downloadedIds.includes(res.id);
-
+      {/* Emergency Resource List */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {examPackFilter.map((pack) => {
+          const isDownloaded = downloadedIds.includes(pack.id);
           return (
             <div
-              key={res.id}
-              className="p-6 rounded-3xl bg-card border border-amber-500/30 shadow-xl relative overflow-hidden flex flex-col justify-between hover:border-amber-500/60 transition-all duration-300 group"
+              key={pack.id}
+              onClick={() => {
+                setSelectedResource(pack);
+                setIsDetailOpen(true);
+              }}
+              className="p-6 rounded-3xl bg-card border border-border hover:border-amber-500/40 transition-all shadow-sm flex flex-col justify-between space-y-4 cursor-pointer group"
             >
-              <div>
-                <div className="flex items-center justify-between gap-2 mb-3 font-mono">
-                  <span className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-400 font-black text-xs border border-amber-500/30">
-                    🔥 {res.course}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between font-mono text-xs">
+                  <span className="px-2.5 py-0.5 rounded bg-foreground text-background font-black text-[10px]">
+                    {pack.courseCode}
                   </span>
-                  <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30">
-                    {res.yieldScore}
+                  <span className="px-2.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 font-bold text-[10px]">
+                    🔥 High Yield ({pack.qualityScore}% Match)
                   </span>
                 </div>
 
-                <h3 className="text-base font-bold text-foreground leading-snug mb-2 font-sans">
-                  {res.title}
+                <h3 className="text-base font-bold font-sans text-foreground group-hover:text-amber-400 transition-colors line-clamp-2">
+                  {pack.title}
                 </h3>
-
-                <p className="text-xs text-muted-foreground font-mono mb-4">
-                  Type: <span className="text-foreground font-semibold">{res.type}</span> • {res.fileSize}
-                </p>
+                <p className="text-xs text-muted-foreground font-sans line-clamp-2">{pack.description}</p>
               </div>
 
-              <div className="pt-4 border-t border-border flex items-center justify-between font-mono">
-                <span className="text-xs text-muted-foreground">
-                  {res.downloadCount} downloads
-                </span>
+              <div className="pt-4 border-t border-border/60 flex items-center justify-between font-mono text-xs">
+                <div className="space-y-0.5">
+                  <span className="block text-[11px] font-bold text-foreground">
+                    Shared by: {pack.publicDisplayIdentity}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground block">{pack.downloadsCount} student downloads</span>
+                </div>
 
                 <button
-                  onClick={() => handleDownload(res.id)}
-                  className={`px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all shadow-md ${
+                  onClick={(e) => handleDownload(e, pack.id)}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold font-mono transition-all flex items-center gap-1.5 shadow-md ${
                     isDownloaded
-                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                      ? 'bg-emerald-500 text-white'
                       : 'liquid-metal-btn'
                   }`}
                 >
@@ -159,6 +163,33 @@ export default function ExamEmergencyRoomPage() {
           );
         })}
       </div>
+
+      {/* Modals */}
+      <ResourceDetailModal
+        resource={selectedResource}
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+        onOpenReportModal={(id, title) => {
+          setReportTarget({ id, title });
+          setIsReportOpen(true);
+        }}
+        onRequireAuth={handleRequireAuth}
+        onResourceUpdated={loadData}
+      />
+
+      <ReportResourceModal
+        isOpen={isReportOpen}
+        onClose={() => setIsReportOpen(false)}
+        resourceId={reportTarget.id}
+        resourceTitle={reportTarget.title}
+        onRequireAuth={() => handleRequireAuth('report resources')}
+      />
+
+      <GuestAuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        actionName={authActionName}
+      />
     </div>
   );
 }

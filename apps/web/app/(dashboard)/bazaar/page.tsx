@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Search,
@@ -14,122 +14,173 @@ import {
   ShieldCheck,
   Award,
   Check,
+  FileText,
+  FileCode,
+  ExternalLink,
+  Eye,
+  Filter,
+  UserCheck,
+  Sparkles,
+  Info,
 } from 'lucide-react';
 import { PRODUCT_TERMINOLOGY } from '@/lib/constants';
 import { useAuth } from '@/lib/auth-context';
+import {
+  getResources,
+  getSavedResourceIds,
+  toggleSaveResource,
+  recordDownload,
+  Resource,
+  ResourceType,
+} from '@/lib/resources-data';
+import ResourceDetailModal from '@/components/ui/resource-detail-modal';
+import ReportResourceModal from '@/components/ui/report-resource-modal';
+import GuestAuthModal from '@/components/ui/guest-auth-modal';
+import AboutProjectModal from '@/components/ui/about-project-modal';
 
 export default function CharityBazaarPage() {
   const { user } = useAuth();
+  const [resources, setResources] = useState<Resource[]>([]);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedType, setSelectedType] = useState('ALL');
+  const [selectedType, setSelectedType] = useState<string>('ALL');
+  const [selectedCourse, setSelectedCourse] = useState<string>('ALL');
+  const [sortBy, setSortBy] = useState<'downloads' | 'rating' | 'newest'>('downloads');
   const [savedIds, setSavedIds] = useState<string[]>([]);
   const [downloadedIds, setDownloadedIds] = useState<string[]>([]);
 
-  // Verified Sample Academic Resources Catalog
-  const resources = [
-    {
-      id: 'res-1',
-      title: 'CSE 2103: Dynamic Programming Survival Notes & Cheat Sheet',
-      course: 'CSE 2103',
-      type: 'Cheat Sheets',
-      uploader: 'nayem@student.university.edu',
-      uploaderName: 'Nayem (Level 3 / Term 2)',
-      qualityScore: 98,
-      rating: 4.9,
-      reviewsCount: 24,
-      downloadsCount: 142,
-      fileSize: '4.2 MB',
-      date: '2 days ago',
-      tags: ['Dynamic Programming', 'Memoization', 'Knapsack'],
-    },
-    {
-      id: 'res-2',
-      title: 'CSE 3101: Operating Systems Process Scheduling & Memory Management Solved Bank',
-      course: 'CSE 3101',
-      type: 'Solved Questions',
-      uploader: 'admin@university.edu',
-      uploaderName: 'Faculty Admin',
-      qualityScore: 99,
-      rating: 5.0,
-      reviewsCount: 38,
-      downloadsCount: 215,
-      fileSize: '8.1 MB',
-      date: '1 week ago',
-      tags: ['Operating Systems', 'Paging', 'Semaphores', 'Deadlocks'],
-    },
-    {
-      id: 'res-3',
-      title: 'CSE 3205: Artificial Intelligence Midterm & Final Solved Past Papers (2020-2025)',
-      course: 'CSE 3205',
-      type: 'Previous Exam Questions',
-      uploader: 'sarah.k@student.university.edu',
-      uploaderName: 'Sarah K. (Senior Benefactor)',
-      qualityScore: 96,
-      rating: 4.8,
-      reviewsCount: 19,
-      downloadsCount: 98,
-      fileSize: '6.5 MB',
-      date: '3 days ago',
-      tags: ['AI Search', 'A* Algorithm', 'Minimax', 'Neural Nets'],
-    },
-  ];
+  // Modals state
+  const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [reportTarget, setReportTarget] = useState<{ id: string; title: string }>({ id: '', title: '' });
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authActionName, setAuthActionName] = useState('access this feature');
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
 
-  const filteredResources = resources.filter((res) => {
-    const matchesSearch =
-      res.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      res.course.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      res.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesType = selectedType === 'ALL' || res.type === selectedType;
-    return matchesSearch && matchesType;
-  });
-
-  const toggleSave = (id: string) => {
-    setSavedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
+  const loadData = () => {
+    const list = getResources();
+    setResources(list);
+    setSavedIds(getSavedResourceIds());
   };
 
-  const handleDownload = (id: string) => {
-    if (!downloadedIds.includes(id)) {
-      setDownloadedIds((prev) => [...prev, id]);
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const handleOpenDetail = (res: Resource) => {
+    setSelectedResource(res);
+    setIsDetailOpen(true);
+  };
+
+  const handleOpenReport = (id: string, title: string) => {
+    setReportTarget({ id, title });
+    setIsReportOpen(true);
+  };
+
+  const handleRequireAuth = (actionName: string) => {
+    setAuthActionName(actionName);
+    setIsAuthModalOpen(true);
+  };
+
+  const handleToggleSave = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    if (!user) {
+      handleRequireAuth('bookmark resources to your Treasure Vault');
+      return;
     }
+    const updated = toggleSaveResource(id);
+    setSavedIds(updated);
+    loadData();
   };
+
+  const handleDownload = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    if (!user) {
+      handleRequireAuth('download academic resources');
+      return;
+    }
+    const updated = recordDownload(id);
+    setDownloadedIds(updated);
+    loadData();
+  };
+
+  // Filter & Search Logic
+  const filteredResources = resources
+    .filter((res) => {
+      const q = searchQuery.toLowerCase().trim();
+      const matchesSearch =
+        !q ||
+        res.title.toLowerCase().includes(q) ||
+        res.courseCode.toLowerCase().includes(q) ||
+        res.courseName.toLowerCase().includes(q) ||
+        res.description.toLowerCase().includes(q) ||
+        res.tags.some((t) => t.toLowerCase().includes(q));
+
+      const matchesType = selectedType === 'ALL' || res.resourceType === selectedType;
+      const matchesCourse = selectedCourse === 'ALL' || res.courseCode === selectedCourse;
+
+      return matchesSearch && matchesType && matchesCourse;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'downloads') return b.downloadsCount - a.downloadsCount;
+      if (sortBy === 'rating') return b.rating - a.rating;
+      if (sortBy === 'newest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      return 0;
+    });
+
+  const availableCourses = Array.from(new Set(resources.map((r) => r.courseCode)));
 
   return (
     <div className="space-y-6 font-sans">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-card border border-border shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 sm:p-8 rounded-3xl bg-card border border-border shadow-md">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight font-mono uppercase">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="px-3 py-1 rounded-full bg-foreground/10 border border-border text-foreground text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5">
+              <Compass className="w-3.5 h-3.5" />
+              Public Academic Catalog
+            </span>
+            <button
+              onClick={() => setIsAboutOpen(true)}
+              className="px-3 py-1 rounded-full bg-accent/10 border border-accent/30 text-accent text-xs font-mono font-bold uppercase hover:bg-accent/20 transition-all flex items-center gap-1"
+            >
+              <Info className="w-3.5 h-3.5" />
+              About Project
+            </button>
+          </div>
+
+          <h1 className="text-2xl sm:text-4xl font-black tracking-tight font-mono uppercase">
             {PRODUCT_TERMINOLOGY.discovery}
           </h1>
-          <p className="text-sm text-muted-foreground mt-0.5 font-sans">
-            Discover, evaluate, and download verified academic donations shared by peer benefactors.
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1 font-sans max-w-2xl">
+            Explore, preview, download, and share verified academic notes, lecture slides, solved exam papers, and educational links. No account required for public browsing!
           </p>
         </div>
 
         {/* View Toggle & Donate Button */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 bg-background border border-border p-1 rounded-xl font-mono">
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1 bg-background border border-border p-1 rounded-2xl font-mono">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
+              className={`p-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${
                 viewMode === 'grid'
                   ? 'bg-foreground text-background shadow-sm'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
+              title="Grid View"
             >
               <Grid className="w-4 h-4" />
               <span className="hidden sm:inline">Grid</span>
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
+              className={`p-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${
                 viewMode === 'list'
                   ? 'bg-foreground text-background shadow-sm'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
+              title="List View"
             >
               <List className="w-4 h-4" />
               <span className="hidden sm:inline">List</span>
@@ -138,7 +189,7 @@ export default function CharityBazaarPage() {
 
           <Link
             href="/donate"
-            className="liquid-metal-btn px-4 py-2 text-xs font-bold font-mono flex items-center gap-1.5 shadow-md"
+            className="liquid-metal-btn px-5 py-2.5 text-xs font-bold font-mono flex items-center gap-2 shadow-lg"
           >
             <PlusCircle className="w-4 h-4" />
             <span>Donate Knowledge</span>
@@ -146,156 +197,273 @@ export default function CharityBazaarPage() {
         </div>
       </div>
 
-      {/* Search & Filters Bar */}
-      <div className="p-4 rounded-2xl bg-card border border-border shadow-sm flex flex-col md:flex-row gap-3 items-center">
-        <div className="relative flex-1 w-full">
-          <Search className="w-4 h-4 absolute left-3.5 top-3.5 text-muted-foreground" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search notes, course codes, or algorithms..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm focus:outline-none focus:border-foreground"
-          />
+      {/* Search & Multi-Filter Bar */}
+      <div className="p-5 rounded-3xl bg-card border border-border shadow-sm space-y-4 font-mono">
+        <div className="flex flex-col md:flex-row gap-3 items-center">
+          {/* Search Input */}
+          <div className="relative flex-1 w-full">
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by title, course (e.g. CSE 2103), topic tags, or description..."
+              className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-border bg-background text-foreground text-xs focus:outline-none focus:border-foreground"
+            />
+          </div>
+
+          {/* Sort By Dropdown */}
+          <div className="flex items-center gap-2 w-full md:w-auto shrink-0">
+            <span className="text-xs text-muted-foreground font-bold uppercase">Sort:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className="px-3.5 py-2.5 rounded-2xl border border-border bg-background text-foreground text-xs font-bold focus:outline-none focus:border-foreground"
+            >
+              <option value="downloads">Most Downloaded</option>
+              <option value="rating">Top Rated ⭐</option>
+              <option value="newest">Recently Added</option>
+            </select>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 w-full md:w-auto font-mono">
-          <select
-            value={selectedType}
-            onChange={(e) => setSelectedType(e.target.value)}
-            className="px-3 py-2.5 rounded-xl border border-border bg-background text-foreground text-xs focus:outline-none focus:border-foreground font-bold"
-          >
-            <option value="ALL">All Resource Types</option>
-            <option value="Lecture Notes">Lecture Notes</option>
-            <option value="Solved Questions">Solved Questions</option>
-            <option value="Previous Exam Questions">Previous Questions</option>
-            <option value="Cheat Sheets">Cheat Sheets</option>
-          </select>
+        {/* Filter Pills Row */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-border/60 text-xs">
+          {/* Resource Type Filter */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[11px] text-muted-foreground font-bold uppercase mr-1">Type:</span>
+            {['ALL', 'Notes', 'Slides', 'PDF', 'External Link'].map((type) => (
+              <button
+                key={type}
+                onClick={() => setSelectedType(type)}
+                className={`px-3 py-1 rounded-xl font-bold transition-all ${
+                  selectedType === type
+                    ? 'bg-foreground text-background shadow-md'
+                    : 'bg-background hover:bg-card-hover border border-border text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
 
-          <select className="px-3 py-2.5 rounded-xl border border-border bg-background text-foreground text-xs focus:outline-none focus:border-foreground font-bold">
-            <option value="quality">Sort: Quality Score</option>
-            <option value="rating">Sort: Highest Rated</option>
-            <option value="downloads">Sort: Most Downloaded</option>
-          </select>
+          {/* Course Filter Dropdown */}
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] text-muted-foreground font-bold uppercase">Course:</span>
+            <select
+              value={selectedCourse}
+              onChange={(e) => setSelectedCourse(e.target.value)}
+              className="px-3 py-1 rounded-xl border border-border bg-background text-foreground text-xs font-bold focus:outline-none focus:border-foreground"
+            >
+              <option value="ALL">All Courses</option>
+              {availableCourses.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
-      {/* Catalog Resources Display */}
-      {filteredResources.length > 0 ? (
-        <div
-          className={
-            viewMode === 'grid'
-              ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
-              : 'space-y-4'
-          }
-        >
+      {/* Catalog Display (Grid vs List) */}
+      {filteredResources.length === 0 ? (
+        /* Empty State */
+        <div className="p-12 rounded-3xl bg-card border border-border shadow-sm text-center space-y-4 font-mono">
+          <div className="w-16 h-16 rounded-2xl bg-foreground/5 text-muted-foreground flex items-center justify-center mx-auto border border-border">
+            <Compass className="w-8 h-8" />
+          </div>
+          <div className="space-y-1">
+            <h3 className="text-lg font-bold text-foreground uppercase">No Academic Resources Found</h3>
+            <p className="text-xs text-muted-foreground max-w-md mx-auto font-sans">
+              No materials match your current search query "{searchQuery}" or selected filters. Be the first student to donate knowledge for this course!
+            </p>
+          </div>
+          <Link
+            href="/donate"
+            className="liquid-metal-btn inline-flex items-center gap-2 px-6 py-3 text-xs font-bold shadow-lg uppercase tracking-wider"
+          >
+            <PlusCircle className="w-4 h-4" />
+            <span>Donate First Resource</span>
+          </Link>
+        </div>
+      ) : viewMode === 'grid' ? (
+        /* Grid Layout */
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredResources.map((res) => {
             const isSaved = savedIds.includes(res.id);
-            const isDownloaded = downloadedIds.includes(res.id);
-
             return (
               <div
                 key={res.id}
-                className="p-6 rounded-3xl bg-card border border-border shadow-lg relative overflow-hidden flex flex-col justify-between hover:border-foreground/40 transition-all duration-300 group"
+                onClick={() => handleOpenDetail(res)}
+                className="p-6 rounded-3xl bg-card border border-border hover:border-foreground/40 transition-all shadow-sm hover:shadow-xl flex flex-col justify-between space-y-4 cursor-pointer group relative overflow-hidden"
               >
-                <div>
-                  <div className="flex items-center justify-between gap-2 mb-3 font-mono">
-                    <span className="px-2.5 py-1 rounded-lg bg-foreground text-background font-black text-xs">
-                      {res.course}
+                <div className="space-y-3">
+                  {/* Top Badges */}
+                  <div className="flex items-center justify-between gap-2 font-mono text-xs">
+                    <span className="px-2.5 py-0.5 rounded-lg bg-foreground text-background font-black uppercase tracking-wider">
+                      {res.courseCode}
                     </span>
-                    <div className="flex items-center gap-2 text-xs">
-                      <span className="px-2 py-0.5 rounded bg-foreground/10 text-foreground font-bold border border-border">
-                        {res.type}
-                      </span>
-                      <button
-                        onClick={() => toggleSave(res.id)}
-                        className={`p-1.5 rounded-lg border transition-all ${
-                          isSaved
-                            ? 'bg-amber-500/20 text-amber-400 border-amber-500/40'
-                            : 'border-border text-muted-foreground hover:text-foreground'
-                        }`}
-                        title={isSaved ? 'Bookmarked' : 'Save to Vault'}
-                      >
-                        <Bookmark className="w-4 h-4" />
-                      </button>
-                    </div>
+                    <span className="px-2.5 py-0.5 rounded-lg bg-foreground/10 text-foreground border border-border font-bold">
+                      {res.resourceType}
+                    </span>
                   </div>
 
-                  <h3 className="text-base font-bold text-foreground leading-snug mb-2 group-hover:text-muted-foreground transition-colors font-sans">
+                  {/* Title */}
+                  <h3 className="text-base font-bold font-sans text-foreground group-hover:text-accent transition-colors line-clamp-2 leading-snug">
                     {res.title}
                   </h3>
 
-                  <p className="text-xs text-muted-foreground mb-4">
-                    Donated by <span className="font-semibold text-foreground">{res.uploaderName}</span>
+                  {/* Description */}
+                  <p className="text-xs text-muted-foreground line-clamp-2 font-sans leading-relaxed">
+                    {res.description}
                   </p>
 
-                  <div className="flex items-center gap-3 text-xs font-mono mb-4 text-muted-foreground">
-                    <span className="flex items-center gap-1 text-amber-400 font-bold">
-                      <Star className="w-3.5 h-3.5 fill-amber-400" />
-                      <span>{res.rating}</span>
-                    </span>
-                    <span>•</span>
-                    <span className="flex items-center gap-1 text-foreground font-semibold">
-                      <ShieldCheck className="w-3.5 h-3.5" />
-                      <span>{res.qualityScore}% Quality</span>
-                    </span>
-                    <span>•</span>
-                    <span>{res.fileSize}</span>
-                  </div>
-
-                  <div className="flex flex-wrap gap-1.5 mb-6 font-mono text-[10px]">
-                    {res.tags.map((t) => (
-                      <span
-                        key={t}
-                        className="px-2 py-0.5 rounded bg-muted text-muted-foreground border border-border"
-                      >
-                        #{t}
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-1 font-mono pt-1">
+                    {res.tags.slice(0, 3).map((tag) => (
+                      <span key={tag} className="text-[10px] px-2 py-0.5 rounded bg-foreground/5 text-muted-foreground border border-border">
+                        #{tag}
                       </span>
                     ))}
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-border flex items-center justify-between font-mono">
-                  <span className="text-xs text-muted-foreground">
-                    {res.downloadsCount} downloads
-                  </span>
+                {/* Footer Metadata & Actions */}
+                <div className="pt-4 border-t border-border/60 flex items-center justify-between font-mono text-xs">
+                  <div className="space-y-0.5">
+                    <span className="block text-[11px] font-bold text-foreground truncate max-w-[140px]" title={res.publicDisplayIdentity}>
+                      {res.publicDisplayIdentity}
+                    </span>
+                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                      <span className="flex items-center gap-0.5 text-amber-400 font-bold">
+                        <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                        {res.rating.toFixed(1)}
+                      </span>
+                      <span>•</span>
+                      <span>{res.downloadsCount} DLs</span>
+                    </div>
+                  </div>
 
-                  <button
-                    onClick={() => handleDownload(res.id)}
-                    className={`px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all shadow-md ${
-                      isDownloaded
-                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                        : 'bg-foreground text-background hover:opacity-90'
-                    }`}
-                  >
-                    {isDownloaded ? (
-                      <>
-                        <Check className="w-3.5 h-3.5" />
-                        <span>Downloaded</span>
-                      </>
-                    ) : (
-                      <>
-                        <Download className="w-3.5 h-3.5" />
-                        <span>Download Note</span>
-                      </>
-                    )}
-                  </button>
+                  <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      onClick={(e) => handleToggleSave(e, res.id)}
+                      className={`p-2 rounded-xl border transition-all ${
+                        isSaved
+                          ? 'bg-foreground text-background border-foreground'
+                          : 'border-border bg-background hover:bg-card-hover text-muted-foreground hover:text-foreground'
+                      }`}
+                      title={isSaved ? 'Bookmarked' : 'Save to Treasure Vault'}
+                    >
+                      <Bookmark className={`w-3.5 h-3.5 ${isSaved ? 'fill-background' : ''}`} />
+                    </button>
+
+                    <button
+                      onClick={(e) => handleDownload(e, res.id)}
+                      className="p-2 rounded-xl bg-foreground text-background hover:opacity-90 transition-all font-bold shadow-md"
+                      title="Download Resource"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             );
           })}
         </div>
       ) : (
-        <div className="p-12 rounded-2xl bg-card border border-border text-center space-y-4 flex flex-col items-center justify-center min-h-[300px]">
-          <div className="w-16 h-16 rounded-2xl bg-foreground/10 text-foreground flex items-center justify-center">
-            <Compass className="w-8 h-8" />
-          </div>
-          <h3 className="text-xl font-bold font-mono">No Matching Resources Found</h3>
-          <p className="text-xs text-muted-foreground max-w-sm">
-            Try adjusting your search terms or filter selection.
-          </p>
+        /* List Layout */
+        <div className="space-y-3">
+          {filteredResources.map((res) => {
+            const isSaved = savedIds.includes(res.id);
+            return (
+              <div
+                key={res.id}
+                onClick={() => handleOpenDetail(res)}
+                className="p-5 rounded-3xl bg-card border border-border hover:border-foreground/40 transition-all shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer group"
+              >
+                <div className="space-y-1.5 flex-1 min-w-0 font-sans">
+                  <div className="flex items-center gap-2 flex-wrap font-mono text-xs">
+                    <span className="px-2.5 py-0.5 rounded bg-foreground text-background font-black uppercase text-[10px]">
+                      {res.courseCode}
+                    </span>
+                    <span className="px-2 py-0.5 rounded bg-foreground/10 text-foreground border border-border text-[10px] font-bold">
+                      {res.resourceType}
+                    </span>
+                    <span className="text-[11px] text-muted-foreground font-mono">
+                      Shared by <strong className="text-foreground">{res.publicDisplayIdentity}</strong>
+                    </span>
+                  </div>
+
+                  <h3 className="text-sm font-bold text-foreground group-hover:text-accent transition-colors truncate">
+                    {res.title}
+                  </h3>
+
+                  <p className="text-xs text-muted-foreground truncate">{res.description}</p>
+                </div>
+
+                <div className="flex items-center gap-4 shrink-0 font-mono text-xs" onClick={(e) => e.stopPropagation()}>
+                  <div className="text-right hidden sm:block">
+                    <span className="flex items-center justify-end gap-1 text-amber-400 font-bold">
+                      <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                      {res.rating.toFixed(1)}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground block">{res.downloadsCount} downloads</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={(e) => handleToggleSave(e, res.id)}
+                      className={`p-2 rounded-xl border transition-all ${
+                        isSaved
+                          ? 'bg-foreground text-background border-foreground'
+                          : 'border-border bg-background hover:bg-card-hover text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-background' : ''}`} />
+                    </button>
+
+                    <button
+                      onClick={(e) => handleDownload(e, res.id)}
+                      className="px-4 py-2 rounded-xl bg-foreground text-background font-bold text-xs hover:opacity-90 transition-all shadow-md flex items-center gap-1.5"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Download</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
+
+      {/* Modals */}
+      <ResourceDetailModal
+        resource={selectedResource}
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+        onOpenReportModal={handleOpenReport}
+        onRequireAuth={handleRequireAuth}
+        onResourceUpdated={loadData}
+      />
+
+      <ReportResourceModal
+        isOpen={isReportOpen}
+        onClose={() => setIsReportOpen(false)}
+        resourceId={reportTarget.id}
+        resourceTitle={reportTarget.title}
+        onRequireAuth={() => handleRequireAuth('report resources')}
+      />
+
+      <GuestAuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        actionName={authActionName}
+      />
+
+      <AboutProjectModal
+        isOpen={isAboutOpen}
+        onClose={() => setIsAboutOpen(false)}
+      />
     </div>
   );
 }
