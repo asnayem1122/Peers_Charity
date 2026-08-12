@@ -1,7 +1,6 @@
 "use client";
 
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useState, useEffect } from "react";
 
 interface CardProps {
   number: string;
@@ -10,11 +9,6 @@ interface CardProps {
   colorTheme?: "orange" | "blue" | "purple";
   className?: string;
   rotate?: string;
-  colors?: {
-    bg: string;
-    text: string;
-    border: string;
-  };
 }
 
 const Pin = ({ className }: { className?: string }) => (
@@ -38,16 +32,15 @@ const Card = ({
   colorTheme = "blue",
   className = "",
   rotate = "",
-  colors: customColors,
 }: CardProps) => {
   const defaultBgColors = {
     orange: "bg-amber-500/10 dark:bg-amber-500/10",
-    blue: "bg-foreground/5 dark:bg-foreground/10",
+    blue: "bg-card dark:bg-card",
     purple: "bg-purple-500/10 dark:bg-purple-500/10",
   };
   const defaultTextColors = {
     orange: "text-amber-500 dark:text-amber-400",
-    blue: "text-foreground dark:text-foreground font-mono font-bold",
+    blue: "text-foreground dark:text-foreground",
     purple: "text-purple-500 dark:text-purple-400",
   };
   const defaultBorderColors = {
@@ -56,25 +49,25 @@ const Card = ({
     purple: "border-purple-500/30 dark:border-purple-500/30",
   };
 
-  const bgColor = customColors?.bg || defaultBgColors[colorTheme];
-  const textColor = customColors?.text || defaultTextColors[colorTheme];
-  const borderColor = customColors?.border || defaultBorderColors[colorTheme];
+  const bgColor = defaultBgColors[colorTheme];
+  const textColor = defaultTextColors[colorTheme];
+  const borderColor = defaultBorderColors[colorTheme];
 
   return (
     <div
-      className={`relative w-full md:w-[280px] transition-transform duration-300 hover:z-30 hover:scale-105 ${rotate} ${className}`}
+      className={`relative w-full md:w-[280px] transition-all duration-300 hover:z-30 hover:scale-105 ${rotate} ${className}`}
     >
-      <div className="bg-card/90 backdrop-blur-2xl p-2.5 rounded-[25px] shadow-xl border border-border">
-        <Pin className={`w-7 h-7 ${textColor} z-20 mb-4 mx-auto`} />
+      <div className="bg-card/95 backdrop-blur-2xl p-3 rounded-[24px] shadow-2xl border border-border">
+        <Pin className={`w-7 h-7 ${textColor} z-20 mb-3 mx-auto`} />
         <div
           className={`${bgColor} border ${borderColor} rounded-[18px] p-4 h-full flex flex-col relative overflow-hidden`}
         >
           <span
-            className={`${textColor} text-3xl font-mono font-black mb-3`}
+            className={`${textColor} text-3xl font-mono font-black mb-2`}
           >
             {number}
           </span>
-          <h3 className="text-xl font-bold font-mono text-foreground leading-tight mb-2">
+          <h3 className="text-lg font-bold font-mono text-foreground leading-tight mb-2">
             {title}
           </h3>
           <p className="text-muted-foreground text-xs leading-relaxed font-sans">
@@ -90,11 +83,6 @@ export interface Step {
   title: string;
   description: string;
   colorTheme?: "orange" | "blue" | "purple";
-  colors?: {
-    bg: string;
-    text: string;
-    border: string;
-  };
 }
 
 export interface StepPosition {
@@ -109,17 +97,17 @@ export interface HowItWorksProps {
 }
 
 const DEFAULT_CARD_POSITIONS: StepPosition[] = [
-  { className: "md:absolute md:top-0 md:left-[10%]", rotate: "rotate-3" },
+  { className: "md:absolute md:top-0 md:left-[8%]", rotate: "md:rotate-3" },
   {
-    className: "md:absolute md:top-[120px] md:right-[10%]",
-    rotate: "-rotate-3",
+    className: "md:absolute md:top-[120px] md:right-[8%]",
+    rotate: "md:-rotate-3",
   },
-  { className: "md:absolute md:top-[420px] md:left-[10%]", rotate: "rotate-3" },
+  { className: "md:absolute md:top-[420px] md:left-[8%]", rotate: "md:rotate-3" },
   {
-    className: "md:absolute md:top-[540px] md:right-[8%]",
-    rotate: "-rotate-3",
+    className: "md:absolute md:top-[540px] md:right-[6%]",
+    rotate: "md:-rotate-3",
   },
-  { className: "md:absolute md:top-[820px] md:left-[10%]", rotate: "rotate-3" },
+  { className: "md:absolute md:top-[820px] md:left-[8%]", rotate: "md:rotate-3" },
 ];
 
 export default function HowItWorks({
@@ -127,6 +115,12 @@ export default function HowItWorks({
   className = "",
   stepPositions,
 }: HowItWorksProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const defaultFeatures: Step[] = [
     {
       title: "Donate Notes",
@@ -163,16 +157,16 @@ export default function HowItWorks({
   const data = features && features.length > 0 ? features : defaultFeatures;
   const positions = stepPositions || DEFAULT_CARD_POSITIONS;
 
-  let height = 1100;
-  if (data.length === 1) height = 350;
-  else if (data.length === 2) height = 420;
-  else if (data.length === 3) height = 750;
-  else if (data.length === 4) height = 880;
-  else height = 1100;
+  let height = 1080;
+  if (data.length === 1) height = 340;
+  else if (data.length === 2) height = 400;
+  else if (data.length === 3) height = 740;
+  else if (data.length === 4) height = 860;
+  else height = 1080;
 
   return (
     <div
-      className={`bg-transparent max-md:py-8 md:py-16 px-4 sm:px-8 relative w-full ${className}`}
+      className={`bg-transparent max-md:py-6 md:py-12 px-2 sm:px-8 relative w-full ${className}`}
     >
       <div className="max-w-6xl mx-auto relative z-10">
         <div
@@ -181,7 +175,7 @@ export default function HowItWorks({
         >
           {data.length > 1 && (
             <svg
-              className="absolute top-0 left-0 w-full h-full pointer-events-none hidden md:block z-0 opacity-80"
+              className="absolute top-0 left-0 w-full h-full pointer-events-none hidden md:block z-0 opacity-75"
               viewBox={`0 0 1000 ${height}`}
               preserveAspectRatio="none"
             >
@@ -199,24 +193,15 @@ export default function HowItWorks({
                   return acc;
                 }, "");
                 return (
-                  <motion.path
+                  <path
                     d={pathD}
                     stroke="currentColor"
-                    className="text-foreground/40 dark:text-foreground/40"
-                    strokeWidth="2"
+                    className="text-foreground/40 dark:text-foreground/40 animate-pulse"
+                    strokeWidth="2.5"
                     strokeDasharray="8 6"
                     fill="none"
                     strokeLinecap="round"
                     vectorEffect="non-scaling-stroke"
-                    initial={{ strokeDashoffset: 0 }}
-                    animate={{
-                      strokeDashoffset: -140,
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
                   />
                 );
               })()}
@@ -233,7 +218,6 @@ export default function HowItWorks({
                 title={step.title}
                 description={step.description}
                 colorTheme={step.colorTheme || "blue"}
-                colors={step.colors}
                 rotate={position.rotate}
                 className={position.className}
               />
