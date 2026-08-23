@@ -1,0 +1,38 @@
+{
+  "name": "peers-charity-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Peer's Charity - Full-Stack Academic Resource Sharing Platform",
+  "scripts": {
+    "build": "npm run build --prefix apps/web",
+    "dev": "concurrently -n \"API,WEB\" -c \"blue,green\" \"npm run dev --prefix apps/api\" \"npm run dev --prefix apps/web\"",
+    "start": "concurrently -n \"API,WEB\" -c \"blue,green\" \"npm run dev --prefix apps/api\" \"npm run dev --prefix apps/web\"",
+    "dev:api": "npm run dev --prefix apps/api",
+    "dev:web": "npm run dev --prefix apps/web",
+    "build:api": "npm run build --prefix apps/api",
+    "build:web": "npm run build --prefix apps/web",
+    "start:api": "npm run start --prefix apps/api",
+    "start:web": "npm run start --prefix apps/web",
+    "type-check": "npm run type-check --prefix apps/api && npm run type-check --prefix apps/web",
+    "lint": "npm run lint --prefix apps/web"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": [
+    "academic",
+    "resource-sharing",
+    "education",
+    "saas",
+    "nextjs",
+    "express",
+    "mongodb",
+    "better-auth"
+  ],
+  "author": "Peer's Charity Team",
+  "license": "MIT"
+}
