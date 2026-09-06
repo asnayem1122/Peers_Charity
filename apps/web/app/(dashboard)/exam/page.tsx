@@ -13,6 +13,7 @@ import GuestAuthModal from '@/components/ui/guest-auth-modal';
 export default function ExamEmergencyRoomPage() {
   const { user } = useAuth();
   const [selectedCourse, setSelectedCourse] = useState('ALL');
+  const [examTypeFilter, setExamTypeFilter] = useState<string>('ALL');
   const [downloadedIds, setDownloadedIds] = useState<string[]>([]);
   const [resources, setResources] = useState<Resource[]>([]);
 
@@ -48,11 +49,26 @@ export default function ExamEmergencyRoomPage() {
     loadData();
   };
 
-  const availableCourses = ['ALL', ...Array.from(new Set(resources.map((r) => r.courseCode.toUpperCase())))];
+  // Only consider Question Section resources (or legacy question/solved types)
+  const questionResources = resources.filter((res) => {
+    if (res.academicMetadata) {
+      return res.academicMetadata.section === 'question';
+    }
+    return (
+      res.resourceType === 'Previous Exam Questions' ||
+      res.resourceType === 'Solved Questions' ||
+      res.resourceType === 'PDF'
+    );
+  });
 
-  const examPackFilter = resources.filter((res) => {
+  const availableCourses = ['ALL', ...Array.from(new Set(questionResources.map((r) => r.courseCode.toUpperCase())))];
+
+  const examPackFilter = questionResources.filter((res) => {
     const matchesCourse = selectedCourse === 'ALL' || res.courseCode.toUpperCase() === selectedCourse.toUpperCase();
-    return matchesCourse;
+    const matchesExamType =
+      examTypeFilter === 'ALL' ||
+      res.academicMetadata?.examType === examTypeFilter;
+    return matchesCourse && matchesExamType;
   });
 
   return (
@@ -68,7 +84,7 @@ export default function ExamEmergencyRoomPage() {
               <span>{PRODUCT_TERMINOLOGY.examPrep}</span>
             </h1>
             <p className="text-xs sm:text-sm text-amber-400 font-semibold mt-0.5 font-mono">
-              "Congratulations. Panic has been detected. High-yield revision packs loaded."
+              &quot;Congratulations. Panic has been detected. High-yield revision packs loaded.&quot;
             </p>
           </div>
         </div>
@@ -79,9 +95,32 @@ export default function ExamEmergencyRoomPage() {
             className="liquid-metal-btn px-5 py-3 text-xs font-bold font-mono flex items-center gap-1.5 shadow-xl"
           >
             <PlusCircle className="w-4 h-4" />
-            <span>Donate Solved Questions</span>
+            <span>Donate Question Paper</span>
           </Link>
         </div>
+      </div>
+
+      {/* Exam Type Sub-filters */}
+      <div className="flex items-center gap-2 flex-wrap font-mono text-xs">
+        <span className="text-[11px] text-muted-foreground font-bold uppercase mr-1">Exam Type:</span>
+        {[
+          { id: 'ALL', label: 'All Exam Questions' },
+          { id: 'CT', label: 'Class Test (CT)' },
+          { id: 'MID', label: 'Mid-Term Exam' },
+          { id: 'FINAL', label: 'Final Exam' },
+        ].map((item) => (
+          <button
+            key={item.id}
+            onClick={() => setExamTypeFilter(item.id)}
+            className={`px-4 py-2 rounded-xl font-bold transition-all ${
+              examTypeFilter === item.id
+                ? 'bg-amber-500 text-black shadow-md'
+                : 'bg-card border border-border text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {item.label}
+          </button>
+        ))}
       </div>
 
       {/* Course Filter Bar */}
@@ -140,9 +179,21 @@ export default function ExamEmergencyRoomPage() {
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between font-mono text-xs">
-                    <span className="px-2.5 py-0.5 rounded bg-foreground text-background font-black text-[10px]">
-                      {pack.courseCode}
-                    </span>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="px-2.5 py-0.5 rounded bg-foreground text-background font-black text-[10px]">
+                        {pack.courseCode}
+                      </span>
+                      {pack.academicMetadata?.examType && (
+                        <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold text-[10px]">
+                          {pack.academicMetadata.examType} Exam
+                        </span>
+                      )}
+                      {pack.academicMetadata?.batch && (
+                        <span className="px-2 py-0.5 rounded bg-foreground/10 text-foreground text-[10px] font-semibold">
+                          Batch {pack.academicMetadata.batch}
+                        </span>
+                      )}
+                    </div>
                     <span className="px-2.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 font-bold text-[10px]">
                       🔥 High Yield ({pack.qualityScore}% Match)
                     </span>

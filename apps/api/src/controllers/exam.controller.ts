@@ -17,15 +17,30 @@ export const getExamEmergencyData = async (req: Request, res: Response) => {
     }).sort({ qualityScore: -1, 'stats.downloadsCount': -1 });
 
     // Group resources into signature Exam Emergency Room categories
-    const previousQuestions = resources.filter((r) => r.resourceType === 'Previous Exam Questions');
+    const ctPapers = resources.filter(
+      (r) => r.academicMetadata?.section === 'question' && r.academicMetadata?.examType === 'CT'
+    );
+    const midPapers = resources.filter(
+      (r) => r.academicMetadata?.section === 'question' && r.academicMetadata?.examType === 'MID'
+    );
+    const finalPapers = resources.filter(
+      (r) => r.academicMetadata?.section === 'question' && r.academicMetadata?.examType === 'FINAL'
+    );
+    const previousQuestions = resources.filter(
+      (r) =>
+        r.resourceType === 'Previous Exam Questions' ||
+        (r.academicMetadata?.section === 'question' && !r.academicMetadata?.examType)
+    );
     const solvedQuestions = resources.filter((r) => r.resourceType === 'Solved Questions');
     const cheatSheets = resources.filter((r) => r.resourceType === 'Cheat Sheets');
-    const highYieldNotes = resources.filter((r) => r.resourceType === 'Lecture Notes' || r.resourceType === 'Class Notes');
+    const highYieldNotes = resources.filter(
+      (r) => r.resourceType === 'Lecture Notes' || r.resourceType === 'Class Notes'
+    );
 
     // Aggregate topic frequency signals from published resources
     const topicCounts: Record<string, number> = {};
     resources.forEach((r) => {
-      r.topics.forEach((t) => {
+      r.topics?.forEach((t) => {
         topicCounts[t] = (topicCounts[t] || 0) + 1;
       });
     });
@@ -46,6 +61,9 @@ export const getExamEmergencyData = async (req: Request, res: Response) => {
           pantryHealthScore: course.pantryHealthScore,
         },
         sections: {
+          ctPapers,
+          midPapers,
+          finalPapers,
           previousQuestions,
           solvedQuestions,
           cheatSheets,

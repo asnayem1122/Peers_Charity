@@ -31,7 +31,7 @@ export default function MobileBottomNav() {
         if (item.isMain) {
           return (
             <Link
-              key={item.href}
+              key={item.label}
               href={item.href}
               className="flex flex-col items-center justify-center -mt-5"
             >
@@ -45,7 +45,7 @@ export default function MobileBottomNav() {
 
         return (
           <Link
-            key={item.href}
+            key={item.label}
             href={item.href}
             className={`flex flex-col items-center justify-center py-1 transition-colors ${
               isActive ? 'text-foreground font-bold' : 'text-muted-foreground hover:text-foreground'

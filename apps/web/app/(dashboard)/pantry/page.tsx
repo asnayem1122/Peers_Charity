@@ -22,6 +22,26 @@ export default function AcademicPantryPage() {
     const sample = courseRes[0];
     const downloads = courseRes.reduce((sum, r) => sum + (r.downloadsCount || 0), 0);
     const health = Math.min(100, Math.round((courseRes.length / 5) * 100));
+
+    const questionsCount = courseRes.filter(
+      (r) =>
+        r.academicMetadata?.section === 'question' ||
+        r.resourceType === 'Previous Exam Questions' ||
+        r.resourceType === 'Solved Questions'
+    ).length;
+
+    const materialsCount = courseRes.filter(
+      (r) =>
+        r.academicMetadata?.section === 'course_material' ||
+        r.resourceType === 'Notes' ||
+        r.resourceType === 'Slides' ||
+        r.resourceType === 'External Link'
+    ).length;
+
+    const sessionalCount = courseRes.filter(
+      (r) => r.academicMetadata?.section === 'sessional' || r.resourceType === 'Lab Reports'
+    ).length;
+
     return {
       id: code.toLowerCase().replace(/\s+/g, '-'),
       code: code,
@@ -32,6 +52,9 @@ export default function AcademicPantryPage() {
       health,
       donationsCount: courseRes.length,
       downloadsCount: downloads,
+      questionsCount,
+      materialsCount,
+      sessionalCount,
     };
   });
 
@@ -140,9 +163,22 @@ export default function AcademicPantryPage() {
                   {course.name}
                 </h2>
 
-                <p className="text-xs text-muted-foreground mb-4">
+                <p className="text-xs text-muted-foreground mb-3">
                   {course.instructor} • {course.dept}
                 </p>
+
+                {/* 3-Tier Academic Taxonomy Breakdown */}
+                <div className="flex items-center gap-1.5 flex-wrap mb-3 font-mono text-[10px]">
+                  <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 font-bold">
+                    📝 {course.questionsCount} Questions
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/30 font-bold">
+                    📖 {course.materialsCount} Materials
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-bold">
+                    🔬 {course.sessionalCount} Sessional
+                  </span>
+                </div>
 
                 {course.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mb-4 font-mono text-[10px]">

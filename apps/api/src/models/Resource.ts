@@ -8,6 +8,21 @@ export interface IResourceStats {
   bookmarksCount: number;
 }
 
+export type AcademicSection = 'question' | 'course_material' | 'sessional';
+export type ExamType = 'CT' | 'MID' | 'FINAL';
+export type MaterialType = 'HAND_NOTE' | 'SLIDES' | 'EXTERNAL_LINK';
+
+export interface IAcademicMetadata {
+  section: AcademicSection;
+  semester?: string;
+  courseId?: mongoose.Types.ObjectId;
+  batch: string;
+  examType?: ExamType;
+  materialType?: MaterialType;
+  externalLink?: string;
+  labNumber?: string | number;
+}
+
 export interface IResource extends Document {
   title: string;
   description: string;
@@ -17,7 +32,8 @@ export interface IResource extends Document {
   courseId: mongoose.Types.ObjectId;
   semester: string;
   teacherId?: mongoose.Types.ObjectId;
-  resourceType:
+  academicMetadata?: IAcademicMetadata;
+  resourceType?:
     | 'Lecture Notes'
     | 'Class Notes'
     | 'Previous Exam Questions'
@@ -32,11 +48,11 @@ export interface IResource extends Document {
     | 'Other';
   topics: string[];
   tags: string[];
-  fileUrl: string;
-  fileKey: string;
-  fileHash: string;
-  mimeType: string;
-  sizeBytes: number;
+  fileUrl?: string;
+  fileKey?: string;
+  fileHash?: string;
+  mimeType?: string;
+  sizeBytes?: number;
   status: 'DRAFT' | 'PENDING' | 'PUBLISHED' | 'REJECTED' | 'REMOVED' | 'ARCHIVED';
   qualityScore: number;
   stats: IResourceStats;
@@ -54,9 +70,28 @@ const ResourceSchema = new Schema<IResource>(
     courseId: { type: Schema.Types.ObjectId, ref: 'Course', required: true, index: true },
     semester: { type: String, required: true, trim: true },
     teacherId: { type: Schema.Types.ObjectId, ref: 'Teacher' },
+    academicMetadata: {
+      section: {
+        type: String,
+        enum: ['question', 'course_material', 'sessional'],
+        index: true,
+      },
+      semester: { type: String, trim: true },
+      batch: { type: String, trim: true },
+      examType: {
+        type: String,
+        enum: ['CT', 'MID', 'FINAL'],
+      },
+      materialType: {
+        type: String,
+        enum: ['HAND_NOTE', 'SLIDES', 'EXTERNAL_LINK'],
+      },
+      externalLink: { type: String, trim: true },
+      labNumber: { type: Schema.Types.Mixed },
+    },
     resourceType: {
       type: String,
-      required: true,
+      required: false,
       enum: [
         'Lecture Notes',
         'Class Notes',
@@ -75,11 +110,11 @@ const ResourceSchema = new Schema<IResource>(
     },
     topics: [{ type: String, trim: true }],
     tags: [{ type: String, trim: true }],
-    fileUrl: { type: String, required: true },
-    fileKey: { type: String, required: true },
-    fileHash: { type: String, required: true, index: true },
-    mimeType: { type: String, required: true },
-    sizeBytes: { type: Number, required: true },
+    fileUrl: { type: String },
+    fileKey: { type: String },
+    fileHash: { type: String, index: true },
+    mimeType: { type: String },
+    sizeBytes: { type: Number },
     status: {
       type: String,
       required: true,
@@ -100,5 +135,7 @@ const ResourceSchema = new Schema<IResource>(
 );
 
 ResourceSchema.index({ courseId: 1, status: 1, qualityScore: -1 });
+ResourceSchema.index({ 'academicMetadata.section': 1, courseId: 1, status: 1 });
+ResourceSchema.index({ 'academicMetadata.section': 1, 'academicMetadata.batch': 1, status: 1 });
 
 export const Resource = mongoose.model<IResource>('Resource', ResourceSchema);

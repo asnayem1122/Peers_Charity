@@ -41,14 +41,27 @@ export default function CharityHQPage() {
       ? (userResources.reduce((sum, r) => sum + r.rating, 0) / userResources.length).toFixed(1) + '★'
       : '—';
 
-  const notesCount = resources.filter((r) => r.resourceType === 'Notes').length;
-  const pdfCount = resources.filter((r) => r.resourceType === 'PDF').length;
-  const slidesCount = resources.filter((r) => r.resourceType === 'Slides' || r.resourceType === 'External Link').length;
+  const questionCount = resources.filter(
+    (r) =>
+      r.academicMetadata?.section === 'question' ||
+      r.resourceType === 'Previous Exam Questions' ||
+      r.resourceType === 'Solved Questions'
+  ).length;
+  const materialCount = resources.filter(
+    (r) =>
+      r.academicMetadata?.section === 'course_material' ||
+      r.resourceType === 'Notes' ||
+      r.resourceType === 'Slides' ||
+      r.resourceType === 'External Link'
+  ).length;
+  const sessionalCount = resources.filter(
+    (r) => r.academicMetadata?.section === 'sessional' || r.resourceType === 'Lab Reports'
+  ).length;
 
-  const notesCoverage = Math.min(100, Math.round((notesCount / 5) * 100));
-  const pdfCoverage = Math.min(100, Math.round((pdfCount / 5) * 100));
-  const slidesCoverage = Math.min(100, Math.round((slidesCount / 5) * 100));
-  const totalCoverage = Math.min(100, Math.round(((notesCount + pdfCount + slidesCount) / 15) * 100));
+  const questionCoverage = Math.min(100, Math.round((questionCount / 5) * 100));
+  const materialCoverage = Math.min(100, Math.round((materialCount / 5) * 100));
+  const sessionalCoverage = Math.min(100, Math.round((sessionalCount / 5) * 100));
+  const totalCoverage = Math.min(100, Math.round(((questionCount + materialCount + sessionalCount) / 15) * 100));
 
   return (
     <div className="space-y-8 font-sans">
@@ -174,31 +187,31 @@ export default function CharityHQPage() {
           <div className="space-y-4 text-xs font-mono">
             <div>
               <div className="flex justify-between font-semibold mb-1">
-                <span>Lecture Notes</span>
-                <span className="text-foreground font-bold">{notesCoverage}%</span>
+                <span>Question Papers (CT/Mid/Final)</span>
+                <span className="text-amber-400 font-bold">{questionCoverage}%</span>
               </div>
               <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
-                <div className="h-full bg-foreground rounded-full" style={{ width: `${notesCoverage}%` }} />
+                <div className="h-full bg-amber-400 rounded-full" style={{ width: `${questionCoverage}%` }} />
               </div>
             </div>
 
             <div>
               <div className="flex justify-between font-semibold mb-1">
-                <span>Exam Solved Papers</span>
-                <span className="text-foreground font-bold">{pdfCoverage}%</span>
+                <span>Course Materials (Notes/Slides)</span>
+                <span className="text-blue-400 font-bold">{materialCoverage}%</span>
               </div>
               <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
-                <div className="h-full bg-foreground rounded-full" style={{ width: `${pdfCoverage}%` }} />
+                <div className="h-full bg-blue-400 rounded-full" style={{ width: `${materialCoverage}%` }} />
               </div>
             </div>
 
             <div>
               <div className="flex justify-between font-semibold mb-1">
-                <span>Cheat Sheets & Slides</span>
-                <span className="text-amber-400 font-bold">{slidesCoverage}%</span>
+                <span>Sessional Labs & Tasks</span>
+                <span className="text-emerald-400 font-bold">{sessionalCoverage}%</span>
               </div>
               <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
-                <div className="h-full bg-amber-400 rounded-full" style={{ width: `${slidesCoverage}%` }} />
+                <div className="h-full bg-emerald-400 rounded-full" style={{ width: `${sessionalCoverage}%` }} />
               </div>
             </div>
           </div>

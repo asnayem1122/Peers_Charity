@@ -22,6 +22,9 @@ import {
   UserCheck,
   Sparkles,
   Info,
+  FileQuestion,
+  BookOpen,
+  FlaskConical,
 } from 'lucide-react';
 import { PRODUCT_TERMINOLOGY } from '@/lib/constants';
 import { useAuth } from '@/lib/auth-context';
@@ -32,6 +35,7 @@ import {
   recordDownload,
   Resource,
   ResourceType,
+  AcademicSection,
 } from '@/lib/resources-data';
 import ResourceDetailModal from '@/components/ui/resource-detail-modal';
 import ReportResourceModal from '@/components/ui/report-resource-modal';
@@ -43,6 +47,9 @@ export default function CharityBazaarPage() {
   const [resources, setResources] = useState<Resource[]>([]);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSection, setSelectedSection] = useState<string>('ALL');
+  const [selectedExamType, setSelectedExamType] = useState<string>('ALL');
+  const [selectedMaterialType, setSelectedMaterialType] = useState<string>('ALL');
   const [selectedType, setSelectedType] = useState<string>('ALL');
   const [selectedCourse, setSelectedCourse] = useState<string>('ALL');
   const [sortBy, setSortBy] = useState<'downloads' | 'rating' | 'newest'>('downloads');
@@ -117,10 +124,22 @@ export default function CharityBazaarPage() {
         res.description.toLowerCase().includes(q) ||
         res.tags.some((t) => t.toLowerCase().includes(q));
 
+      const matchesSection =
+        selectedSection === 'ALL' || res.academicMetadata?.section === selectedSection;
+
+      const matchesSubFilter =
+        selectedSection === 'ALL'
+          ? true
+          : selectedSection === 'question'
+          ? selectedExamType === 'ALL' || res.academicMetadata?.examType === selectedExamType
+          : selectedSection === 'course_material'
+          ? selectedMaterialType === 'ALL' || res.academicMetadata?.materialType === selectedMaterialType
+          : true;
+
       const matchesType = selectedType === 'ALL' || res.resourceType === selectedType;
       const matchesCourse = selectedCourse === 'ALL' || res.courseCode === selectedCourse;
 
-      return matchesSearch && matchesType && matchesCourse;
+      return matchesSearch && matchesSection && matchesSubFilter && matchesType && matchesCourse;
     })
     .sort((a, b) => {
       if (sortBy === 'downloads') return b.downloadsCount - a.downloadsCount;
@@ -199,6 +218,81 @@ export default function CharityBazaarPage() {
 
       {/* Search & Multi-Filter Bar */}
       <div className="p-5 rounded-3xl bg-card border border-border shadow-sm space-y-4 font-mono">
+        {/* Academic Section Tabs */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+          {[
+            { id: 'ALL', label: 'All Sections', icon: Compass, color: 'text-foreground' },
+            { id: 'question', label: 'Questions (CT/Mid/Final)', icon: FileQuestion, color: 'text-amber-400' },
+            { id: 'course_material', label: 'Course Materials', icon: BookOpen, color: 'text-blue-400' },
+            { id: 'sessional', label: 'Sessional Labs', icon: FlaskConical, color: 'text-emerald-400' },
+          ].map((sec) => {
+            const Icon = sec.icon;
+            const isSelected = selectedSection === sec.id;
+            return (
+              <button
+                key={sec.id}
+                onClick={() => {
+                  setSelectedSection(sec.id);
+                  setSelectedExamType('ALL');
+                  setSelectedMaterialType('ALL');
+                }}
+                className={`p-3 rounded-2xl border text-left flex items-center gap-2.5 transition-all ${
+                  isSelected
+                    ? 'bg-foreground text-background font-bold shadow-md border-foreground'
+                    : 'bg-background hover:bg-card-hover border-border text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <Icon className={`w-4 h-4 shrink-0 ${isSelected ? 'text-background' : sec.color}`} />
+                <span className="truncate">{sec.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Sub-Filters for Section */}
+        {selectedSection === 'question' && (
+          <div className="flex items-center gap-2 flex-wrap text-xs pt-1">
+            <span className="text-[11px] text-amber-400 font-bold uppercase mr-1">Exam Type:</span>
+            {['ALL', 'CT', 'MID', 'FINAL'].map((exam) => (
+              <button
+                key={exam}
+                onClick={() => setSelectedExamType(exam)}
+                className={`px-3 py-1 rounded-xl font-bold transition-all ${
+                  selectedExamType === exam
+                    ? 'bg-amber-500 text-black shadow-md'
+                    : 'bg-background hover:bg-card-hover border border-border text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {exam === 'ALL' ? 'All Exam Types' : exam}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {selectedSection === 'course_material' && (
+          <div className="flex items-center gap-2 flex-wrap text-xs pt-1">
+            <span className="text-[11px] text-blue-400 font-bold uppercase mr-1">Material Type:</span>
+            {[
+              { id: 'ALL', label: 'All Materials' },
+              { id: 'HAND_NOTE', label: 'Hand Notes' },
+              { id: 'SLIDES', label: 'Slides' },
+              { id: 'EXTERNAL_LINK', label: 'External Links' },
+            ].map((mat) => (
+              <button
+                key={mat.id}
+                onClick={() => setSelectedMaterialType(mat.id)}
+                className={`px-3 py-1 rounded-xl font-bold transition-all ${
+                  selectedMaterialType === mat.id
+                    ? 'bg-blue-500 text-white shadow-md'
+                    : 'bg-background hover:bg-card-hover border border-border text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {mat.label}
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className="flex flex-col md:flex-row gap-3 items-center">
           {/* Search Input */}
           <div className="relative flex-1 w-full">
@@ -304,8 +398,24 @@ export default function CharityBazaarPage() {
                     <span className="px-2.5 py-0.5 rounded-lg bg-foreground text-background font-black uppercase tracking-wider">
                       {res.courseCode}
                     </span>
-                    <span className="px-2.5 py-0.5 rounded-lg bg-foreground/10 text-foreground border border-border font-bold">
-                      {res.resourceType}
+                    <span
+                      className={`px-2.5 py-0.5 rounded-lg border font-bold text-[10px] ${
+                        res.academicMetadata?.section === 'question'
+                          ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                          : res.academicMetadata?.section === 'course_material'
+                          ? 'bg-blue-500/10 text-blue-400 border-blue-500/30'
+                          : res.academicMetadata?.section === 'sessional'
+                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                          : 'bg-foreground/10 text-foreground border-border'
+                      }`}
+                    >
+                      {res.academicMetadata
+                        ? res.academicMetadata.section === 'question'
+                          ? `📝 ${res.academicMetadata.examType || 'Question'}`
+                          : res.academicMetadata.section === 'course_material'
+                          ? `📖 ${res.academicMetadata.materialType?.replace('_', ' ') || 'Material'}`
+                          : `🔬 ${res.academicMetadata.labNumber || 'Sessional'}`
+                        : res.resourceType}
                     </span>
                   </div>
 
@@ -387,8 +497,24 @@ export default function CharityBazaarPage() {
                     <span className="px-2.5 py-0.5 rounded bg-foreground text-background font-black uppercase text-[10px]">
                       {res.courseCode}
                     </span>
-                    <span className="px-2 py-0.5 rounded bg-foreground/10 text-foreground border border-border text-[10px] font-bold">
-                      {res.resourceType}
+                    <span
+                      className={`px-2 py-0.5 rounded border text-[10px] font-bold ${
+                        res.academicMetadata?.section === 'question'
+                          ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                          : res.academicMetadata?.section === 'course_material'
+                          ? 'bg-blue-500/10 text-blue-400 border-blue-500/30'
+                          : res.academicMetadata?.section === 'sessional'
+                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                          : 'bg-foreground/10 text-foreground border-border'
+                      }`}
+                    >
+                      {res.academicMetadata
+                        ? res.academicMetadata.section === 'question'
+                          ? `📝 ${res.academicMetadata.examType || 'Question'}`
+                          : res.academicMetadata.section === 'course_material'
+                          ? `📖 ${res.academicMetadata.materialType?.replace('_', ' ') || 'Material'}`
+                          : `🔬 ${res.academicMetadata.labNumber || 'Sessional'}`
+                        : res.resourceType}
                     </span>
                     <span className="text-[11px] text-muted-foreground font-mono">
                       Shared by <strong className="text-foreground">{res.publicDisplayIdentity}</strong>

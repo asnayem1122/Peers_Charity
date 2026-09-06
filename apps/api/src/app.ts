@@ -12,6 +12,7 @@ import taxonomyRouter from './routes/taxonomy.routes';
 import resourceRouter from './routes/resource.routes';
 import engagementRouter from './routes/engagement.routes';
 import examRouter from './routes/exam.routes';
+import sessionalRouter from './routes/sessional.routes';
 import adminRouter from './routes/admin.routes';
 import { errorHandler } from './middleware/error';
 
@@ -57,6 +58,7 @@ app.use('/api/taxonomy', taxonomyRouter);
 app.use('/api/resources', resourceRouter);
 app.use('/api/engagement', engagementRouter);
 app.use('/api/exam-mode', examRouter);
+app.use('/api/sessional', sessionalRouter);
 app.use('/api/admin', adminRouter);
 
 // 5. Fallback 404 Handler

@@ -9,7 +9,7 @@ import ReportResourceModal from '@/components/ui/report-resource-modal';
 import GuestAuthModal from '@/components/ui/guest-auth-modal';
 
 export default function CoursePantryView({ courseId }: { courseId: string }) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'donations'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'questions' | 'materials' | 'sessional' | 'all'>('overview');
   const [courseResources, setCourseResources] = useState<Resource[]>([]);
 
   // Modal states
@@ -63,6 +63,32 @@ export default function CoursePantryView({ courseId }: { courseId: string }) {
     ? (courseResources.reduce((acc, r) => acc + r.rating, 0) / courseResources.length).toFixed(1)
     : '—';
   const pantryHealth = courseResources.length > 0 ? Math.min(100, Math.round((courseResources.length / 5) * 100)) : 0;
+
+  const questionResources = courseResources.filter(
+    (r) =>
+      r.academicMetadata?.section === 'question' ||
+      r.resourceType === 'Previous Exam Questions' ||
+      r.resourceType === 'Solved Questions'
+  );
+  const materialResources = courseResources.filter(
+    (r) =>
+      r.academicMetadata?.section === 'course_material' ||
+      r.resourceType === 'Notes' ||
+      r.resourceType === 'Slides' ||
+      r.resourceType === 'External Link'
+  );
+  const sessionalResources = courseResources.filter(
+    (r) => r.academicMetadata?.section === 'sessional' || r.resourceType === 'Lab Reports'
+  );
+
+  const displayedResources =
+    activeTab === 'questions'
+      ? questionResources
+      : activeTab === 'materials'
+      ? materialResources
+      : activeTab === 'sessional'
+      ? sessionalResources
+      : courseResources;
 
   return (
     <div className="space-y-8 font-sans">
@@ -128,29 +154,53 @@ export default function CoursePantryView({ courseId }: { courseId: string }) {
       </div>
 
       {/* Course Tabs */}
-      <div className="border-b border-border flex items-center justify-between text-sm font-bold font-mono">
-        <div className="flex items-center gap-6">
+      <div className="border-b border-border flex items-center justify-between text-sm font-bold font-mono overflow-x-auto pb-1">
+        <div className="flex items-center gap-4 sm:gap-6">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`pb-3 border-b-2 transition-all ${
+            className={`pb-3 border-b-2 transition-all shrink-0 ${
               activeTab === 'overview' ? 'border-foreground text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'
             }`}
           >
             Pantry Overview
           </button>
           <button
-            onClick={() => setActiveTab('donations')}
-            className={`pb-3 border-b-2 transition-all ${
-              activeTab === 'donations' ? 'border-foreground text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'
+            onClick={() => setActiveTab('questions')}
+            className={`pb-3 border-b-2 transition-all shrink-0 ${
+              activeTab === 'questions' ? 'border-amber-400 text-amber-400' : 'border-transparent text-muted-foreground hover:text-foreground'
             }`}
           >
-            All Course Donations ({courseResources.length})
+            📝 Questions ({questionResources.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('materials')}
+            className={`pb-3 border-b-2 transition-all shrink-0 ${
+              activeTab === 'materials' ? 'border-blue-400 text-blue-400' : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            📖 Materials ({materialResources.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('sessional')}
+            className={`pb-3 border-b-2 transition-all shrink-0 ${
+              activeTab === 'sessional' ? 'border-emerald-400 text-emerald-400' : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            🔬 Sessional ({sessionalResources.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('all')}
+            className={`pb-3 border-b-2 transition-all shrink-0 ${
+              activeTab === 'all' ? 'border-foreground text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            All ({courseResources.length})
           </button>
         </div>
 
         <Link
           href="/donate"
-          className="liquid-metal-btn px-4 py-2 text-xs font-bold font-mono flex items-center gap-1.5 shadow-md hidden sm:inline-flex"
+          className="liquid-metal-btn px-4 py-2 text-xs font-bold font-mono flex items-center gap-1.5 shadow-md hidden sm:inline-flex shrink-0"
         >
           <PlusCircle className="w-4 h-4" />
           <span>Donate Note for {formattedCode}</span>
@@ -223,23 +273,23 @@ export default function CoursePantryView({ courseId }: { courseId: string }) {
         </div>
       )}
 
-      {/* Tab Content 2: All Donations */}
-      {activeTab === 'donations' && (
+      {/* Tab Content 2: Section / All Donations */}
+      {activeTab !== 'overview' && (
         <div className="space-y-4 font-mono text-xs">
-          {courseResources.length === 0 ? (
+          {displayedResources.length === 0 ? (
             <div className="p-8 rounded-3xl bg-card border border-border text-center space-y-3 font-mono text-xs text-muted-foreground">
-              <p className="font-bold text-foreground">No Donations Recorded for {formattedCode}</p>
-              <p>No study materials have been uploaded for this course yet.</p>
+              <p className="font-bold text-foreground">No Resources Found for this Section in {formattedCode}</p>
+              <p>No study materials or lab tasks matching this category have been uploaded yet.</p>
               <Link
                 href="/donate"
                 className="liquid-metal-btn inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold"
               >
                 <PlusCircle className="w-4 h-4" />
-                <span>Donate Knowledge</span>
+                <span>Donate First Resource</span>
               </Link>
             </div>
           ) : (
-            courseResources.map((res) => (
+            displayedResources.map((res) => (
               <div
                 key={res.id}
                 onClick={() => {
@@ -250,9 +300,30 @@ export default function CoursePantryView({ courseId }: { courseId: string }) {
               >
                 <div className="space-y-1 font-sans flex-1 min-w-0">
                   <div className="flex items-center gap-2 font-mono text-xs">
-                    <span className="px-2 py-0.5 rounded bg-foreground/10 text-foreground font-bold text-[10px]">
-                      {res.resourceType}
+                    <span
+                      className={`px-2 py-0.5 rounded border text-[10px] font-bold ${
+                        res.academicMetadata?.section === 'question'
+                          ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                          : res.academicMetadata?.section === 'course_material'
+                          ? 'bg-blue-500/10 text-blue-400 border-blue-500/30'
+                          : res.academicMetadata?.section === 'sessional'
+                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                          : 'bg-foreground/10 text-foreground border-border'
+                      }`}
+                    >
+                      {res.academicMetadata
+                        ? res.academicMetadata.section === 'question'
+                          ? `📝 ${res.academicMetadata.examType || 'Question'}`
+                          : res.academicMetadata.section === 'course_material'
+                          ? `📖 ${res.academicMetadata.materialType?.replace('_', ' ') || 'Material'}`
+                          : `🔬 ${res.academicMetadata.labNumber || 'Sessional'}`
+                        : res.resourceType}
                     </span>
+                    {res.academicMetadata?.batch && (
+                      <span className="px-1.5 py-0.5 rounded bg-muted text-muted-foreground text-[10px] font-mono">
+                        Batch {res.academicMetadata.batch}
+                      </span>
+                    )}
                     <span className="text-[11px] text-muted-foreground">
                       Shared by <strong className="text-foreground">{res.publicDisplayIdentity}</strong>
                     </span>

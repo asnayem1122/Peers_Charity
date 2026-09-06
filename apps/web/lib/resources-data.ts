@@ -1,6 +1,37 @@
 'use client';
 
-export type ResourceType = 'Notes' | 'Slides' | 'PDF' | 'External Link';
+export type ResourceType =
+  | 'Notes'
+  | 'Slides'
+  | 'PDF'
+  | 'External Link'
+  | 'Lecture Notes'
+  | 'Class Notes'
+  | 'Previous Exam Questions'
+  | 'Solved Questions'
+  | 'Lab Reports'
+  | 'Assignments'
+  | 'Presentations'
+  | 'Cheat Sheets'
+  | 'Reference Material'
+  | 'Tutorials'
+  | 'Question Banks'
+  | 'Other';
+
+export type AcademicSection = 'question' | 'course_material' | 'sessional';
+export type ExamType = 'CT' | 'MID' | 'FINAL';
+export type MaterialType = 'HAND_NOTE' | 'SLIDES' | 'EXTERNAL_LINK';
+
+export interface AcademicMetadata {
+  section: AcademicSection;
+  semester?: string;
+  courseId?: string;
+  batch: string;
+  examType?: ExamType;
+  materialType?: MaterialType;
+  externalLink?: string;
+  labNumber?: string | number;
+}
 
 export type DisplayMode = 'PROFILE' | 'ANONYMOUS' | 'CUSTOM';
 
@@ -36,6 +67,7 @@ export interface Resource {
   department: string;
   semester: string;
   resourceType: ResourceType;
+  academicMetadata?: AcademicMetadata;
   contentSource: ContentSource;
   
   // File or Link

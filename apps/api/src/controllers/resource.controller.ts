@@ -39,10 +39,6 @@ export const checkDuplicate = async (req: Request, res: Response) => {
 
 export const createResource = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ success: false, message: 'File is required' });
-    }
-
     const {
       title,
       description,
@@ -52,26 +48,68 @@ export const createResource = async (req: AuthenticatedRequest, res: Response) =
       semester,
       teacherId,
       resourceType,
+      academicMetadata,
+      externalUrl,
       topics,
       tags,
     } = req.body;
 
-    const fileHash = StorageService.calculateFileHash(req.file.buffer);
-
-    const existing = await Resource.findOne({ fileHash, status: 'PUBLISHED' });
-    if (existing && !req.body.overrideDuplicate) {
-      return res.status(409).json({
-        success: false,
-        statusCode: 409,
-        message: 'Hold your horses, fellow philanthropist. A very similar donation already exists.',
-        data: { duplicateResource: existing },
-      });
+    let parsedAcademicMetadata = undefined;
+    if (academicMetadata) {
+      try {
+        parsedAcademicMetadata = typeof academicMetadata === 'string' ? JSON.parse(academicMetadata) : academicMetadata;
+      } catch (e) {
+        parsedAcademicMetadata = academicMetadata;
+      }
     }
 
-    const uploadResult = await storageService.upload(req.file, 'resources');
+    const isExternalLink =
+      (parsedAcademicMetadata?.section === 'course_material' &&
+        parsedAcademicMetadata?.materialType === 'EXTERNAL_LINK') ||
+      resourceType === 'External Link' ||
+      Boolean(externalUrl) ||
+      Boolean(parsedAcademicMetadata?.externalLink);
 
-    const parsedTopics = typeof topics === 'string' ? JSON.parse(topics) : topics || [];
-    const parsedTags = typeof tags === 'string' ? JSON.parse(tags) : tags || [];
+    if (!req.file && !isExternalLink) {
+      return res.status(400).json({ success: false, message: 'File is required for this resource type' });
+    }
+
+    let uploadResult = {
+      fileUrl: externalUrl || parsedAcademicMetadata?.externalLink || '',
+      fileKey: '',
+      sizeBytes: 0,
+    };
+    let fileHash = '';
+
+    if (req.file) {
+      fileHash = StorageService.calculateFileHash(req.file.buffer);
+
+      const existing = await Resource.findOne({ fileHash, status: 'PUBLISHED' });
+      if (existing && !req.body.overrideDuplicate) {
+        return res.status(409).json({
+          success: false,
+          statusCode: 409,
+          message: 'Hold your horses, fellow philanthropist. A very similar donation already exists.',
+          data: { duplicateResource: existing },
+        });
+      }
+
+      uploadResult = await storageService.upload(req.file, 'resources');
+    }
+
+    let parsedTopics: string[] = [];
+    try {
+      parsedTopics = typeof topics === 'string' ? JSON.parse(topics) : topics || [];
+    } catch {
+      parsedTopics = [];
+    }
+
+    let parsedTags: string[] = [];
+    try {
+      parsedTags = typeof tags === 'string' ? JSON.parse(tags) : tags || [];
+    } catch {
+      parsedTags = [];
+    }
 
     const initialRQS = QualityScoreService.calculateRQS({
       averageRating: 0,
@@ -89,13 +127,14 @@ export const createResource = async (req: AuthenticatedRequest, res: Response) =
       courseId,
       semester,
       ...(teacherId && { teacherId }),
+      academicMetadata: parsedAcademicMetadata,
       resourceType,
       topics: parsedTopics,
       tags: parsedTags,
       fileUrl: uploadResult.fileUrl,
       fileKey: uploadResult.fileKey,
-      fileHash,
-      mimeType: req.file.mimetype,
+      fileHash: fileHash || undefined,
+      mimeType: req.file ? req.file.mimetype : 'application/link',
       sizeBytes: uploadResult.sizeBytes,
       status: 'PUBLISHED',
       qualityScore: initialRQS,
@@ -127,6 +166,10 @@ export const getResources = async (req: Request, res: Response) => {
       departmentId,
       courseId,
       resourceType,
+      section,
+      batch,
+      examType,
+      materialType,
       sort = 'quality',
       page = 1,
       limit = 10,
@@ -138,6 +181,10 @@ export const getResources = async (req: Request, res: Response) => {
     if (departmentId) query.departmentId = departmentId;
     if (courseId) query.courseId = courseId;
     if (resourceType) query.resourceType = resourceType;
+    if (section) query['academicMetadata.section'] = section;
+    if (batch) query['academicMetadata.batch'] = batch;
+    if (examType) query['academicMetadata.examType'] = examType;
+    if (materialType) query['academicMetadata.materialType'] = materialType;
 
     if (search) {
       query.$text = { $search: search as string };
