@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { Request, Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/auth';
 import { Resource } from '../models/Resource';
@@ -238,6 +239,14 @@ export const getResources = async (req: Request, res: Response) => {
 
 export const getResourceById = async (req: Request, res: Response) => {
   try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(404).json({
+        success: false,
+        statusCode: 404,
+        message: 'Looks like this donation wandered off.',
+      });
+    }
+
     const resource = await Resource.findByIdAndUpdate(
       req.params.id,
       { $inc: { 'stats.viewsCount': 1 } },

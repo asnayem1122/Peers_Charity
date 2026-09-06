@@ -34,10 +34,28 @@ export default function CoursePantryView({ courseId }: { courseId: string }) {
 
   const courseMeta = {
     'CSE-2103': {
-      name: 'Data Structures & Algorithms II',
+      name: 'Database Systems',
       dept: 'Computer Science & Engineering',
       instructor: 'Department Faculty',
-      desc: 'Advanced graph algorithms (Shortest Path, MST, Dynamic Programming, Memoization, and Complexity Analysis).',
+      desc: 'Relational database design, ER modeling, normalization (1NF-BCNF), relational algebra, and complex SQL transaction processing.',
+    },
+    'CSE-2104': {
+      name: 'Database Systems Sessional',
+      dept: 'Computer Science & Engineering',
+      instructor: 'Department Faculty',
+      desc: 'Practical lab implementations in Oracle SQL, PL/SQL stored procedures, triggers, indexing, and end-to-end database schema modeling.',
+    },
+    'CSE-2105': {
+      name: 'Data Structures & Algorithms',
+      dept: 'Computer Science & Engineering',
+      instructor: 'Department Faculty',
+      desc: 'Balanced BSTs, heaps, graph traversals (BFS/DFS), shortest paths (Dijkstra, Bellman-Ford), and dynamic programming paradigms.',
+    },
+    'CSE-2106': {
+      name: 'Data Structures & Algorithms Sessional',
+      dept: 'Computer Science & Engineering',
+      instructor: 'Department Faculty',
+      desc: 'C++ implementations of complex data structures, algorithmic benchmark performance, and competitive coding lab challenges.',
     },
     'CSE-3101': {
       name: 'Operating Systems Architecture',
@@ -50,6 +68,18 @@ export default function CoursePantryView({ courseId }: { courseId: string }) {
       dept: 'Computer Science & Engineering',
       instructor: 'Department Faculty',
       desc: 'Heuristic Search (A*, Minimax), Alpha-Beta Pruning, Naive Bayes Classification, and Convolutional Neural Networks.',
+    },
+    'EEE-1201': {
+      name: 'Electrical Circuit Analysis',
+      dept: 'Electrical & Electronic Engineering',
+      instructor: 'Department Faculty',
+      desc: "Kirchhoff's Laws, Thévenin and Norton theorems, AC sinusoidal steady-state analysis, and RLC resonance circuits.",
+    },
+    'MATH-2101': {
+      name: 'Mathematics III - Fourier & Vector Analysis',
+      dept: 'Basic Science & Humanities',
+      instructor: 'Department Faculty',
+      desc: 'Fourier series, Fourier transforms, Laplace transforms, vector differentiation, gradient, divergence, curl, and Green’s theorem.',
     },
   }[courseId.toUpperCase()] || {
     name: `${formattedCode} Course Material`,

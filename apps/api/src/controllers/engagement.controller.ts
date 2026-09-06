@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/auth';
 import { Rating } from '../models/Rating';
@@ -14,6 +15,10 @@ export const addRating = async (req: AuthenticatedRequest, res: Response) => {
     const { resourceId } = req.params;
     const { stars } = req.body;
     const userId = req.user!.id;
+
+    if (!mongoose.isValidObjectId(resourceId)) {
+      return res.status(404).json({ success: false, message: 'Resource not found' });
+    }
 
     const resource = await Resource.findById(resourceId);
     if (!resource) {
@@ -63,6 +68,10 @@ export const addReview = async (req: AuthenticatedRequest, res: Response) => {
     const { content } = req.body;
     const userId = req.user!.id;
 
+    if (!mongoose.isValidObjectId(resourceId)) {
+      return res.status(404).json({ success: false, message: 'Resource not found' });
+    }
+
     if (!content || typeof content !== 'string' || !content.trim()) {
       return res.status(400).json({ success: false, message: 'Review content cannot be empty' });
     }
@@ -99,7 +108,12 @@ export const addReview = async (req: AuthenticatedRequest, res: Response) => {
 
 export const getReviews = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const reviews = await Review.find({ resourceId: req.params.resourceId }).sort({ createdAt: -1 });
+    const { resourceId } = req.params;
+    if (!mongoose.isValidObjectId(resourceId)) {
+      return res.status(404).json({ success: false, message: 'Resource not found' });
+    }
+
+    const reviews = await Review.find({ resourceId }).sort({ createdAt: -1 });
     return res.status(200).json({ success: true, data: reviews });
   } catch (error: any) {
     return res.status(500).json({ success: false, message: error.message });
@@ -110,6 +124,10 @@ export const toggleBookmark = async (req: AuthenticatedRequest, res: Response) =
   try {
     const { resourceId } = req.params;
     const userId = req.user!.id;
+
+    if (!mongoose.isValidObjectId(resourceId)) {
+      return res.status(404).json({ success: false, message: 'Resource not found' });
+    }
 
     const existing = await Bookmark.findOne({ userId, resourceId });
     if (existing) {
@@ -140,6 +158,10 @@ export const recordDownload = async (req: AuthenticatedRequest, res: Response) =
     const { resourceId } = req.params;
     const userId = req.user?.id;
 
+    if (!mongoose.isValidObjectId(resourceId)) {
+      return res.status(404).json({ success: false, message: 'Resource not found' });
+    }
+
     await Download.create({ resourceId, userId });
     const resource = await Resource.findByIdAndUpdate(
       resourceId,
@@ -166,6 +188,10 @@ export const submitReport = async (req: AuthenticatedRequest, res: Response) => 
     const { resourceId } = req.params;
     const { reason, details } = req.body;
     const reporterId = req.user!.id;
+
+    if (!mongoose.isValidObjectId(resourceId)) {
+      return res.status(404).json({ success: false, message: 'Resource not found' });
+    }
 
     const report = await Report.create({
       resourceId,

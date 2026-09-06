@@ -23,7 +23,8 @@
     "test:integration": "npm run test:integration --prefix apps/api",
     "test:edge": "npm run test:edge --prefix apps/api",
     "test:security": "npm run test:security --prefix apps/api",
-    "test:coverage": "npm run test:coverage --prefix packages/shared && npm run test:coverage --prefix apps/api"
+    "test:coverage": "npm run test:coverage --prefix packages/shared && npm run test:coverage --prefix apps/api",
+    "seed:demo": "npm run seed:demo --prefix apps/api"
   },
   "workspaces": [
     "apps/*",

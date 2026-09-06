@@ -53,33 +53,35 @@ export default function LeaderboardPage() {
   });
 
   const leaders: LeaderEntry[] = Array.from(uploaderMap.values())
-    .map((u, idx) => {
+    .map((u) => {
       const avgRating = u.ratingCount > 0 ? Number((u.ratingTotal / u.ratingCount).toFixed(1)) : 5.0;
       return {
-        rank: idx + 1,
         name: u.name,
         email: u.email,
         points: u.donations * 10,
         donations: u.donations,
         savedCount: u.downloads,
-        badge:
-          idx === 0
-            ? '🥇 Top Academic Philanthropist'
-            : idx === 1
-            ? '🥈 Senior Semester Saver'
-            : '🥉 Class Hero',
         trustScore: avgRating,
-        badgeColor:
-          idx === 0
-            ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
-            : idx === 1
-            ? 'bg-slate-400/20 text-slate-300 border-slate-400/30'
-            : 'bg-amber-700/20 text-amber-500 border-amber-700/30',
         avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(u.name)}`,
       };
     })
-    .sort((a, b) => b.points - a.points)
-    .map((leader, index) => ({ ...leader, rank: index + 1 }));
+    .sort((a, b) => b.points - a.points || b.savedCount - a.savedCount)
+    .map((leader, index) => ({
+      ...leader,
+      rank: index + 1,
+      badge:
+        index === 0
+          ? '🥇 Top Academic Philanthropist'
+          : index === 1
+          ? '🥈 Senior Semester Saver'
+          : '🥉 Class Hero',
+      badgeColor:
+        index === 0
+          ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+          : index === 1
+          ? 'bg-slate-400/20 text-slate-300 border-slate-400/30'
+          : 'bg-amber-700/20 text-amber-500 border-amber-700/30',
+    }));
 
   return (
     <div className="space-y-6 font-sans">

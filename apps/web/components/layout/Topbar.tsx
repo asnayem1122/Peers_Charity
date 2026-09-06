@@ -30,6 +30,7 @@ export default function Topbar() {
   const router = useRouter();
   const [isDark, setIsDark] = useState(true);
   const [isCmdOpen, setIsCmdOpen] = useState(false);
+  const [cmdQuery, setCmdQuery] = useState('');
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -345,8 +346,14 @@ export default function Topbar() {
 
       {/* Command Palette Modal */}
       {isCmdOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-start justify-center pt-20 px-4">
-          <div className="w-full max-w-lg bg-card border border-border rounded-2xl p-4 shadow-2xl space-y-3">
+        <div
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-start justify-center pt-20 px-4"
+          onClick={() => setIsCmdOpen(false)}
+        >
+          <div
+            className="w-full max-w-lg bg-card border border-border rounded-2xl p-4 shadow-2xl space-y-3"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between border-b border-border pb-3">
               <div className="flex items-center gap-2 text-sm text-foreground font-bold font-mono">
                 <Sparkles className="w-4 h-4 text-foreground" />
@@ -354,7 +361,7 @@ export default function Topbar() {
               </div>
               <button
                 onClick={() => setIsCmdOpen(false)}
-                className="text-xs text-muted-foreground hover:text-foreground font-mono"
+                className="text-xs text-muted-foreground hover:text-foreground font-mono px-2 py-0.5 rounded border border-border"
               >
                 Esc
               </button>
@@ -362,38 +369,45 @@ export default function Topbar() {
             <input
               type="text"
               autoFocus
-              placeholder="Type a command or course name..."
-              className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:border-foreground"
+              value={cmdQuery}
+              onChange={(e) => setCmdQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  setIsCmdOpen(false);
+                  router.push(cmdQuery.trim() ? `/bazaar?q=${encodeURIComponent(cmdQuery.trim())}` : '/bazaar');
+                }
+              }}
+              placeholder="Type a command or search notes (press Enter)..."
+              className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:border-foreground font-mono"
             />
             <div className="space-y-1 text-xs text-muted-foreground max-h-60 overflow-y-auto font-mono">
-              <Link
-                href="/bazaar"
-                onClick={() => setIsCmdOpen(false)}
-                className="block p-2 rounded-lg hover:bg-card-hover hover:text-foreground"
-              >
-                🔍 Search Resources in Charity Bazaar
-              </Link>
-              <Link
-                href="/donate"
-                onClick={() => setIsCmdOpen(false)}
-                className="block p-2 rounded-lg hover:bg-card-hover hover:text-foreground"
-              >
-                ➕ Donate Knowledge (Upload Notes)
-              </Link>
-              <Link
-                href="/exam"
-                onClick={() => setIsCmdOpen(false)}
-                className="block p-2 rounded-lg hover:bg-card-hover hover:text-foreground"
-              >
-                🔥 Open Exam Emergency Room
-              </Link>
-              <Link
-                href="/treasure"
-                onClick={() => setIsCmdOpen(false)}
-                className="block p-2 rounded-lg hover:bg-card-hover hover:text-foreground"
-              >
-                💎 Open My Treasure Chest
-              </Link>
+              {[
+                { label: '🔍 Search Resources in Charity Bazaar', href: cmdQuery.trim() ? `/bazaar?q=${encodeURIComponent(cmdQuery.trim())}` : '/bazaar', match: 'search notes bazaar' },
+                { label: '➕ Donate Knowledge (Upload Notes)', href: '/donate', match: 'upload donate share post contribute' },
+                { label: '🔥 Open Exam Emergency Room', href: '/exam', match: 'exam emergency ct mid final prep papers' },
+                { label: '📚 Open Academic Pantry', href: '/pantry', match: 'pantry courses library subjects' },
+                { label: '💎 Open My Treasure Chest', href: '/treasure', match: 'treasure bookmarks saved stars' },
+                { label: '🏆 Generosity Olympics Leaderboard', href: '/leaderboard', match: 'leaderboard rank points benefactors' },
+                { label: '👤 My Charity Card Profile', href: '/profile', match: 'profile account charity card' },
+              ]
+                .filter((item) =>
+                  !cmdQuery.trim() ||
+                  item.label.toLowerCase().includes(cmdQuery.toLowerCase()) ||
+                  item.match.toLowerCase().includes(cmdQuery.toLowerCase())
+                )
+                .map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => {
+                      setIsCmdOpen(false);
+                      setCmdQuery('');
+                    }}
+                    className="block p-2 rounded-lg hover:bg-card-hover hover:text-foreground transition-colors"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
             </div>
           </div>
         </div>

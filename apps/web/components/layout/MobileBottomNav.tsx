@@ -25,7 +25,9 @@ export default function MobileBottomNav() {
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-card/90 backdrop-blur-2xl border-t border-border flex items-center justify-around z-40 px-2 font-mono">
       {items.map((item) => {
-        const isActive = pathname === item.href;
+        const isActive =
+          pathname === item.href ||
+          (item.href !== '/' && item.href !== '/login' && pathname.startsWith(item.href + '/'));
         const Icon = item.icon;
 
         if (item.isMain) {

@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/auth';
 import { UserProfile } from '../models/UserProfile';
@@ -67,7 +68,12 @@ export const updateMyProfile = async (req: AuthenticatedRequest, res: Response) 
 
 export const getPublicProfile = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const profile = await UserProfile.findById(req.params.id)
+    const { id } = req.params;
+    const query = mongoose.isValidObjectId(id)
+      ? { $or: [{ _id: id }, { userId: id }] }
+      : { userId: id };
+
+    const profile = await UserProfile.findOne(query)
       .select('-studentIdNumber -email')
       .populate('universityId', 'name code')
       .populate('departmentId', 'name code');

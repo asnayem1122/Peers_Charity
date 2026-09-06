@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { Request, Response } from 'express';
 import { Resource } from '../models/Resource.js';
 import { Course } from '../models/Course.js';
@@ -6,13 +7,17 @@ export const getExamEmergencyData = async (req: Request, res: Response) => {
   try {
     const { courseId } = req.params;
 
-    const course = await Course.findById(courseId).populate('departmentId', 'name code');
+    const courseQuery = mongoose.isValidObjectId(courseId)
+      ? { $or: [{ _id: courseId }, { code: courseId.toUpperCase().replace('-', ' ') }] }
+      : { code: courseId.toUpperCase().replace('-', ' ') };
+
+    const course = await Course.findOne(courseQuery).populate('departmentId', 'name code');
     if (!course) {
       return res.status(404).json({ success: false, message: 'Course not found' });
     }
 
     const resources = await Resource.find({
-      courseId,
+      courseId: course._id,
       status: 'PUBLISHED',
     }).sort({ qualityScore: -1, 'stats.downloadsCount': -1 });
 

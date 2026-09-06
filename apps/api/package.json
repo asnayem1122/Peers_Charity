@@ -14,10 +14,12 @@
     "test:integration": "vitest run tests/integration",
     "test:edge": "vitest run tests/edge-cases",
     "test:security": "vitest run tests/security",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "seed:demo": "npx tsx src/scripts/seed-demo.ts"
   },
   "dependencies": {
     "@peers-charity/shared": "file:../../packages/shared",
+    "bcryptjs": "^3.0.3",
     "better-auth": "^1.1.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -29,6 +31,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/morgan": "^1.9.9",

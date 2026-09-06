@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/auth';
 import { Resource } from '../models/Resource';
@@ -51,6 +52,10 @@ export const updateResourceStatus = async (req: AuthenticatedRequest, res: Respo
     const { id } = req.params;
     const { status, reason } = req.body;
 
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(404).json({ success: false, message: 'Resource not found' });
+    }
+
     const resource = await Resource.findByIdAndUpdate(id, { status }, { new: true });
     if (!resource) {
       return res.status(404).json({ success: false, message: 'Resource not found' });
@@ -87,6 +92,10 @@ export const resolveReport = async (req: AuthenticatedRequest, res: Response) =>
   try {
     const { id } = req.params;
     const { status, actionTake } = req.body;
+
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(404).json({ success: false, message: 'Report not found' });
+    }
 
     const report = await Report.findByIdAndUpdate(id, { status }, { new: true });
     if (!report) {
