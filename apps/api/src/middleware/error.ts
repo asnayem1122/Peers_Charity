@@ -13,7 +13,10 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  const statusCode = err.statusCode || 500;
+  let statusCode = err.statusCode || 500;
+  if (err.name === 'MulterError' || err.message?.includes('Forbidden file extension')) {
+    statusCode = 400;
+  }
   const message = err.message || 'Internal Server Error';
 
   console.error(`[API Error] ${req.method} ${req.url} - ${statusCode}: ${message}`);

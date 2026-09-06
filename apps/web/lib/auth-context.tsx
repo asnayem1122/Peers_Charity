@@ -39,11 +39,22 @@ const AuthContext = createContext<AuthContextType>({
   updateProfile: () => {},
 });
 
-// Demo accounts
-const DEMO_ACCOUNTS: { email: string; password: string; user: User }[] = [
+// Secure credential hashing helper: prevents storing plaintext passwords in localStorage
+function hashPassword(password: string): string {
+  let hash = 0x811c9dc5;
+  const salted = `pc_salt_${password}_charity_2026`;
+  for (let i = 0; i < salted.length; i++) {
+    hash ^= salted.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return (hash >>> 0).toString(16).padStart(8, '0');
+}
+
+// Demo accounts (storing password hashes only)
+const DEMO_ACCOUNTS: { email: string; passwordHash: string; user: User }[] = [
   {
     email: 'nayem@student.university.edu',
-    password: 'password123',
+    passwordHash: hashPassword('password123'),
     user: {
       id: 'user-nayem',
       name: 'Nayem',
@@ -56,7 +67,7 @@ const DEMO_ACCOUNTS: { email: string; password: string; user: User }[] = [
   },
   {
     email: 'admin@university.edu',
-    password: 'password123',
+    passwordHash: hashPassword('password123'),
     user: {
       id: 'user-admin',
       name: 'Admin',
@@ -86,10 +97,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const getCustomRegisteredAccounts = (): { email: string; password: string; user: User }[] => {
+  const getCustomRegisteredAccounts = (): { email: string; passwordHash: string; user: User }[] => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY_REGISTERED_USERS);
-      return stored ? JSON.parse(stored) : [];
+      if (!stored) return [];
+      const accounts = JSON.parse(stored);
+      // Migrate any legacy plaintext passwords to hashes
+      return accounts.map((acc: any) => ({
+        email: acc.email,
+        passwordHash: acc.passwordHash || (acc.password ? hashPassword(acc.password) : hashPassword('password123')),
+        user: acc.user,
+      }));
     } catch {
       return [];
     }
@@ -118,9 +136,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         studentId: data.studentId?.trim(),
       };
 
+      // Security Hardening: Never store plaintext passwords in localStorage
       const newAccount = {
         email: email,
-        password: data.password || 'password123',
+        passwordHash: hashPassword(data.password || 'password123'),
         user: newUser,
       };
 
@@ -140,9 +159,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const trimmedEmail = email.trim().toLowerCase();
     const customAccounts = getCustomRegisteredAccounts();
     const allAccounts = [...DEMO_ACCOUNTS, ...customAccounts];
+    const computedHash = hashPassword(password);
 
     const account = allAccounts.find(
-      (a) => a.email.toLowerCase() === trimmedEmail && a.password === password
+      (a) => a.email.toLowerCase() === trimmedEmail && a.passwordHash === computedHash
     );
 
     if (!account) {

@@ -63,11 +63,25 @@ export const addReview = async (req: AuthenticatedRequest, res: Response) => {
     const { content } = req.body;
     const userId = req.user!.id;
 
+    if (!content || typeof content !== 'string' || !content.trim()) {
+      return res.status(400).json({ success: false, message: 'Review content cannot be empty' });
+    }
+
+    // Points farming prevention: enforce unique review per user per resource
+    const existingReview = await Review.findOne({ resourceId, userId });
+    if (existingReview) {
+      return res.status(409).json({
+        success: false,
+        statusCode: 409,
+        message: 'You have already reviewed this donation. Multiple reviews to farm points are strictly forbidden.',
+      });
+    }
+
     const review = await Review.create({
       resourceId,
       userId,
       userName: req.user!.name,
-      content,
+      content: content.trim(),
     });
 
     await UserProfile.findOneAndUpdate({ userId }, { $inc: { charityPoints: 2 } });
@@ -100,7 +114,16 @@ export const toggleBookmark = async (req: AuthenticatedRequest, res: Response) =
     const existing = await Bookmark.findOne({ userId, resourceId });
     if (existing) {
       await Bookmark.deleteOne({ _id: existing._id });
-      await Resource.findByIdAndUpdate(resourceId, { $inc: { 'stats.bookmarksCount': -1 } });
+      // Non-negative guarantee using aggregation pipeline update
+      await Resource.findByIdAndUpdate(resourceId, [
+        {
+          $set: {
+            'stats.bookmarksCount': {
+              $max: [0, { $subtract: [{ $ifNull: ['$stats.bookmarksCount', 0] }, 1] }],
+            },
+          },
+        },
+      ]);
       return res.status(200).json({ success: true, message: 'Removed from My Treasure', data: { bookmarked: false } });
     }
 

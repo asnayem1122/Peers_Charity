@@ -10,7 +10,13 @@ export const config = {
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
   corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:3000',
   mongodbUri: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/peers_charity',
-  betterAuthSecret: process.env.BETTER_AUTH_SECRET || 'peers_charity_super_secret_key_32_characters_minimum_len',
+  betterAuthSecret: (() => {
+    const secret = process.env.BETTER_AUTH_SECRET;
+    if (!secret && process.env.NODE_ENV === 'production') {
+      console.warn('[SECURITY WARNING] BETTER_AUTH_SECRET is not set in production! Generate a 32+ character random secret.');
+    }
+    return secret || 'peers_charity_super_secret_key_32_characters_minimum_len';
+  })(),
   betterAuthUrl: process.env.BETTER_AUTH_URL || 'http://localhost:5000',
   storageProvider: process.env.STORAGE_PROVIDER || 'local',
   storageBucket: process.env.STORAGE_BUCKET || 'peers-charity-local',

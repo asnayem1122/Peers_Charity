@@ -16,6 +16,8 @@ import sessionalRouter from './routes/sessional.routes';
 import adminRouter from './routes/admin.routes';
 import { errorHandler } from './middleware/error';
 
+import { apiLimiter } from './middleware/rateLimit';
+
 const app = express();
 
 // Security Headers
@@ -44,8 +46,22 @@ if (config.env !== 'test') {
 // 1. Mount Better Auth BEFORE generic body parsers
 app.all('/api/auth/*', toNodeHandler(auth));
 
-// 2. Static File Uploads Directory
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+// 2. Static File Uploads Directory with strict security headers
+app.use(
+  '/uploads',
+  express.static(path.join(process.cwd(), 'uploads'), {
+    dotfiles: 'deny',
+    index: false,
+    setHeaders: (res) => {
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Content-Security-Policy', "default-src 'none'");
+      res.setHeader('Content-Disposition', 'attachment');
+    },
+  })
+);
+
+// Apply API Rate Limiting to all /api endpoints
+app.use('/api', apiLimiter);
 
 // 3. Generic Body Parsers
 app.use(express.json({ limit: '10mb' }));

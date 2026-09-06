@@ -21,6 +21,7 @@ export interface IAcademicMetadata {
   materialType?: MaterialType;
   externalLink?: string;
   labNumber?: string | number;
+  topic?: string;
 }
 
 export interface IResource extends Document {
@@ -62,8 +63,8 @@ export interface IResource extends Document {
 
 const ResourceSchema = new Schema<IResource>(
   {
-    title: { type: String, required: true, trim: true, index: 'text' },
-    description: { type: String, trim: true, index: 'text' },
+    title: { type: String, required: true, trim: true },
+    description: { type: String, trim: true },
     uploaderId: { type: String, required: true, index: true },
     universityId: { type: Schema.Types.ObjectId, ref: 'University', required: true, index: true },
     departmentId: { type: Schema.Types.ObjectId, ref: 'Department', required: true, index: true },
@@ -88,6 +89,7 @@ const ResourceSchema = new Schema<IResource>(
       },
       externalLink: { type: String, trim: true },
       labNumber: { type: Schema.Types.Mixed },
+      topic: { type: String, trim: true },
     },
     resourceType: {
       type: String,
@@ -134,6 +136,7 @@ const ResourceSchema = new Schema<IResource>(
   { timestamps: true }
 );
 
+ResourceSchema.index({ title: 'text', description: 'text' });
 ResourceSchema.index({ courseId: 1, status: 1, qualityScore: -1 });
 ResourceSchema.index({ 'academicMetadata.section': 1, courseId: 1, status: 1 });
 ResourceSchema.index({ 'academicMetadata.section': 1, 'academicMetadata.batch': 1, status: 1 });

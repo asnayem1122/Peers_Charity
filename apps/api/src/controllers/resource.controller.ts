@@ -8,11 +8,17 @@ import { QualityScoreService } from '../services/QualityScoreService';
 export const checkDuplicate = async (req: Request, res: Response) => {
   try {
     const { fileHash } = req.body;
-    if (!fileHash) {
-      return res.status(400).json({ success: false, message: 'fileHash is required' });
+    if (!fileHash || typeof fileHash !== 'string') {
+      return res.status(400).json({ success: false, message: 'fileHash string is required' });
     }
 
-    const existing = await Resource.findOne({ fileHash, status: 'PUBLISHED' })
+    // Defensive check against NoSQL injection operators
+    const sanitizedHash = fileHash.trim();
+    if (!/^[a-fA-F0-9]{64}$/.test(sanitizedHash)) {
+      return res.status(400).json({ success: false, message: 'Invalid fileHash format (expected 64-char hex SHA-256)' });
+    }
+
+    const existing = await Resource.findOne({ fileHash: sanitizedHash, status: 'PUBLISHED' })
       .populate('courseId', 'title code')
       .populate('universityId', 'name code');
 
@@ -197,8 +203,8 @@ export const getResources = async (req: Request, res: Response) => {
     else if (sort === 'downloads') sortOptions['stats.downloadsCount'] = -1;
     else sortOptions.createdAt = -1;
 
-    const pageNum = parseInt(page as string, 10);
-    const limitNum = parseInt(limit as string, 10);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 10), 100);
     const skip = (pageNum - 1) * limitNum;
 
     const [resources, total] = await Promise.all([

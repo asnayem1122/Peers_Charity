@@ -4,8 +4,10 @@ import mongoose from 'mongoose';
 import { config } from '../config/env';
 import { connectDatabase } from '../config/database';
 
-// Attempt DB connection on startup
-await connectDatabase();
+// Attempt DB connection on startup (skip in test environment)
+if (process.env.NODE_ENV !== 'test') {
+  await connectDatabase();
+}
 
 // Safely retrieve database or fallback if offline
 const getDbInstance = () => {

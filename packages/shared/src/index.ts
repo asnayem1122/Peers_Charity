@@ -127,3 +127,6 @@ export const MATERIAL_TYPE_LABELS: Record<MaterialType, string> = {
   SLIDES: 'Slides / Presentation',
   EXTERNAL_LINK: 'External Link',
 } as const;
+
+export * from './validation.js';
+

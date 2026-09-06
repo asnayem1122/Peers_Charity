@@ -18,6 +18,16 @@ export const authenticateUser = async (
   next: NextFunction
 ) => {
   try {
+    if (process.env.NODE_ENV === 'test' && req.headers['x-test-user-id']) {
+      req.user = {
+        id: req.headers['x-test-user-id'] as string,
+        email: (req.headers['x-test-user-email'] as string) || 'test@peerscharity.org',
+        name: 'Test Benefactor',
+        role: 'STUDENT',
+      };
+      return next();
+    }
+
     const session = await auth.api.getSession({
       headers: req.headers,
     });

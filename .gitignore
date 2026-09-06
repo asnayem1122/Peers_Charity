@@ -35,3 +35,9 @@ apps/api/uploads/
 scratch/
 *.tsbuildinfo
 
+# Test & Build outputs
+coverage/
+*/coverage/
+packages/shared/dist/
+
+
