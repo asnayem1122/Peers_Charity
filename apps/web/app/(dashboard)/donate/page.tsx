@@ -34,7 +34,7 @@ import {
 } from '@/lib/resources-data';
 
 export default function DonateKnowledgePage() {
-  const { user } = useAuth();
+  const { user, login } = useAuth();
   const router = useRouter();
 
   // Multi-step Wizard State (1 to 5)
@@ -69,14 +69,15 @@ export default function DonateKnowledgePage() {
   // Auth Guard: Require authentication to donate knowledge
   if (!user) {
     return (
-      <div className="max-w-xl mx-auto my-12 p-8 sm:p-10 rounded-3xl bg-card border border-border shadow-2xl text-center space-y-6 relative overflow-hidden font-sans">
-        <div className="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center justify-center mx-auto shadow-lg">
+      <div className="max-w-xl mx-auto my-12 p-8 rounded-3xl bg-card border border-border text-center space-y-6">
+        <div className="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center justify-center mx-auto shadow-md">
           <Lock className="w-8 h-8" />
         </div>
 
         <div className="space-y-2">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-mono font-bold uppercase tracking-wider">
-            Authentication Guard
+            <ShieldCheck className="w-3.5 h-3.5" />
+            Authentication Required
           </span>
           <h1 className="text-2xl sm:text-3xl font-black font-mono uppercase tracking-tight text-foreground">
             Sign In Required to Donate Knowledge
@@ -102,6 +103,21 @@ export default function DonateKnowledgePage() {
             <UserPlus className="w-4 h-4" />
             <span>Create Account</span>
           </Link>
+        </div>
+
+        {/* 1-Click Quick Demo Login for instant testing */}
+        <div className="pt-4 border-t border-border/60 text-center">
+          <p className="text-[11px] text-muted-foreground font-mono mb-2">Testing or Evaluating?</p>
+          <button
+            type="button"
+            onClick={() => {
+              login('student@demo.com', 'DemoPassword123!');
+            }}
+            className="w-full sm:w-auto px-6 py-2.5 rounded-2xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-mono text-xs font-bold inline-flex items-center justify-center gap-2 transition-all shadow-sm"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span>1-Click Demo Login (Student)</span>
+          </button>
         </div>
       </div>
     );

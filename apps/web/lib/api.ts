@@ -1,6 +1,22 @@
 import { Resource, AcademicSection, ExamType, MaterialType, ResourceType } from './resources-data';
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+export function getApiBaseUrl(): string {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  if (typeof window !== 'undefined') {
+    // In browser on deployed domains (like *.vercel.app), use same-origin relative URL / origin
+    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      return window.location.origin;
+    }
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  return 'http://localhost:5000';
+}
+
+export const API_BASE_URL = getApiBaseUrl();
 
 export interface ApiResource {
   _id: string;
