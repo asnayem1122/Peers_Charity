@@ -167,6 +167,57 @@ peers-charity/
 
 ---
 
+## 📋 Project Management: Agile Kanban
+
+### 1. Kanban Philosophy
+We adopt an Agile Kanban methodology to manage, visualize, and optimize our development workflow. Our core objective is to achieve a predictable, continuous delivery flow while maintaining high engineering and security standards.
+
+Key tenets of our approach:
+- **Visualize the Workflow:** Every piece of work is represented as an issue card on our GitHub Project board, ensuring complete transparency across the team.
+- **Limit Work In Progress (WIP):** To prevent context switching and bottlenecks, team members adhere to a strict *"Stop Starting, Start Finishing"* discipline. Developers must complete and verify their active task before pulling a new item into progress.
+- **Reduce Lead Time:** Focus on streamlining feature delivery from initial conception to production deployment.
+- **Continuous Quality Assurance:** Quality and testing are integrated into every stage rather than treated as an afterthought.
+
+---
+
+### 2. GitHub Kanban Board Structure
+
+Our GitHub Projects board organizes feature lifecycles into distinct stages to provide clear visibility into task readiness and handoffs:
+
+| Column / Lane | Sub-State | Description & Exit Criteria |
+|---|:---:|---|
+| **Backlog** | — | Unprioritized features, ideas, technical debt, and enhancement requests awaiting review and grooming. |
+| **Selected** | — | Features prioritized and committed for the active cycle; ready for preliminary analysis. |
+| **Analysis** | **Doing** | Requirements gathering, technical specification, UI/UX scoping, and architectural design. |
+| | **Done** | Technical plan verified, acceptance criteria defined, and task is ready for active development. |
+| **Development** | **Doing** | Active implementation, writing clean code, and authoring unit/integration test coverage. |
+| | **Done** | Implementation complete, local test suite passing, and a Pull Request (PR) is opened. |
+| **Testing** | — | Quality assurance (QA), peer code review, automated CI/CD pipeline verification, and bug resolution. |
+| **Done** | — | PR reviewed and merged into `main`, automated builds passed, and deployed to production. |
+| ⚡ **Expedite Lane** | — | **High-Priority Fast-Track**: Dedicated exclusively for critical production bugs, security hotfixes, or blocking operational failures. Bypasses standard queue prioritization. |
+
+---
+
+### 3. Workflow Instructions for the Team
+
+All contributors and team members must follow these standard procedures for tracking work:
+
+1. **Every Feature Starts with an Issue:**
+   - Never write code without an associated issue. Create a detailed **GitHub Issue** using standard issue templates (title, context, user story, acceptance criteria).
+2. **Immediate Board Mapping:**
+   - Assign the issue to the central **GitHub Projects Kanban Board** under the **Backlog** column upon creation.
+3. **Pulling Work & WIP Enforcement:**
+   - Once your current task reaches `Done`, pull the highest-priority card from **Selected** into **Analysis: Doing** or **Development: Doing**.
+   - Assign yourself to the issue to denote ownership.
+4. **Card Progression:**
+   - Keep the board updated in real-time as work transitions across stages (`Analysis` ➔ `Development` ➔ `Testing` ➔ `Done`).
+   - Move cards to buffer columns (`Analysis: Done`, `Development: Done`) when waiting for handoffs or reviews.
+5. **PR Linking & Auto-Closure:**
+   - Reference the issue in branch names (`feature/#<id>-description`) and commit messages.
+   - Include closing keywords in your PR description (e.g., `Closes #42` or `Fixes #18`) so cards automatically transition to **Done** upon merge.
+
+---
+
 ## 🚀 Quick Start Guide
 
 ### Prerequisites
