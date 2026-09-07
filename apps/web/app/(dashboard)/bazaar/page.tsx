@@ -32,6 +32,7 @@ import {
   getResources,
   fetchAndSyncResources,
   getSavedResourceIds,
+  getDownloadedResourceIds,
   toggleSaveResource,
   recordDownload,
   Resource,
@@ -42,6 +43,8 @@ import ResourceDetailModal from '@/components/ui/resource-detail-modal';
 import ReportResourceModal from '@/components/ui/report-resource-modal';
 import GuestAuthModal from '@/components/ui/guest-auth-modal';
 import AboutProjectModal from '@/components/ui/about-project-modal';
+import { triggerResourceDownload } from '@/lib/download';
+import { apiToggleBookmark } from '@/lib/api';
 
 export default function CharityBazaarPage() {
   const { user } = useAuth();
@@ -109,18 +112,19 @@ export default function CharityBazaarPage() {
       return;
     }
     const updated = toggleSaveResource(id);
+    apiToggleBookmark(id).catch(() => {});
     setSavedIds(updated);
     loadData();
   };
 
-  const handleDownload = (e: React.MouseEvent, id: string) => {
+  const handleDownload = async (e: React.MouseEvent, res: Resource) => {
     e.stopPropagation();
     if (!user) {
       handleRequireAuth('download academic resources');
       return;
     }
-    const updated = recordDownload(id);
-    setDownloadedIds(updated);
+    await triggerResourceDownload(res);
+    setDownloadedIds(getDownloadedResourceIds());
     loadData();
   };
 
@@ -481,11 +485,15 @@ export default function CharityBazaarPage() {
                     </button>
 
                     <button
-                      onClick={(e) => handleDownload(e, res.id)}
+                      onClick={(e) => handleDownload(e, res)}
                       className="p-2 rounded-xl bg-foreground text-background hover:opacity-90 transition-all font-bold shadow-md"
-                      title="Download Resource"
+                      title={res.academicMetadata?.materialType === 'EXTERNAL_LINK' || res.resourceType === 'External Link' ? 'Open External Resource' : 'Download Resource'}
                     >
-                      <Download className="w-3.5 h-3.5" />
+                      {res.academicMetadata?.materialType === 'EXTERNAL_LINK' || res.resourceType === 'External Link' ? (
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      ) : (
+                        <Download className="w-3.5 h-3.5" />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -562,11 +570,20 @@ export default function CharityBazaarPage() {
                     </button>
 
                     <button
-                      onClick={(e) => handleDownload(e, res.id)}
+                      onClick={(e) => handleDownload(e, res)}
                       className="px-4 py-2 rounded-xl bg-foreground text-background font-bold text-xs hover:opacity-90 transition-all shadow-md flex items-center gap-1.5"
                     >
-                      <Download className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">Download</span>
+                      {res.academicMetadata?.materialType === 'EXTERNAL_LINK' || res.resourceType === 'External Link' ? (
+                        <>
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">Open</span>
+                        </>
+                      ) : (
+                        <>
+                          <Download className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">Download</span>
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>

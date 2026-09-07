@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { Flame, Sparkles, BookOpen, PlusCircle, Download, Check, ShieldCheck, FileText, Star, Eye } from 'lucide-react';
 import { PRODUCT_TERMINOLOGY } from '@/lib/constants';
 import { useAuth } from '@/lib/auth-context';
-import { getResources, fetchAndSyncResources, recordDownload, Resource } from '@/lib/resources-data';
+import { getResources, fetchAndSyncResources, recordDownload, getDownloadedResourceIds, Resource } from '@/lib/resources-data';
+import { triggerResourceDownload } from '@/lib/download';
 import ResourceDetailModal from '@/components/ui/resource-detail-modal';
 import ReportResourceModal from '@/components/ui/report-resource-modal';
 import GuestAuthModal from '@/components/ui/guest-auth-modal';
@@ -23,13 +24,12 @@ export default function ExamEmergencyRoomPage() {
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [reportTarget, setReportTarget] = useState<{ id: string; title: string }>({ id: '', title: '' });
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authActionName, setAuthActionName] = useState('access this feature');
+  const [authActionName, setAuthActionName] = useState('download exam resources');
 
-  const loadData = () => {
-    setResources(getResources());
-    fetchAndSyncResources().then((live) => {
-      if (live && live.length > 0) setResources(live);
-    });
+  const loadData = async () => {
+    const data = await fetchAndSyncResources();
+    setResources(data);
+    setDownloadedIds(getDownloadedResourceIds());
   };
 
   useEffect(() => {
@@ -41,14 +41,14 @@ export default function ExamEmergencyRoomPage() {
     setIsAuthModalOpen(true);
   };
 
-  const handleDownload = (e: React.MouseEvent, id: string) => {
+  const handleDownload = async (e: React.MouseEvent, pack: Resource) => {
     e.stopPropagation();
     if (!user) {
       handleRequireAuth('download high-yield exam packs');
       return;
     }
-    const updated = recordDownload(id);
-    setDownloadedIds(updated);
+    await triggerResourceDownload(pack);
+    setDownloadedIds(getDownloadedResourceIds());
     loadData();
   };
 
@@ -217,7 +217,7 @@ export default function ExamEmergencyRoomPage() {
                   </div>
 
                   <button
-                    onClick={(e) => handleDownload(e, pack.id)}
+                    onClick={(e) => handleDownload(e, pack)}
                     className={`px-4 py-2 rounded-xl text-xs font-bold font-mono transition-all flex items-center gap-1.5 shadow-md ${
                       isDownloaded
                         ? 'bg-emerald-500 text-white'

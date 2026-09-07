@@ -130,7 +130,49 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="mt-8 text-center text-xs text-muted-foreground">
+        {/* Quick Demo Access Bar */}
+        <div className="mt-6 pt-6 border-t border-border/70 text-center font-mono text-xs space-y-2.5">
+          <p className="text-[11px] text-muted-foreground uppercase font-bold tracking-wider">
+            ⚡ Instant Demo Login
+          </p>
+          <div className="grid grid-cols-3 gap-2 text-[11px]">
+            <button
+              type="button"
+              onClick={() => {
+                login('student@demo.com', 'DemoPassword123!');
+                router.push('/hq');
+              }}
+              className="px-2 py-2 rounded-xl border border-border bg-background hover:bg-card-hover text-foreground font-medium transition-all truncate"
+              title="Tanvir Hasan (Student)"
+            >
+              🎓 Student
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                login('top.contributor@demo.com', 'DemoPassword123!');
+                router.push('/hq');
+              }}
+              className="px-2 py-2 rounded-xl border border-border bg-background hover:bg-card-hover text-foreground font-medium transition-all truncate"
+              title="Sarah Ahmed (Top Contributor)"
+            >
+              ⭐ Top Peer
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                login('admin@demo.com', 'DemoPassword123!');
+                router.push('/hq');
+              }}
+              className="px-2 py-2 rounded-xl border border-border bg-background hover:bg-card-hover text-foreground font-medium transition-all truncate"
+              title="System Admin"
+            >
+              🛡️ Admin
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-6 text-center text-xs text-muted-foreground">
           New to Peer's Charity?{' '}
           <Link href="/register" className="font-bold text-foreground hover:underline">
             Register as a Benefactor

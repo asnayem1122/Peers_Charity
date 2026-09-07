@@ -1,0 +1,94 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 1583 >>
+stream
+BT
+/F1 16 Tf
+50 780 Td
+(Peer's Charity Academic Study Guides) Tj
+/F1 12 Tf
+0 -25 Td
+(C++ Pointers & Memory Management Cheat Sheet | CSE 2105 High-Yield Review) Tj
+/F2 10 Tf
+0 -20 Td
+(____________________________________________________________________________) Tj
+0 -25 Td
+/F1 12 Tf
+0 -24 Td
+(1. Pointer Basics & Arithmetic) Tj
+/F2 10 Tf
+0 -16 Td
+(- int* p = &var; \(Stores address of var\)) Tj
+0 -18 Td
+(- *p = 50; \(Dereferences pointer to update value\)) Tj
+0 -18 Td
+(- Pointer arithmetic: p + 1 increments address by sizeof\(T\) bytes.) Tj
+0 -18 Td
+0 -10 Td
+/F1 12 Tf
+0 -24 Td
+(2. Dynamic Memory Management \(C++ vs C\)) Tj
+/F2 10 Tf
+0 -16 Td
+(- Allocation: int* arr = new int[100]; \(Calls constructors, type-safe\)) Tj
+0 -18 Td
+(- Deallocation: delete[] arr; \(Must use array delete to prevent leaks!\)) Tj
+0 -18 Td
+0 -10 Td
+/F1 12 Tf
+0 -24 Td
+(3. Modern Smart Pointers \(std::memory\)) Tj
+/F2 10 Tf
+0 -16 Td
+(- std::unique_ptr<T>: Exclusive ownership. Non-copyable, movable. Auto freed when out of scope.) Tj
+0 -18 Td
+(- std::shared_ptr<T>: Shared ownership using reference count control block.) Tj
+0 -18 Td
+(- std::weak_ptr<T>: Non-owning observer, prevents cyclic references and deadlocks.) Tj
+0 -18 Td
+0 -10 Td
+/F1 12 Tf
+0 -24 Td
+(4. Best Practices for Exams) Tj
+/F2 10 Tf
+0 -16 Td
+(- Always initialize pointers \(nullptr\). Never leave raw pointers uninitialized.) Tj
+0 -18 Td
+(- Use RAII: Wrap resource lifetime in constructor/destructor wrappers.) Tj
+0 -18 Td
+/F1 8 Tf
+50 40 Td
+(Curated by Sarah Ahmed \(CSE 11th Batch\) for Peer's Charity - Free Academic Sharing) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000121 00000 n 
+0000000257 00000 n 
+0000001892 00000 n 
+0000001967 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+2037
+%%EOF

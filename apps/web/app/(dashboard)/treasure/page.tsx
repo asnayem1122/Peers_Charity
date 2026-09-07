@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Bookmark, Compass, Eye, Trash2, Star, Download } from 'lucide-react';
+import { Bookmark, Compass, Eye, Trash2, Star, Download, ExternalLink } from 'lucide-react';
 import { PRODUCT_TERMINOLOGY } from '@/lib/constants';
 import { getResources, getSavedResourceIds, toggleSaveResource, Resource } from '@/lib/resources-data';
+import { triggerResourceDownload } from '@/lib/download';
+import { apiToggleBookmark } from '@/lib/api';
 import ResourceDetailModal from '@/components/ui/resource-detail-modal';
 import ReportResourceModal from '@/components/ui/report-resource-modal';
 import GuestAuthModal from '@/components/ui/guest-auth-modal';
@@ -31,6 +33,7 @@ export default function MyTreasurePage() {
   const handleRemove = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     toggleSaveResource(id);
+    apiToggleBookmark(id).catch(() => {});
     loadData();
   };
 
@@ -102,6 +105,22 @@ export default function MyTreasurePage() {
               </div>
 
               <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
+                <button
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    await triggerResourceDownload(res);
+                    loadData();
+                  }}
+                  className="p-2.5 rounded-xl border border-border hover:bg-foreground hover:text-background text-muted-foreground transition-all shadow-sm"
+                  title={res.academicMetadata?.materialType === 'EXTERNAL_LINK' || res.resourceType === 'External Link' ? 'Open External Resource' : 'Download Resource'}
+                >
+                  {res.academicMetadata?.materialType === 'EXTERNAL_LINK' || res.resourceType === 'External Link' ? (
+                    <ExternalLink className="w-4 h-4" />
+                  ) : (
+                    <Download className="w-4 h-4" />
+                  )}
+                </button>
+
                 <button
                   onClick={(e) => handleRemove(e, res.id)}
                   className="p-2.5 rounded-xl border border-border hover:bg-red-500/10 text-muted-foreground hover:text-red-400 transition-all"

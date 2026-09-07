@@ -17,9 +17,12 @@ import {
   Sparkles,
   Check,
   Lock,
+  Loader2,
 } from 'lucide-react';
 import { Resource, addReview, toggleSaveResource, recordDownload, getSavedResourceIds } from '@/lib/resources-data';
 import { useAuth } from '@/lib/auth-context';
+import { triggerResourceDownload } from '@/lib/download';
+import { apiToggleBookmark, apiSubmitReview, apiSubmitRating } from '@/lib/api';
 
 interface ResourceDetailModalProps {
   resource: Resource | null;
@@ -43,6 +46,7 @@ export default function ResourceDetailModal({
   const [userRating, setUserRating] = useState(5);
   const [commentText, setCommentText] = useState('');
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
 
   if (!isOpen || !resource) return null;
@@ -55,21 +59,29 @@ export default function ResourceDetailModal({
       return;
     }
     toggleSaveResource(resource.id);
+    apiToggleBookmark(resource.id).catch(() => {});
     if (onResourceUpdated) onResourceUpdated();
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (!user) {
       onRequireAuth('download academic materials');
       return;
     }
-    recordDownload(resource.id);
-    setDownloadSuccess(true);
-    setTimeout(() => setDownloadSuccess(false), 2500);
-    if (onResourceUpdated) onResourceUpdated();
+    setIsDownloading(true);
+    try {
+      await triggerResourceDownload(resource);
+      setDownloadSuccess(true);
+      setTimeout(() => setDownloadSuccess(false), 2500);
+      if (onResourceUpdated) onResourceUpdated();
+    } catch (err) {
+      console.error('Download trigger error:', err);
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
-  const handleAddReviewSubmit = (e: React.FormEvent) => {
+  const handleAddReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
       onRequireAuth('rate and review resources');
@@ -82,8 +94,12 @@ export default function ResourceDetailModal({
       userId: user.id,
       userName: user.name,
       rating: userRating,
-      comment: commentText,
+      comment: commentText.trim(),
     });
+
+    // Background sync to backend API
+    apiSubmitReview(resource.id, commentText.trim()).catch(() => {});
+    apiSubmitRating(resource.id, userRating).catch(() => {});
 
     setCommentText('');
     setIsSubmittingReview(false);
@@ -254,12 +270,23 @@ export default function ResourceDetailModal({
 
               <button
                 onClick={handleDownload}
-                className="liquid-metal-btn w-full sm:w-auto px-7 py-3 text-xs font-bold flex items-center justify-center gap-2 shadow-xl"
+                disabled={isDownloading}
+                className="liquid-metal-btn w-full sm:w-auto px-7 py-3 text-xs font-bold flex items-center justify-center gap-2 shadow-xl disabled:opacity-50"
               >
                 {downloadSuccess ? (
                   <>
                     <Check className="w-4 h-4 text-emerald-400" />
-                    <span>Downloaded! (+10 pts)</span>
+                    <span>{resource.academicMetadata?.materialType === 'EXTERNAL_LINK' || resource.resourceType === 'External Link' ? 'Opened in New Tab!' : 'Downloaded! (+10 pts)'}</span>
+                  </>
+                ) : isDownloading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Preparing File...</span>
+                  </>
+                ) : resource.academicMetadata?.materialType === 'EXTERNAL_LINK' || resource.resourceType === 'External Link' ? (
+                  <>
+                    <ExternalLink className="w-4 h-4" />
+                    <span>Open External Resource</span>
                   </>
                 ) : (
                   <>

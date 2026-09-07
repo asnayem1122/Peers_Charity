@@ -1,0 +1,86 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 1438 >>
+stream
+BT
+/F1 16 Tf
+50 780 Td
+(BAUST - Department of Computer Science & Engineering) Tj
+/F1 12 Tf
+0 -25 Td
+(CSE 2105: Object Oriented Programming | Mid-Term Examination - Spring 2024 | Batch 12) Tj
+/F2 10 Tf
+0 -20 Td
+(____________________________________________________________________________) Tj
+0 -25 Td
+/F1 12 Tf
+0 -24 Td
+(Time: 1.5 Hours | Full Marks: 30) Tj
+/F2 10 Tf
+0 -16 Td
+0 -10 Td
+/F1 10.5 Tf
+0 -20 Td
+(Question 1: OOP Principles & Polymorphism [10 Marks]) Tj
+/F2 9.5 Tf
+0 -15 Td
+(a\) Explain compile-time vs run-time polymorphism with code snippets in C++.) Tj
+0 -18 Td
+(b\) Why are virtual destructors necessary when deleting derived objects through base pointers?) Tj
+0 -18 Td
+0 -10 Td
+/F1 10.5 Tf
+0 -20 Td
+(Question 2: Operator Overloading & Memory Allocation [10 Marks]) Tj
+/F2 9.5 Tf
+0 -15 Td
+(a\) Implement class 'Matrix2D' overloading operator+ and operator<< for stream output.) Tj
+0 -18 Td
+(b\) Explain the Rule of Three / Rule of Five in modern C++ resource management.) Tj
+0 -18 Td
+0 -10 Td
+/F1 10.5 Tf
+0 -20 Td
+(Question 3: Exception Handling & Templates [10 Marks]) Tj
+/F2 9.5 Tf
+0 -15 Td
+(a\) Write a generic 'SafeStack<T>' template class that throws std::out_of_range on pop/empty.) Tj
+0 -18 Td
+(b\) Analyze the overhead of dynamic_cast vs static_cast in deep inheritance hierarchies.) Tj
+0 -18 Td
+/F1 8 Tf
+50 40 Td
+(Verified Academic Document - Peer's Charity Academic Repository - Contributed by Tanvir Hasan) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000121 00000 n 
+0000000257 00000 n 
+0000001747 00000 n 
+0000001822 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+1892
+%%EOF

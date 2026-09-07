@@ -185,3 +185,138 @@ export async function fetchResourceByIdApi(id: string): Promise<ApiResource | nu
     return null;
   }
 }
+
+/**
+ * Records a download event on the backend API telemetry
+ */
+export async function apiRecordDownload(resourceId: string): Promise<boolean> {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+    const response = await fetch(`${API_BASE_URL}/api/engagement/${encodeURIComponent(resourceId)}/download`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Toggles a bookmark in the user's treasure vault on the backend API
+ */
+export async function apiToggleBookmark(resourceId: string): Promise<boolean | null> {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+    const response = await fetch(`${API_BASE_URL}/api/engagement/${encodeURIComponent(resourceId)}/bookmark`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+    if (!response.ok) return null;
+    const json = await response.json();
+    return json?.data?.bookmarked ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Submits a peer review for a resource on the backend API
+ */
+export async function apiSubmitReview(resourceId: string, content: string): Promise<any> {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+    const response = await fetch(`${API_BASE_URL}/api/engagement/${encodeURIComponent(resourceId)}/reviews`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ content }),
+      credentials: 'include',
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+    if (!response.ok) return null;
+    const json = await response.json();
+    return json?.data ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Submits a rating (1-5 stars) for a resource on the backend API
+ */
+export async function apiSubmitRating(
+  resourceId: string,
+  stars: number
+): Promise<{ averageRating: number; qualityScore: number } | null> {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+    const response = await fetch(`${API_BASE_URL}/api/engagement/${encodeURIComponent(resourceId)}/rating`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ stars }),
+      credentials: 'include',
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+    if (!response.ok) return null;
+    const json = await response.json();
+    return json?.data ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Submits an academic integrity moderation report on the backend API
+ */
+export async function apiSubmitReport(resourceId: string, reason: string, details: string): Promise<any> {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+    const response = await fetch(`${API_BASE_URL}/api/engagement/${encodeURIComponent(resourceId)}/report`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ reason, details }),
+      credentials: 'include',
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+    if (!response.ok) return null;
+    const json = await response.json();
+    return json?.data ?? null;
+  } catch {
+    return null;
+  }
+}
+

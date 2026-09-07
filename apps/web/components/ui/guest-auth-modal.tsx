@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { X, Lock, LogIn, UserPlus, ShieldCheck } from 'lucide-react';
+import { X, Lock, LogIn, UserPlus, ShieldCheck, Sparkles } from 'lucide-react';
+import { useAuth } from '@/lib/auth-context';
 
 interface GuestAuthModalProps {
   isOpen: boolean;
@@ -10,6 +11,8 @@ interface GuestAuthModalProps {
 }
 
 export default function GuestAuthModal({ isOpen, onClose, actionName = 'access this feature' }: GuestAuthModalProps) {
+  const { login } = useAuth();
+
   if (!isOpen) return null;
 
   return (
@@ -56,6 +59,21 @@ export default function GuestAuthModal({ isOpen, onClose, actionName = 'access t
             <UserPlus className="w-4 h-4" />
             <span>Create Account</span>
           </Link>
+        </div>
+
+        {/* 1-Click Quick Demo Login for instant frictionless testing */}
+        <div className="pt-4 border-t border-border/60 text-center">
+          <p className="text-[11px] text-muted-foreground font-mono mb-2.5">Testing or Evaluating?</p>
+          <button
+            onClick={() => {
+              login('student@demo.com', 'DemoPassword123!');
+              onClose();
+            }}
+            className="w-full py-2.5 rounded-2xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-mono text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-sm"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span>1-Click Demo Login (Student)</span>
+          </button>
         </div>
       </div>
     </div>

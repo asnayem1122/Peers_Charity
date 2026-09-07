@@ -1,0 +1,102 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 1997 >>
+stream
+BT
+/F1 16 Tf
+50 780 Td
+(BAUST - Department of Computer Science & Engineering) Tj
+/F1 12 Tf
+0 -25 Td
+(CSE 2103: Database Systems | Semester Final Exam - Fall 2023 | Batch 11) Tj
+/F2 10 Tf
+0 -20 Td
+(____________________________________________________________________________) Tj
+0 -25 Td
+/F1 12 Tf
+0 -24 Td
+(Instructions: Answer any 4 questions out of 6. Figures indicate full marks.) Tj
+/F2 10 Tf
+0 -16 Td
+0 -10 Td
+/F1 10.5 Tf
+0 -20 Td
+(Question 1: ER Modeling and Relational Mapping [17.5 Marks]) Tj
+/F2 9.5 Tf
+0 -15 Td
+(a\) Design an ER diagram for a Hospital Management System containing Patients,) Tj
+0 -18 Td
+(   Doctors, Appointments, and Prescriptions. Identify key constraints.) Tj
+0 -18 Td
+(b\) Map the ER model into normalized relational schemas \(1NF/2NF/3NF\).) Tj
+0 -18 Td
+0 -10 Td
+/F1 10.5 Tf
+0 -20 Td
+(Question 2: Relational Algebra & Advanced SQL [17.5 Marks]) Tj
+/F2 9.5 Tf
+0 -15 Td
+(Consider the schema: Student\(id, name, dept\), Enrolls\(id, courseCode, grade\).) Tj
+0 -18 Td
+(a\) Write a relational algebra expression to find names of students enrolled in all CSE courses.) Tj
+0 -18 Td
+(b\) Write an optimized SQL query using window functions \(DENSE_RANK\) to find top 3 students.) Tj
+0 -18 Td
+0 -10 Td
+/F1 10.5 Tf
+0 -20 Td
+(Question 3: Functional Dependencies and Normalization [17.5 Marks]) Tj
+/F2 9.5 Tf
+0 -15 Td
+(Given relation R\(A, B, C, D, E\) with FDs: { A -> BC, CD -> E, B -> D, E -> A }) Tj
+0 -18 Td
+(a\) Find all candidate keys of R.) Tj
+0 -18 Td
+(b\) Decompose R into BCNF. State whether decomposition is dependency preserving.) Tj
+0 -18 Td
+0 -10 Td
+/F1 10.5 Tf
+0 -20 Td
+(Question 4: Transaction Processing & Concurrency [17.5 Marks]) Tj
+/F2 9.5 Tf
+0 -15 Td
+(a\) Explain ACID properties with real-world banking failure scenarios.) Tj
+0 -18 Td
+(b\) Differentiate between Two-Phase Locking \(2PL\) and Strict 2PL regarding cascading rollbacks.) Tj
+0 -18 Td
+/F1 8 Tf
+50 40 Td
+(Verified Academic Document - Peer's Charity Academic Repository - SHA256 Verified) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000121 00000 n 
+0000000257 00000 n 
+0000002306 00000 n 
+0000002381 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+2451
+%%EOF
