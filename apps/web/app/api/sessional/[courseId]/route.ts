@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { INITIAL_RESOURCES, Resource } from '@/lib/resources-data';
+import { INITIAL_RESOURCES, Resource } from '@/lib/initial-resources';
 
 export async function GET(
   _request: NextRequest,
