@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Flame, Sparkles, BookOpen, PlusCircle, Download, Check, ShieldCheck, FileText, Star, Eye } from 'lucide-react';
 import { PRODUCT_TERMINOLOGY } from '@/lib/constants';
 import { useAuth } from '@/lib/auth-context';
-import { getResources, recordDownload, Resource } from '@/lib/resources-data';
+import { getResources, fetchAndSyncResources, recordDownload, Resource } from '@/lib/resources-data';
 import ResourceDetailModal from '@/components/ui/resource-detail-modal';
 import ReportResourceModal from '@/components/ui/report-resource-modal';
 import GuestAuthModal from '@/components/ui/guest-auth-modal';
@@ -27,6 +27,9 @@ export default function ExamEmergencyRoomPage() {
 
   const loadData = () => {
     setResources(getResources());
+    fetchAndSyncResources().then((live) => {
+      if (live && live.length > 0) setResources(live);
+    });
   };
 
   useEffect(() => {

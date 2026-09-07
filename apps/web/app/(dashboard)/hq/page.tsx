@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { PRODUCT_TERMINOLOGY } from '@/lib/constants';
 import { useAuth } from '@/lib/auth-context';
-import { getResources, Resource } from '@/lib/resources-data';
+import { getResources, fetchAndSyncResources, Resource } from '@/lib/resources-data';
 
 export default function CharityHQPage() {
   const { user } = useAuth();
@@ -25,6 +25,9 @@ export default function CharityHQPage() {
 
   useEffect(() => {
     setResources(getResources());
+    fetchAndSyncResources().then((live) => {
+      if (live && live.length > 0) setResources(live);
+    });
   }, []);
 
   const userResources = resources.filter(

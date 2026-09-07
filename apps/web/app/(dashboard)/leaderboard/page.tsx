@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Trophy, PlusCircle, Award, Flame, Star, ShieldCheck, HeartHandshake, Users } from 'lucide-react';
 import { PRODUCT_TERMINOLOGY } from '@/lib/constants';
 import { useAuth } from '@/lib/auth-context';
-import { getResources, Resource } from '@/lib/resources-data';
+import { getResources, fetchAndSyncResources, Resource } from '@/lib/resources-data';
 
 interface LeaderEntry {
   rank: number;
@@ -27,6 +27,9 @@ export default function LeaderboardPage() {
 
   useEffect(() => {
     setResources(getResources());
+    fetchAndSyncResources().then((live) => {
+      if (live && live.length > 0) setResources(live);
+    });
   }, []);
 
   // Compute dynamic benefactors from actual donations

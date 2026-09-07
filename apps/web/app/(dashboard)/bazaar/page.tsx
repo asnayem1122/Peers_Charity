@@ -30,6 +30,7 @@ import { PRODUCT_TERMINOLOGY } from '@/lib/constants';
 import { useAuth } from '@/lib/auth-context';
 import {
   getResources,
+  fetchAndSyncResources,
   getSavedResourceIds,
   toggleSaveResource,
   recordDownload,
@@ -65,10 +66,21 @@ export default function CharityBazaarPage() {
   const [authActionName, setAuthActionName] = useState('access this feature');
   const [isAboutOpen, setIsAboutOpen] = useState(false);
 
-  const loadData = () => {
+  const loadData = async () => {
+    // 1. Immediately render local / seed resources
     const list = getResources();
     setResources(list);
     setSavedIds(getSavedResourceIds());
+
+    // 2. Fetch fresh live data from API in the background
+    try {
+      const liveList = await fetchAndSyncResources();
+      if (liveList && liveList.length > 0) {
+        setResources(liveList);
+      }
+    } catch {
+      // Gracefully maintain verified seed resources
+    }
   };
 
   useEffect(() => {

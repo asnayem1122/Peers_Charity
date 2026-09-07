@@ -28,13 +28,54 @@ app.use(
   })
 );
 
-// CORS Policy
+// CORS Policy with dynamic origin validation supporting Vercel and local dev
+const allowedOrigins = [
+  config.frontendUrl,
+  config.corsOrigin,
+  'http://localhost:3000',
+  'http://localhost:3001',
+]
+  .flatMap((u) => (u ? u.split(',') : []))
+  .map((u) => u.trim());
+
 app.use(
   cors({
-    origin: [config.frontendUrl, 'http://localhost:3000'],
+    origin: (origin, callback) => {
+      // Allow requests with no origin (e.g. mobile apps, curl, server-to-server, SSR)
+      if (!origin) return callback(null, true);
+
+      // Localhost check for development and tests
+      if (config.env !== 'production' && /^http:\/\/localhost(:\d+)?$/.test(origin)) {
+        return callback(null, true);
+      }
+
+      // Check explicitly configured origins
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      // Automatically allow all Vercel deployment domains (*.vercel.app)
+      try {
+        const parsedHost = new URL(origin).hostname;
+        if (parsedHost.endsWith('.vercel.app') || parsedHost === 'localhost') {
+          return callback(null, true);
+        }
+      } catch {
+        // Invalid origin URL format
+      }
+
+      return callback(null, false);
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'Cookie',
+      'x-test-user-id',
+      'x-test-user-email',
+      'X-Requested-With',
+    ],
   })
 );
 

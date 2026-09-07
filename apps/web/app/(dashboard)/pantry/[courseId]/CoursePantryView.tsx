@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Flame, Star, Download, Bookmark, PlusCircle, FileText, ArrowLeft } from 'lucide-react';
-import { getResources, Resource } from '@/lib/resources-data';
+import { getResources, fetchAndSyncResources, Resource } from '@/lib/resources-data';
 import ResourceDetailModal from '@/components/ui/resource-detail-modal';
 import ReportResourceModal from '@/components/ui/report-resource-modal';
 import GuestAuthModal from '@/components/ui/guest-auth-modal';
@@ -26,6 +26,13 @@ export default function CoursePantryView({ courseId }: { courseId: string }) {
     const all = getResources();
     const filtered = all.filter((r) => r.courseCode.toUpperCase() === formattedCode);
     setCourseResources(filtered);
+
+    fetchAndSyncResources().then((live) => {
+      if (live && live.length > 0) {
+        const liveFiltered = live.filter((r) => r.courseCode.toUpperCase() === formattedCode);
+        setCourseResources(liveFiltered);
+      }
+    });
   }, [formattedCode]);
 
   useEffect(() => {

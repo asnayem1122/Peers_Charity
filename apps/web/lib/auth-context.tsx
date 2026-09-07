@@ -53,6 +53,58 @@ function hashPassword(password: string): string {
 // Demo accounts (storing password hashes only)
 const DEMO_ACCOUNTS: { email: string; passwordHash: string; user: User }[] = [
   {
+    email: 'admin@demo.com',
+    passwordHash: hashPassword('DemoPassword123!'),
+    user: {
+      id: 'user-admin-demo',
+      name: 'System Administrator',
+      email: 'admin@demo.com',
+      role: 'ADMIN',
+      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
+      avatarName: 'System Administrator',
+      levelTerm: 'Faculty / Admin',
+    },
+  },
+  {
+    email: 'top.contributor@demo.com',
+    passwordHash: hashPassword('DemoPassword123!'),
+    user: {
+      id: 'user-top-contributor',
+      name: 'Sarah Ahmed',
+      email: 'top.contributor@demo.com',
+      role: 'STUDENT',
+      avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80',
+      avatarName: 'Sarah Ahmed',
+      levelTerm: 'Level 2 / Term 1',
+    },
+  },
+  {
+    email: 'student@demo.com',
+    passwordHash: hashPassword('DemoPassword123!'),
+    user: {
+      id: 'user-student-demo',
+      name: 'Tanvir Hasan',
+      email: 'student@demo.com',
+      role: 'STUDENT',
+      avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80',
+      avatarName: 'Tanvir Hasan',
+      levelTerm: 'Level 2 / Term 1',
+    },
+  },
+  {
+    email: 'moderator@demo.com',
+    passwordHash: hashPassword('DemoPassword123!'),
+    user: {
+      id: 'user-moderator-demo',
+      name: 'Nafis Iqbal',
+      email: 'moderator@demo.com',
+      role: 'ADMIN',
+      avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80',
+      avatarName: 'Nafis Iqbal',
+      levelTerm: 'Level 3 / Term 2',
+    },
+  },
+  {
     email: 'nayem@student.university.edu',
     passwordHash: hashPassword('password123'),
     user: {

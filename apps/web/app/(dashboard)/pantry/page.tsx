@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { BookOpen, Search, PlusCircle, ArrowRight, ShieldCheck, FileText, Flame } from 'lucide-react';
 import { PRODUCT_TERMINOLOGY } from '@/lib/constants';
-import { getResources, Resource } from '@/lib/resources-data';
+import { getResources, fetchAndSyncResources, Resource } from '@/lib/resources-data';
 
 export default function AcademicPantryPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -12,6 +12,9 @@ export default function AcademicPantryPage() {
 
   useEffect(() => {
     setResources(getResources());
+    fetchAndSyncResources().then((live) => {
+      if (live && live.length > 0) setResources(live);
+    });
   }, []);
 
   // Derive unique courses dynamically from user uploaded resources
