@@ -57,9 +57,10 @@ export default function CharityBazaarPage() {
   const [selectedSection, setSelectedSection] = useState<string>('ALL');
   const [selectedExamType, setSelectedExamType] = useState<string>('ALL');
   const [selectedMaterialType, setSelectedMaterialType] = useState<string>('ALL');
+  const [selectedSessionalType, setSelectedSessionalType] = useState<string>('ALL');
   const [selectedType, setSelectedType] = useState<string>('ALL');
   const [selectedCourse, setSelectedCourse] = useState<string>('ALL');
-  const [sortBy, setSortBy] = useState<'downloads' | 'rating' | 'newest'>('downloads');
+  const [sortBy, setSortBy] = useState<'downloads' | 'rating' | 'newest'>('newest');
   const [savedIds, setSavedIds] = useState<string[]>([]);
   const [downloadedIds, setDownloadedIds] = useState<string[]>([]);
 
@@ -91,6 +92,17 @@ export default function CharityBazaarPage() {
 
   useEffect(() => {
     loadData();
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const sortParam = params.get('sort');
+      const secParam = params.get('section');
+      const qParam = params.get('q');
+      if (sortParam === 'newest' || sortParam === 'downloads' || sortParam === 'rating') {
+        setSortBy(sortParam);
+      }
+      if (secParam) setSelectedSection(secParam);
+      if (qParam) setSearchQuery(qParam);
+    }
   }, []);
 
   const handleOpenDetail = (res: Resource) => {
@@ -145,10 +157,21 @@ export default function CharityBazaarPage() {
           res.courseCode.toLowerCase().includes(q) ||
           res.courseName.toLowerCase().includes(q) ||
           res.description.toLowerCase().includes(q) ||
-          res.tags.some((t) => t.toLowerCase().includes(q));
+          res.tags.some((t) => t.toLowerCase().includes(q)) ||
+          (res.academicMetadata?.labNumber &&
+            String(res.academicMetadata.labNumber).toLowerCase().includes(q)) ||
+          (res.academicMetadata?.topic &&
+            res.academicMetadata.topic.toLowerCase().includes(q));
 
         const matchesSection =
           selectedSection === 'ALL' || res.academicMetadata?.section === selectedSection;
+
+        const isProjectRes =
+          res.resourceType === ('Project' as any) ||
+          res.tags.some((t) => t.toLowerCase() === 'project') ||
+          (res.academicMetadata?.labNumber &&
+            String(res.academicMetadata.labNumber).toLowerCase().includes('project')) ||
+          res.title.toLowerCase().includes('project');
 
         const matchesSubFilter =
           selectedSection === 'ALL'
@@ -157,16 +180,36 @@ export default function CharityBazaarPage() {
             ? selectedExamType === 'ALL' || res.academicMetadata?.examType === selectedExamType
             : selectedSection === 'course_material'
             ? selectedMaterialType === 'ALL' || res.academicMetadata?.materialType === selectedMaterialType
+            : selectedSection === 'sessional'
+            ? selectedSessionalType === 'ALL'
+              ? true
+              : selectedSessionalType === 'Projects'
+              ? isProjectRes
+              : selectedSessionalType === 'Lab Reports'
+              ? res.resourceType === 'Lab Reports' ||
+                (res.academicMetadata?.section === 'sessional' && !isProjectRes)
+              : res.fileName?.match(/\.(zip|c|cpp|py|java)$/i) ||
+                Boolean(res.externalUrl) ||
+                res.tags.some((t) => t.toLowerCase().includes('code'))
             : true;
 
-        const matchesType = selectedType === 'ALL' || res.resourceType === selectedType;
+        const matchesType =
+          selectedType === 'ALL'
+            ? true
+            : selectedType === 'Project'
+            ? isProjectRes
+            : selectedType === 'Lab Reports'
+            ? res.resourceType === 'Lab Reports' ||
+              (res.academicMetadata?.section === 'sessional' && !isProjectRes)
+            : res.resourceType === selectedType;
+
         const matchesCourse = selectedCourse === 'ALL' || res.courseCode === selectedCourse;
 
         return matchesSearch && matchesSection && matchesSubFilter && matchesType && matchesCourse;
       })
       .sort((a, b) => {
-        if (sortBy === 'downloads') return b.downloadsCount - a.downloadsCount;
-        if (sortBy === 'rating') return b.rating - a.rating;
+        if (sortBy === 'downloads') return (b.downloadsCount || 0) - (a.downloadsCount || 0);
+        if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
         if (sortBy === 'newest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         return 0;
       });
@@ -176,6 +219,7 @@ export default function CharityBazaarPage() {
     selectedSection,
     selectedExamType,
     selectedMaterialType,
+    selectedSessionalType,
     selectedType,
     selectedCourse,
     sortBy,
@@ -260,7 +304,7 @@ export default function CharityBazaarPage() {
             { id: 'ALL', label: 'All Sections', icon: Compass, color: 'text-foreground' },
             { id: 'question', label: 'Questions (CT/Mid/Final)', icon: FileQuestion, color: 'text-amber-400' },
             { id: 'course_material', label: 'Course Materials', icon: BookOpen, color: 'text-blue-400' },
-            { id: 'sessional', label: 'Sessional Labs', icon: FlaskConical, color: 'text-emerald-400' },
+            { id: 'sessional', label: 'Sessional & Projects', icon: FlaskConical, color: 'text-emerald-400' },
           ].map((sec) => {
             const Icon = sec.icon;
             const isSelected = selectedSection === sec.id;
@@ -271,6 +315,7 @@ export default function CharityBazaarPage() {
                   setSelectedSection(sec.id);
                   setSelectedExamType('ALL');
                   setSelectedMaterialType('ALL');
+                  setSelectedSessionalType('ALL');
                 }}
                 className={`p-3 rounded-2xl border text-left flex items-center gap-2.5 transition-all ${
                   isSelected
@@ -329,6 +374,30 @@ export default function CharityBazaarPage() {
           </div>
         )}
 
+        {selectedSection === 'sessional' && (
+          <div className="flex items-center gap-2 flex-wrap text-xs pt-1">
+            <span className="text-[11px] text-emerald-400 font-bold uppercase mr-1">Sessional Category:</span>
+            {[
+              { id: 'ALL', label: 'All Sessional' },
+              { id: 'Projects', label: 'Term Projects' },
+              { id: 'Lab Reports', label: 'Lab Reports' },
+              { id: 'Source Code', label: 'Source Code' },
+            ].map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedSessionalType(cat.id)}
+                className={`px-3 py-1 rounded-xl font-bold transition-all ${
+                  selectedSessionalType === cat.id
+                    ? 'bg-emerald-500 text-black shadow-md'
+                    : 'bg-background hover:bg-card-hover border border-border text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className="flex flex-col md:flex-row gap-3 items-center">
           {/* Search Input */}
           <div className="relative flex-1 w-full">
@@ -350,9 +419,9 @@ export default function CharityBazaarPage() {
               onChange={(e) => setSortBy(e.target.value as any)}
               className="px-3.5 py-2.5 rounded-2xl border border-border bg-background text-foreground text-xs font-bold focus:outline-none focus:border-foreground"
             >
+              <option value="newest">Recently Added (Newest)</option>
               <option value="downloads">Most Downloaded</option>
               <option value="rating">Top Rated ⭐</option>
-              <option value="newest">Recently Added</option>
             </select>
           </div>
         </div>
@@ -362,7 +431,7 @@ export default function CharityBazaarPage() {
           {/* Resource Type Filter */}
           <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-[11px] text-muted-foreground font-bold uppercase mr-1">Type:</span>
-            {['ALL', 'Notes', 'Slides', 'PDF', 'External Link'].map((type) => (
+            {['ALL', 'Project', 'Lab Reports', 'Notes', 'Slides', 'PDF', 'External Link'].map((type) => (
               <button
                 key={type}
                 onClick={() => setSelectedType(type)}

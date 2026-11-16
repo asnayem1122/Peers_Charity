@@ -29,6 +29,7 @@ export interface AcademicMetadata {
   materialType?: MaterialType;
   externalLink?: string;
   labNumber?: string | number;
+  topic?: string;
 }
 
 export type DisplayMode = 'PROFILE' | 'ANONYMOUS' | 'CUSTOM';

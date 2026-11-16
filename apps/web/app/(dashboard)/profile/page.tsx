@@ -27,7 +27,7 @@ import {
   UserPlus,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
-import { getResources, Resource } from '@/lib/resources-data';
+import { getResources, fetchAndSyncResources, Resource } from '@/lib/resources-data';
 
 // SVG Vector Generator for Google Play Account Avatars
 const makePlayAvatarSvg = (
@@ -149,6 +149,11 @@ export default function CharityCardProfilePage() {
 
   useEffect(() => {
     setResources(getResources());
+    fetchAndSyncResources().then((synced) => {
+      if (synced && synced.length > 0) {
+        setResources(synced);
+      }
+    });
   }, []);
 
   const userResources = resources.filter(
@@ -501,6 +506,12 @@ export default function CharityCardProfilePage() {
                     {res.downloadsCount} downloads • {res.bookmarksCount} bookmarks
                   </p>
                 </div>
+                <Link
+                  href={`/bazaar?q=${encodeURIComponent(res.title)}`}
+                  className="liquid-metal-btn px-4 py-2 text-xs font-mono font-bold shrink-0"
+                >
+                  View in Bazaar →
+                </Link>
               </div>
             ))}
           </div>

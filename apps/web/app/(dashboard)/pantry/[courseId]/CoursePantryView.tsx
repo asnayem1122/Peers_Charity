@@ -20,16 +20,20 @@ export default function CoursePantryView({ courseId }: { courseId: string }) {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authActionName, setAuthActionName] = useState('access this feature');
 
-  const formattedCode = courseId.toUpperCase().replace('-', ' ');
+  const formattedCode = courseId.toUpperCase().replace(/[-_]/g, ' ').trim();
 
   const loadData = useCallback(() => {
     const all = getResources();
-    const filtered = all.filter((r) => r.courseCode.toUpperCase() === formattedCode);
+    const filtered = all.filter(
+      (r) => r.courseCode.toUpperCase().replace(/[-_]/g, ' ').trim() === formattedCode
+    );
     setCourseResources(filtered);
 
     fetchAndSyncResources().then((live) => {
       if (live && live.length > 0) {
-        const liveFiltered = live.filter((r) => r.courseCode.toUpperCase() === formattedCode);
+        const liveFiltered = live.filter(
+          (r) => r.courseCode.toUpperCase().replace(/[-_]/g, ' ').trim() === formattedCode
+        );
         setCourseResources(liveFiltered);
       }
     });
@@ -236,11 +240,11 @@ export default function CoursePantryView({ courseId }: { courseId: string }) {
         </div>
 
         <Link
-          href="/donate"
+          href={`/donate?course=${encodeURIComponent(formattedCode)}&section=sessional`}
           className="liquid-metal-btn px-4 py-2 text-xs font-bold font-mono flex items-center gap-1.5 shadow-md hidden sm:inline-flex shrink-0"
         >
           <PlusCircle className="w-4 h-4" />
-          <span>Donate Note for {formattedCode}</span>
+          <span>Donate Note / Project for {formattedCode}</span>
         </Link>
       </div>
 
@@ -265,7 +269,7 @@ export default function CoursePantryView({ courseId }: { courseId: string }) {
                 <p className="font-bold text-foreground">No Resources Uploaded Yet for {formattedCode}</p>
                 <p>Be the first student to share study materials for this course!</p>
                 <Link
-                  href="/donate"
+                  href={`/donate?course=${encodeURIComponent(formattedCode)}&section=sessional`}
                   className="liquid-metal-btn inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold"
                 >
                   <PlusCircle className="w-4 h-4" />

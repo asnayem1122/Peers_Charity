@@ -68,16 +68,36 @@ export function saveResources(resources: Resource[]) {
 
 /**
  * Dynamically fetches live resources from Express/MongoDB API,
- * reconciles with localStorage, and returns live dataset.
+ * reconciles with localStorage without overwriting locally added items,
+ * and returns the unified live dataset.
  */
 export async function fetchAndSyncResources(): Promise<Resource[]> {
   try {
     const { fetchResourcesApi, apiResourceToFrontend } = await import('./api');
     const apiItems = await fetchResourcesApi();
+    const currentLocal = getResources();
+
     if (apiItems && apiItems.length > 0) {
-      const mapped = apiItems.map(apiResourceToFrontend);
-      saveResources(mapped);
-      return mapped;
+      const mappedApi = apiItems.map(apiResourceToFrontend);
+
+      // Preserve any locally added resources that are not on the API server
+      const apiIds = new Set(mappedApi.map((item) => item.id));
+      const apiHashes = new Set(mappedApi.map((item) => item.fileHash).filter(Boolean));
+      const apiTitles = new Set(
+        mappedApi.map((item) => `${item.title.toLowerCase()}::${item.courseCode.toLowerCase()}`)
+      );
+
+      const localOnly = currentLocal.filter((localItem) => {
+        if (apiIds.has(localItem.id)) return false;
+        if (localItem.fileHash && apiHashes.has(localItem.fileHash)) return false;
+        if (apiTitles.has(`${localItem.title.toLowerCase()}::${localItem.courseCode.toLowerCase()}`)) return false;
+        return true;
+      });
+
+      // Combined dataset: local additions at the top, followed by canonical API items
+      const combined = [...localOnly, ...mappedApi];
+      saveResources(combined);
+      return combined;
     }
   } catch (err) {
     console.warn('[Data Sync] Could not fetch live API resources, falling back to local dataset:', err);

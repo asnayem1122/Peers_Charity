@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -20,6 +20,7 @@ import {
   FileQuestion,
   BookOpen,
   FlaskConical,
+  Code,
 } from 'lucide-react';
 import { PRODUCT_TERMINOLOGY } from '@/lib/constants';
 import { useAuth } from '@/lib/auth-context';
@@ -33,6 +34,19 @@ import {
   MaterialType,
 } from '@/lib/resources-data';
 import { apiCreateResource } from '@/lib/api';
+
+const COURSE_CATALOG = [
+  { code: 'CSE 2103', name: 'Database Systems', dept: 'Computer Science & Engineering' },
+  { code: 'CSE 2104', name: 'Database Systems Sessional', dept: 'Computer Science & Engineering' },
+  { code: 'CSE 2105', name: 'Data Structures & Algorithms', dept: 'Computer Science & Engineering' },
+  { code: 'CSE 2106', name: 'Data Structures & Algorithms Sessional', dept: 'Computer Science & Engineering' },
+  { code: 'CSE 3101', name: 'Operating Systems Architecture', dept: 'Computer Science & Engineering' },
+  { code: 'CSE 3205', name: 'Artificial Intelligence & Neural Nets', dept: 'Computer Science & Engineering' },
+  { code: 'EEE 1201', name: 'Electrical Circuit Analysis', dept: 'Electrical & Electronic Engineering' },
+  { code: 'EEE 2101', name: 'Electrical Circuits I', dept: 'Electrical & Electronic Engineering' },
+  { code: 'MATH 2101', name: 'Fourier & Vector Analysis', dept: 'Basic Science & Humanities' },
+  { code: 'CUSTOM', name: '+ Add New / Custom Course', dept: 'Academic Department' },
+];
 
 export default function DonateKnowledgePage() {
   const { user, login } = useAuth();
@@ -49,11 +63,14 @@ export default function DonateKnowledgePage() {
   const [courseCode, setCourseCode] = useState('CSE 2103');
   const [courseName, setCourseName] = useState('Database Systems');
   const [department, setDepartment] = useState('Computer Science & Engineering');
+  const [customCourseCode, setCustomCourseCode] = useState('');
+  const [customCourseName, setCustomCourseName] = useState('');
   const [semester, setSemester] = useState('Level 2 / Term 1');
   const [batch, setBatch] = useState('');
   const [examType, setExamType] = useState<ExamType>('MID');
   const [materialType, setMaterialType] = useState<MaterialType>('HAND_NOTE');
   const [labNumber, setLabNumber] = useState('Lab 01');
+  const [sessionalDeliveryMode, setSessionalDeliveryMode] = useState<'file' | 'link'>('file');
 
   // File or External URL
   const [file, setFile] = useState<File | null>(null);
@@ -66,6 +83,32 @@ export default function DonateKnowledgePage() {
   const [displayMode, setDisplayMode] = useState<DisplayMode>('PROFILE');
   const [customDisplayName, setCustomDisplayName] = useState('');
   const [topics, setTopics] = useState('');
+
+  // URL query parameter pre-selection
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const c = params.get('course');
+      const s = params.get('section');
+      if (c) {
+        const found = COURSE_CATALOG.find(
+          (item) => item.code.toUpperCase() === c.toUpperCase().replace(/[-_]/g, ' ')
+        );
+        if (found) {
+          setCourseCode(found.code);
+          setCourseName(found.name);
+          setDepartment(found.dept);
+        } else {
+          setCourseCode('CUSTOM');
+          setCustomCourseCode(c.toUpperCase().replace(/[-_]/g, ' '));
+          setCustomCourseName(`${c.toUpperCase()} Course Material`);
+        }
+      }
+      if (s && (s === 'question' || s === 'course_material' || s === 'sessional')) {
+        setSection(s as AcademicSection);
+      }
+    }
+  }, []);
 
   // Auth Guard: Require authentication to donate knowledge
   if (!user) {
@@ -136,6 +179,9 @@ export default function DonateKnowledgePage() {
   // Validate step 2 progression
   const isStep2Valid = () => {
     if (!batch.trim()) return false;
+    if (courseCode === 'CUSTOM' && (!customCourseCode.trim() || !customCourseName.trim())) {
+      return false;
+    }
     if (section === 'question') {
       return !!file;
     }
@@ -146,7 +192,11 @@ export default function DonateKnowledgePage() {
       return !!file;
     }
     if (section === 'sessional') {
-      return !!file && !!labNumber.trim();
+      if (!labNumber.trim()) return false;
+      if (sessionalDeliveryMode === 'link') {
+        return !!externalUrl.trim();
+      }
+      return !!file;
     }
     return false;
   };
@@ -154,6 +204,13 @@ export default function DonateKnowledgePage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
+    const effectiveCourseCode =
+      courseCode === 'CUSTOM' ? customCourseCode.trim().toUpperCase() : courseCode;
+    const effectiveCourseName =
+      courseCode === 'CUSTOM' ? customCourseName.trim() : courseName;
+    const isProject =
+      labNumber.toLowerCase().includes('project') || title.toLowerCase().includes('project');
 
     // Calculate public display identity
     let publicDisplay = user.name;
@@ -165,9 +222,12 @@ export default function DonateKnowledgePage() {
       publicDisplay = `${user.name} (${user.levelTerm})`;
     }
 
-    // Validate and sanitize external URL if selected
+    // Validate and sanitize external URL if provided
     let sanitizedExternalUrl: string | undefined = undefined;
-    if (section === 'course_material' && materialType === 'EXTERNAL_LINK') {
+    if (
+      (section === 'course_material' && materialType === 'EXTERNAL_LINK') ||
+      (section === 'sessional' && sessionalDeliveryMode === 'link')
+    ) {
       try {
         const parsed = new URL(externalUrl.trim());
         if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
@@ -179,12 +239,12 @@ export default function DonateKnowledgePage() {
         }
       } catch {
         setLoading(false);
-        alert('Please provide a valid educational URL (e.g. https://example.com)');
+        alert('Please provide a valid educational or project URL (e.g. https://github.com/...)');
         return;
       }
     }
 
-    // Map to legacy resourceType for backward compatibility
+    // Map resourceType
     let mappedResourceType: ResourceType = 'Notes';
     if (section === 'question') {
       mappedResourceType = 'PDF';
@@ -193,22 +253,74 @@ export default function DonateKnowledgePage() {
       else if (materialType === 'SLIDES') mappedResourceType = 'Slides';
       else if (materialType === 'EXTERNAL_LINK') mappedResourceType = 'External Link';
     } else if (section === 'sessional') {
-      mappedResourceType = 'PDF';
+      mappedResourceType = isProject ? ('Project' as any) : 'Lab Reports';
     }
+
+    const defaultTitle = isProject
+      ? `Term Project: ${labNumber === 'Term Project' ? effectiveCourseName : labNumber} Source Code & Report`
+      : `${effectiveCourseCode} ${
+          section === 'question'
+            ? `${examType} Question Paper`
+            : section === 'sessional'
+            ? labNumber
+            : 'Course Material'
+        }`;
+    const finalTitle = title.trim() || defaultTitle;
+
+    const derivedTags = topics
+      ? topics.split(',').map((t) => t.trim()).filter(Boolean)
+      : [section.toUpperCase(), effectiveCourseCode];
+    if (isProject && !derivedTags.some((t) => t.toLowerCase() === 'project')) {
+      derivedTags.unshift('Project');
+    }
+
+    // Immediately save locally
+    addResource({
+      title: finalTitle,
+      description: description || 'Verified academic contribution shared with peers.',
+      courseCode: effectiveCourseCode,
+      courseName: effectiveCourseName,
+      department,
+      semester,
+      resourceType: mappedResourceType,
+      academicMetadata: {
+        section,
+        semester: section !== 'sessional' ? semester : undefined,
+        batch: batch.trim(),
+        examType: section === 'question' ? examType : undefined,
+        materialType: section === 'course_material' ? materialType : undefined,
+        externalLink: sanitizedExternalUrl,
+        labNumber: section === 'sessional' ? labNumber.trim() : undefined,
+      },
+      contentSource,
+      fileUrl: file ? `/samples/${file.name}` : undefined,
+      fileName: file ? file.name : undefined,
+      fileSize: file ? `${(file.size / (1024 * 1024)).toFixed(1)} MB` : undefined,
+      externalUrl: sanitizedExternalUrl,
+      realUploaderId: user.id,
+      realUploaderEmail: user.email,
+      realUploaderName: user.name,
+      displayMode,
+      customDisplayName: customDisplayName.trim() || undefined,
+      publicDisplayIdentity: publicDisplay,
+      tags: derivedTags,
+      previewText: `Submitted: ${finalTitle}\nSection: ${section}\nCourse: ${effectiveCourseCode} (${effectiveCourseName})\nBatch: ${batch}`,
+    });
 
     // Create background API upload payload
     const formData = new FormData();
-    const finalTitle = title || `${courseCode} ${section === 'question' ? `${examType} Question` : section === 'sessional' ? labNumber : 'Material'}`;
     formData.append('title', finalTitle);
     if (description) formData.append('description', description);
-    formData.append('courseId', courseCode);
+    formData.append('courseId', effectiveCourseCode);
+    formData.append('courseCode', effectiveCourseCode);
+    formData.append('courseName', effectiveCourseName);
     formData.append('semester', semester);
     formData.append('resourceType', mappedResourceType);
     formData.append(
       'academicMetadata',
       JSON.stringify({
         section,
-        courseId: courseCode,
+        courseId: effectiveCourseCode,
         batch: batch.trim() || '11',
         ...(section === 'question' ? { examType, semester } : {}),
         ...(section === 'course_material' ? { materialType, semester, externalLink: sanitizedExternalUrl } : {}),
@@ -223,42 +335,8 @@ export default function DonateKnowledgePage() {
     }
     apiCreateResource(formData).catch(() => {});
 
-    setTimeout(() => {
-      addResource({
-        title: title || `${courseCode} ${section === 'question' ? `${examType} Question` : section === 'sessional' ? labNumber : 'Material'}`,
-        description: description || 'No description provided.',
-        courseCode,
-        courseName,
-        department,
-        semester,
-        resourceType: mappedResourceType,
-        academicMetadata: {
-          section,
-          semester: section !== 'sessional' ? semester : undefined,
-          batch: batch.trim(),
-          examType: section === 'question' ? examType : undefined,
-          materialType: section === 'course_material' ? materialType : undefined,
-          externalLink: sanitizedExternalUrl,
-          labNumber: section === 'sessional' ? labNumber.trim() : undefined,
-        },
-        contentSource,
-        fileUrl: file ? `/samples/${file.name}` : undefined,
-        fileName: file ? file.name : undefined,
-        fileSize: file ? `${(file.size / (1024 * 1024)).toFixed(1)} MB` : undefined,
-        externalUrl: sanitizedExternalUrl,
-        realUploaderId: user.id,
-        realUploaderEmail: user.email,
-        realUploaderName: user.name,
-        displayMode,
-        customDisplayName: customDisplayName.trim() || undefined,
-        publicDisplayIdentity: publicDisplay,
-        tags: topics ? topics.split(',').map((t) => t.trim()).filter(Boolean) : [section.toUpperCase(), courseCode],
-        previewText: `Submitted: ${title}\nSection: ${section}\nCourse: ${courseCode} (${courseName})\nBatch: ${batch}`,
-      });
-
-      setLoading(false);
-      setStep(5);
-    }, 1200);
+    setLoading(false);
+    setStep(5);
   };
 
   return (
@@ -438,20 +516,21 @@ export default function DonateKnowledgePage() {
                 <select
                   value={courseCode}
                   onChange={(e) => {
-                    setCourseCode(e.target.value);
-                    if (e.target.value === 'CSE 2103') setCourseName('Database Systems');
-                    if (e.target.value === 'CSE 3101') setCourseName('Operating Systems');
-                    if (e.target.value === 'CSE 3205') setCourseName('Artificial Intelligence');
-                    if (e.target.value === 'MATH 2101') setCourseName('Linear Algebra');
-                    if (e.target.value === 'EEE 2101') setCourseName('Electrical Circuits I');
+                    const val = e.target.value;
+                    setCourseCode(val);
+                    const found = COURSE_CATALOG.find((c) => c.code === val);
+                    if (found && val !== 'CUSTOM') {
+                      setCourseName(found.name);
+                      setDepartment(found.dept);
+                    }
                   }}
                   className="w-full px-4 py-2.5 rounded-2xl border border-border bg-background text-foreground text-xs font-bold focus:outline-none focus:border-foreground"
                 >
-                  <option value="CSE 2103">CSE 2103 — Database Systems</option>
-                  <option value="CSE 3101">CSE 3101 — Operating Systems</option>
-                  <option value="CSE 3205">CSE 3205 — Artificial Intelligence</option>
-                  <option value="MATH 2101">MATH 2101 — Linear Algebra</option>
-                  <option value="EEE 2101">EEE 2101 — Electrical Circuits I</option>
+                  {COURSE_CATALOG.map((c) => (
+                    <option key={c.code} value={c.code}>
+                      {c.code} — {c.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -469,6 +548,38 @@ export default function DonateKnowledgePage() {
                 />
               </div>
             </div>
+
+            {/* Custom Course Entry if CUSTOM is selected */}
+            {courseCode === 'CUSTOM' && (
+              <div className="p-4 rounded-2xl bg-foreground/5 border border-border grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono">
+                <div>
+                  <label className="block text-[11px] font-bold uppercase text-muted-foreground mb-1">
+                    Custom Course Code <span className="text-rose-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={customCourseCode}
+                    onChange={(e) => setCustomCourseCode(e.target.value)}
+                    placeholder="e.g. CSE 2200 or SWE 3102"
+                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-foreground text-xs focus:outline-none focus:border-foreground uppercase"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold uppercase text-muted-foreground mb-1">
+                    Custom Course Title <span className="text-rose-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={customCourseName}
+                    onChange={(e) => setCustomCourseName(e.target.value)}
+                    placeholder="e.g. Software Development Project"
+                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-foreground text-xs focus:outline-none focus:border-foreground"
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Semester (Required for question & course_material, optional for sessional) */}
             {section !== 'sessional' ? (
@@ -550,28 +661,89 @@ export default function DonateKnowledgePage() {
               </div>
             )}
 
-            {/* Section Specific Fields: Sessional -> Lab Number */}
+            {/* Section Specific Fields: Sessional -> Lab Number & Quick Tags */}
             {section === 'sessional' && (
-              <div>
-                <label className="block text-xs font-bold uppercase text-muted-foreground mb-1.5 font-mono">
-                  Lab Number / Assignment Tag
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={labNumber}
-                  onChange={(e) => setLabNumber(e.target.value)}
-                  placeholder="e.g. Lab 01, Lab 03, Final Project, Task Code"
-                  className="w-full px-4 py-2.5 rounded-2xl border border-border bg-background text-foreground text-xs font-semibold focus:outline-none focus:border-foreground"
-                />
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-bold uppercase text-muted-foreground mb-1.5 font-mono">
+                    Lab Number / Project / Assignment Tag <span className="text-rose-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={labNumber}
+                    onChange={(e) => setLabNumber(e.target.value)}
+                    placeholder="e.g. Term Project, Lab 01, Final Project, Task Code"
+                    className="w-full px-4 py-2.5 rounded-2xl border border-border bg-background text-foreground text-xs font-semibold focus:outline-none focus:border-foreground"
+                  />
+                </div>
+
+                <div className="flex items-center gap-1.5 flex-wrap font-mono text-[11px]">
+                  <span className="text-muted-foreground font-bold uppercase mr-1">Quick Tags:</span>
+                  {[
+                    'Term Project',
+                    'Final Project',
+                    'Lab 01',
+                    'Lab 02',
+                    'Lab 03',
+                    'Lab 04',
+                    'Experiment Code',
+                  ].map((quick) => (
+                    <button
+                      key={quick}
+                      type="button"
+                      onClick={() => setLabNumber(quick)}
+                      className={`px-2.5 py-1 rounded-lg border transition-all ${
+                        labNumber === quick
+                          ? 'bg-emerald-500 text-black font-bold border-emerald-500 shadow-sm'
+                          : 'bg-background hover:bg-card-hover border-border text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      {quick}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Sessional Delivery Mode: File vs GitHub Link */}
+                <div className="pt-2">
+                  <label className="block text-xs font-bold uppercase text-muted-foreground mb-1.5 font-mono">
+                    Project / Code Delivery Method
+                  </label>
+                  <div className="grid grid-cols-2 gap-2 font-mono text-xs">
+                    <button
+                      type="button"
+                      onClick={() => setSessionalDeliveryMode('file')}
+                      className={`p-3 rounded-2xl border text-center transition-all ${
+                        sessionalDeliveryMode === 'file'
+                          ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400 font-bold shadow-md'
+                          : 'border-border bg-background text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      📁 Upload Source / Report File
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSessionalDeliveryMode('link')}
+                      className={`p-3 rounded-2xl border text-center transition-all ${
+                        sessionalDeliveryMode === 'link'
+                          ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400 font-bold shadow-md'
+                          : 'border-border bg-background text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      🔗 GitHub / Repo / Drive Link
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
 
             {/* File Upload Zone OR External URL */}
-            {section === 'course_material' && materialType === 'EXTERNAL_LINK' ? (
+            {(section === 'course_material' && materialType === 'EXTERNAL_LINK') ||
+            (section === 'sessional' && sessionalDeliveryMode === 'link') ? (
               <div className="space-y-2">
                 <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground font-mono">
-                  External Educational URL <span className="text-rose-400">*</span>
+                  {section === 'sessional' ? 'Project Repository / Educational URL' : 'External Educational URL'}{' '}
+                  <span className="text-rose-400">*</span>
                 </label>
                 <div className="relative">
                   <ExternalLink className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -580,7 +752,11 @@ export default function DonateKnowledgePage() {
                     required
                     value={externalUrl}
                     onChange={(e) => setExternalUrl(e.target.value)}
-                    placeholder="https://visualgo.net or https://geeksforgeeks.org/dbms"
+                    placeholder={
+                      section === 'sessional'
+                        ? 'https://github.com/your-username/your-project-repo'
+                        : 'https://visualgo.net or https://geeksforgeeks.org/dbms'
+                    }
                     className="w-full pl-10 pr-4 py-3 rounded-2xl border border-border bg-background text-foreground text-xs focus:outline-none focus:border-foreground"
                   />
                 </div>
@@ -887,15 +1063,27 @@ export default function DonateKnowledgePage() {
 
           <div className="flex flex-wrap justify-center gap-3 pt-2 font-mono text-xs">
             <button
-              onClick={() => router.push('/bazaar')}
+              onClick={() => router.push('/bazaar?sort=newest')}
               className="liquid-metal-btn px-6 py-3 font-bold shadow-md"
             >
-              Explore Charity Bazaar
+              Explore Charity Bazaar (Newest First)
+            </button>
+            <button
+              onClick={() =>
+                router.push(
+                  `/pantry/${(courseCode === 'CUSTOM' ? customCourseCode : courseCode)
+                    .toLowerCase()
+                    .replace(/\s+/g, '-')}`
+                )
+              }
+              className="liquid-metal-btn-secondary px-6 py-3 font-bold shadow-md"
+            >
+              Open Course Pantry
             </button>
             {section === 'question' && (
               <button
                 onClick={() => router.push('/exam')}
-                className="liquid-metal-btn-secondary px-6 py-3 font-bold shadow-md"
+                className="px-6 py-3 rounded-2xl border border-border text-foreground hover:bg-card-hover font-bold transition-all shadow-sm"
               >
                 View Exam Emergency Room
               </button>

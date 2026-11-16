@@ -3,6 +3,9 @@ import { Request, Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/auth';
 import { Resource } from '../models/Resource';
 import { UserProfile } from '../models/UserProfile';
+import { University } from '../models/University';
+import { Department } from '../models/Department';
+import { Course } from '../models/Course';
 import { storageService, StorageService } from '../services/StorageService';
 import { QualityScoreService } from '../services/QualityScoreService';
 
@@ -118,6 +121,69 @@ export const createResource = async (req: AuthenticatedRequest, res: Response) =
       parsedTags = [];
     }
 
+    let validUniId = universityId;
+    if (!validUniId || !mongoose.Types.ObjectId.isValid(validUniId)) {
+      let defaultUni = await University.findOne();
+      if (!defaultUni) {
+        defaultUni = await University.create({ name: 'Premier University', code: 'PU', domains: ['pu.ac.bd'] });
+      }
+      validUniId = defaultUni._id;
+    }
+
+    let validDeptId = departmentId;
+    if (!validDeptId || !mongoose.Types.ObjectId.isValid(validDeptId)) {
+      let defaultDept = await Department.findOne({ universityId: validUniId });
+      if (!defaultDept) {
+        defaultDept = await Department.create({
+          name: 'Computer Science & Engineering',
+          code: 'CSE',
+          universityId: validUniId,
+        });
+      }
+      validDeptId = defaultDept._id;
+    }
+
+    let validCourseId = courseId;
+    if (!validCourseId || !mongoose.Types.ObjectId.isValid(validCourseId)) {
+      const codeStr = typeof courseId === 'string' && courseId.trim() ? courseId.trim() : 'CSE 2103';
+      const normCode = codeStr.toUpperCase().replace(/[-_]/g, ' ');
+      let existingCourse = await Course.findOne({
+        $or: [{ code: normCode }, { code: normCode.replace(/\s+/g, '') }, { code: codeStr }],
+      });
+      if (!existingCourse) {
+        existingCourse = await Course.create({
+          title: `${normCode} Course Material`,
+          code: normCode,
+          departmentId: validDeptId,
+          description: `Academic course library for ${normCode}`,
+        });
+      }
+      validCourseId = existingCourse._id;
+    }
+
+    const validTypes = [
+      'Lecture Notes',
+      'Class Notes',
+      'Previous Exam Questions',
+      'Solved Questions',
+      'Lab Reports',
+      'Assignments',
+      'Presentations',
+      'Cheat Sheets',
+      'Reference Material',
+      'Tutorials',
+      'Question Banks',
+      'Other',
+    ];
+    let mappedResourceType = resourceType;
+    if (!mappedResourceType || !validTypes.includes(mappedResourceType)) {
+      if (parsedAcademicMetadata?.section === 'question') mappedResourceType = 'Previous Exam Questions';
+      else if (parsedAcademicMetadata?.section === 'sessional') mappedResourceType = 'Lab Reports';
+      else if (parsedAcademicMetadata?.materialType === 'SLIDES') mappedResourceType = 'Presentations';
+      else if (parsedAcademicMetadata?.materialType === 'EXTERNAL_LINK') mappedResourceType = 'Reference Material';
+      else mappedResourceType = 'Lecture Notes';
+    }
+
     const initialRQS = QualityScoreService.calculateRQS({
       averageRating: 0,
       ratingsCount: 0,
@@ -129,13 +195,13 @@ export const createResource = async (req: AuthenticatedRequest, res: Response) =
       title,
       description,
       uploaderId: req.user?.id || 'anonymous',
-      universityId,
-      departmentId,
-      courseId,
-      semester,
-      ...(teacherId && { teacherId }),
+      universityId: validUniId,
+      departmentId: validDeptId,
+      courseId: validCourseId,
+      semester: semester || 'Level 2 / Term 1',
+      ...(teacherId && mongoose.Types.ObjectId.isValid(teacherId) && { teacherId }),
       academicMetadata: parsedAcademicMetadata,
-      resourceType,
+      resourceType: mappedResourceType,
       topics: parsedTopics,
       tags: parsedTags,
       fileUrl: uploadResult.fileUrl,

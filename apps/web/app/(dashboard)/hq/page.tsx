@@ -252,6 +252,69 @@ export default function CharityHQPage() {
           </div>
         </div>
       </div>
+
+      {/* My Uploads & Contributions Section */}
+      <div className="p-6 sm:p-8 rounded-3xl bg-card border border-border shadow-md space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-bold font-mono uppercase text-foreground">
+              My Contributions &amp; Uploads ({userResources.length})
+            </h2>
+            <p className="text-xs text-muted-foreground mt-0.5 font-sans">
+              Materials and projects you have donated to help academic peers.
+            </p>
+          </div>
+          <Link
+            href="/donate"
+            className="liquid-metal-btn px-4 py-2 text-xs font-bold font-mono flex items-center gap-1.5 shadow-md"
+          >
+            <PlusCircle className="w-4 h-4" />
+            <span>Donate Another</span>
+          </Link>
+        </div>
+
+        {userResources.length === 0 ? (
+          <div className="p-8 rounded-2xl bg-background border border-border text-center space-y-2 font-mono text-xs text-muted-foreground">
+            <p className="font-bold text-foreground">No Donations Yet</p>
+            <p>You haven&apos;t shared any study notes or projects yet. Donate your first note to earn +10 Charity Points!</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {userResources.map((res) => (
+              <div
+                key={res.id}
+                className="p-5 rounded-2xl bg-background border border-border hover:border-foreground/40 transition-all space-y-3 flex flex-col justify-between"
+              >
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between gap-2 font-mono text-xs">
+                    <span className="px-2.5 py-0.5 rounded bg-foreground text-background font-bold text-[10px]">
+                      {res.courseCode}
+                    </span>
+                    <span className="px-2 py-0.5 rounded bg-foreground/10 text-foreground text-[10px] font-bold">
+                      {res.academicMetadata?.section === 'sessional'
+                        ? res.academicMetadata?.labNumber || 'Project'
+                        : res.resourceType}
+                    </span>
+                  </div>
+                  <h3 className="text-sm font-bold text-foreground line-clamp-2">{res.title}</h3>
+                  <p className="text-xs text-muted-foreground line-clamp-2 font-sans">{res.description}</p>
+                </div>
+                <div className="flex items-center justify-between pt-2 border-t border-border/60 text-xs font-mono">
+                  <span className="text-muted-foreground">
+                    📥 {res.downloadsCount || 0} downloads
+                  </span>
+                  <Link
+                    href={`/bazaar?q=${encodeURIComponent(res.title)}`}
+                    className="text-foreground hover:underline font-bold"
+                  >
+                    View in Bazaar →
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

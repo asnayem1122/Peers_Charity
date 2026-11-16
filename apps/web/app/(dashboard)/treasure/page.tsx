@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { Bookmark, Compass, Eye, Trash2, Star, Download, ExternalLink } from 'lucide-react';
 import { PRODUCT_TERMINOLOGY } from '@/lib/constants';
-import { getResources, getSavedResourceIds, toggleSaveResource, Resource } from '@/lib/resources-data';
+import { getResources, fetchAndSyncResources, getSavedResourceIds, toggleSaveResource, Resource } from '@/lib/resources-data';
 import { triggerResourceDownload } from '@/lib/download';
 import { apiToggleBookmark } from '@/lib/api';
 
@@ -22,12 +22,16 @@ export default function MyTreasurePage() {
   const [reportTarget, setReportTarget] = useState<{ id: string; title: string }>({ id: '', title: '' });
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
-  const loadData = () => {
-    const all = getResources();
+  const filterSaved = (all: Resource[]) => {
     const savedIds = getSavedResourceIds();
     const savedSet = new Set(savedIds);
-    const filtered = all.filter((r) => savedSet.has(r.id));
-    setSavedResources(filtered);
+    return all.filter((r) => savedSet.has(r.id));
+  };
+
+  const loadData = async () => {
+    setSavedResources(filterSaved(getResources()));
+    const all = await fetchAndSyncResources();
+    setSavedResources(filterSaved(all));
   };
 
   useEffect(() => {

@@ -21,7 +21,7 @@ export default function AcademicPantryPage() {
   const courses = useMemo(() => {
     const courseMap = new Map<string, Resource[]>();
     for (const r of resources) {
-      const code = r.courseCode.toUpperCase();
+      const code = r.courseCode.toUpperCase().replace(/[-_]/g, ' ').trim();
       let list = courseMap.get(code);
       if (!list) {
         list = [];
