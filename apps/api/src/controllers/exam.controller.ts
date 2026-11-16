@@ -7,9 +7,10 @@ export const getExamEmergencyData = async (req: Request, res: Response) => {
   try {
     const { courseId } = req.params;
 
+    const normalizedCode = courseId.toUpperCase().replace(/[-_]/g, ' ');
     const courseQuery = mongoose.isValidObjectId(courseId)
-      ? { $or: [{ _id: courseId }, { code: courseId.toUpperCase().replace('-', ' ') }] }
-      : { code: courseId.toUpperCase().replace('-', ' ') };
+      ? { $or: [{ _id: courseId }, { code: normalizedCode }] }
+      : { code: normalizedCode };
 
     const course = await Course.findOne(courseQuery).populate('departmentId', 'name code');
     if (!course) {

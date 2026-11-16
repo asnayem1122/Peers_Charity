@@ -21,9 +21,12 @@ import {
   Compass,
   Flame,
 } from 'lucide-react';
-import ConstellationGrid from '@/components/ui/constellation-grid';
-import HowItWorks from '@/components/ui/how-it-works';
+import dynamic from 'next/dynamic';
 import { useAuth } from '@/lib/auth-context';
+
+// Dynamic import for heavy canvas animation (Rules: bundle-dynamic-imports, rendering-hydration-no-flicker)
+const ConstellationGrid = dynamic(() => import('@/components/ui/constellation-grid'), { ssr: false });
+import HowItWorks from '@/components/ui/how-it-works';
 
 export default function LandingPage() {
   const router = useRouter();

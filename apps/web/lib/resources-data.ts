@@ -126,7 +126,8 @@ export function toggleSaveResource(id: string): string[] {
   const resources = getResources();
   const resIndex = resources.findIndex((r) => r.id === id);
   if (resIndex !== -1) {
-    resources[resIndex].bookmarksCount += current.includes(id) ? -1 : 1;
+    const delta = current.includes(id) ? -1 : 1;
+    resources[resIndex].bookmarksCount = Math.max(0, (resources[resIndex].bookmarksCount || 0) + delta);
     saveResources(resources);
   }
   return updated;
@@ -151,7 +152,7 @@ export function recordDownload(id: string): string[] {
   const resources = getResources();
   const resIndex = resources.findIndex((r) => r.id === id);
   if (resIndex !== -1) {
-    resources[resIndex].downloadsCount += 1;
+    resources[resIndex].downloadsCount = (resources[resIndex].downloadsCount || 0) + 1;
     saveResources(resources);
   }
   return updated;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import {
   BookOpen,
@@ -30,36 +30,58 @@ export default function CharityHQPage() {
     });
   }, []);
 
-  const userResources = resources.filter(
-    (r) =>
-      r.realUploaderId === user?.id ||
-      (user?.email && r.realUploaderEmail?.toLowerCase() === user.email.toLowerCase())
-  );
+  // Memoized user resources and calculations (Rules: rerender-memo, js-combine-iterations)
+  const userResources = useMemo(() => {
+    const userEmail = user?.email?.toLowerCase();
+    return resources.filter(
+      (r) =>
+        r.realUploaderId === user?.id ||
+        (userEmail && r.realUploaderEmail?.toLowerCase() === userEmail)
+    );
+  }, [resources, user]);
 
   const donationsCount = userResources.length;
-  const studentsHelped = userResources.reduce((sum, r) => sum + (r.downloadsCount || 0), 0);
+  const studentsHelped = useMemo(
+    () => userResources.reduce((sum, r) => sum + (r.downloadsCount || 0), 0),
+    [userResources]
+  );
   const charityPoints = donationsCount * 10;
-  const avgRating =
-    userResources.length > 0
+  const avgRating = useMemo(() => {
+    return userResources.length > 0
       ? (userResources.reduce((sum, r) => sum + r.rating, 0) / userResources.length).toFixed(1) + '★'
       : '—';
+  }, [userResources]);
 
-  const questionCount = resources.filter(
-    (r) =>
-      r.academicMetadata?.section === 'question' ||
-      r.resourceType === 'Previous Exam Questions' ||
-      r.resourceType === 'Solved Questions'
-  ).length;
-  const materialCount = resources.filter(
-    (r) =>
-      r.academicMetadata?.section === 'course_material' ||
-      r.resourceType === 'Notes' ||
-      r.resourceType === 'Slides' ||
-      r.resourceType === 'External Link'
-  ).length;
-  const sessionalCount = resources.filter(
-    (r) => r.academicMetadata?.section === 'sessional' || r.resourceType === 'Lab Reports'
-  ).length;
+  // Combined single-pass iteration for section counts (Rule: js-combine-iterations)
+  const { questionCount, materialCount, sessionalCount } = useMemo(() => {
+    let qCount = 0;
+    let mCount = 0;
+    let sCount = 0;
+
+    for (const r of resources) {
+      if (
+        r.academicMetadata?.section === 'question' ||
+        r.resourceType === 'Previous Exam Questions' ||
+        r.resourceType === 'Solved Questions'
+      ) {
+        qCount++;
+      } else if (
+        r.academicMetadata?.section === 'course_material' ||
+        r.resourceType === 'Notes' ||
+        r.resourceType === 'Slides' ||
+        r.resourceType === 'External Link'
+      ) {
+        mCount++;
+      } else if (
+        r.academicMetadata?.section === 'sessional' ||
+        r.resourceType === 'Lab Reports'
+      ) {
+        sCount++;
+      }
+    }
+
+    return { questionCount: qCount, materialCount: mCount, sessionalCount: sCount };
+  }, [resources]);
 
   const questionCoverage = Math.min(100, Math.round((questionCount / 5) * 100));
   const materialCoverage = Math.min(100, Math.round((materialCount / 5) * 100));

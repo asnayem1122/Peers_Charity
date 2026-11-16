@@ -361,7 +361,7 @@ export default function ResourceDetailModal({
                         <span className="font-bold text-amber-400">{rev.rating}.0</span>
                       </div>
                     </div>
-                    <p className="text-muted-foreground font-sans">{rev.comment}</p>
+                    <p className="text-muted-foreground font-sans">{rev.comment || (rev as any).content}</p>
                     <span className="text-[10px] text-muted-foreground/60 font-mono block pt-1">{rev.createdAt}</span>
                   </div>
                 ))

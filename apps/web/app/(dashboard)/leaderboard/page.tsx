@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Trophy, PlusCircle, Award, Flame, Star, ShieldCheck, HeartHandshake, Users } from 'lucide-react';
 import { PRODUCT_TERMINOLOGY } from '@/lib/constants';
@@ -32,59 +32,61 @@ export default function LeaderboardPage() {
     });
   }, []);
 
-  // Compute dynamic benefactors from actual donations
-  const uploaderMap = new Map<
-    string,
-    { name: string; email: string; donations: number; downloads: number; ratingTotal: number; ratingCount: number }
-  >();
+  // Memoized dynamic benefactors from actual donations (Rule: rerender-memo)
+  const leaders: LeaderEntry[] = useMemo(() => {
+    const uploaderMap = new Map<
+      string,
+      { name: string; email: string; donations: number; downloads: number; ratingTotal: number; ratingCount: number }
+    >();
 
-  resources.forEach((res) => {
-    const key = res.realUploaderEmail || res.realUploaderName || 'Anonymous';
-    const existing = uploaderMap.get(key) || {
-      name: res.publicDisplayIdentity || res.realUploaderName || 'Benefactor',
-      email: res.realUploaderEmail || '',
-      donations: 0,
-      downloads: 0,
-      ratingTotal: 0,
-      ratingCount: 0,
-    };
-    existing.donations += 1;
-    existing.downloads += res.downloadsCount || 0;
-    existing.ratingTotal += res.rating || 5;
-    existing.ratingCount += res.ratingCount || 1;
-    uploaderMap.set(key, existing);
-  });
-
-  const leaders: LeaderEntry[] = Array.from(uploaderMap.values())
-    .map((u) => {
-      const avgRating = u.ratingCount > 0 ? Number((u.ratingTotal / u.ratingCount).toFixed(1)) : 5.0;
-      return {
-        name: u.name,
-        email: u.email,
-        points: u.donations * 10,
-        donations: u.donations,
-        savedCount: u.downloads,
-        trustScore: avgRating,
-        avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(u.name)}`,
+    for (const res of resources) {
+      const key = res.realUploaderEmail || res.realUploaderName || 'Anonymous';
+      const existing = uploaderMap.get(key) || {
+        name: res.publicDisplayIdentity || res.realUploaderName || 'Benefactor',
+        email: res.realUploaderEmail || '',
+        donations: 0,
+        downloads: 0,
+        ratingTotal: 0,
+        ratingCount: 0,
       };
-    })
-    .sort((a, b) => b.points - a.points || b.savedCount - a.savedCount)
-    .map((leader, index) => ({
-      ...leader,
-      rank: index + 1,
-      badge:
-        index === 0
-          ? '🥇 Top Academic Philanthropist'
-          : index === 1
-          ? '🥈 Senior Semester Saver'
-          : '🥉 Class Hero',
-      badgeColor:
-        index === 0
-          ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
-          : index === 1
-          ? 'bg-slate-400/20 text-slate-300 border-slate-400/30'
-          : 'bg-amber-700/20 text-amber-500 border-amber-700/30',
-    }));
+      existing.donations += 1;
+      existing.downloads += res.downloadsCount || 0;
+      existing.ratingTotal += res.rating || 5;
+      existing.ratingCount += res.ratingCount || 1;
+      uploaderMap.set(key, existing);
+    }
+
+    return Array.from(uploaderMap.values())
+      .map((u) => {
+        const avgRating = u.ratingCount > 0 ? Number((u.ratingTotal / u.ratingCount).toFixed(1)) : 5.0;
+        return {
+          name: u.name,
+          email: u.email,
+          points: u.donations * 10,
+          donations: u.donations,
+          savedCount: u.downloads,
+          trustScore: avgRating,
+          avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(u.name)}`,
+        };
+      })
+      .sort((a, b) => b.points - a.points || b.savedCount - a.savedCount)
+      .map((leader, index) => ({
+        ...leader,
+        rank: index + 1,
+        badge:
+          index === 0
+            ? '🥇 Top Academic Philanthropist'
+            : index === 1
+            ? '🥈 Senior Semester Saver'
+            : '🥉 Class Hero',
+        badgeColor:
+          index === 0
+            ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+            : index === 1
+            ? 'bg-slate-400/20 text-slate-300 border-slate-400/30'
+            : 'bg-amber-700/20 text-amber-500 border-amber-700/30',
+      }));
+  }, [resources]);
 
   return (
     <div className="space-y-6 font-sans">

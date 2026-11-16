@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { BookOpen, Search, PlusCircle, ArrowRight, ShieldCheck, FileText, Flame } from 'lucide-react';
 import { PRODUCT_TERMINOLOGY } from '@/lib/constants';
@@ -17,56 +17,84 @@ export default function AcademicPantryPage() {
     });
   }, []);
 
-  // Derive unique courses dynamically from user uploaded resources
-  const uniqueCourseCodes = Array.from(new Set(resources.map((r) => r.courseCode.toUpperCase())));
+  // Derive course summaries memoized on resources changes (Rules: rerender-memo, js-combine-iterations)
+  const courses = useMemo(() => {
+    const courseMap = new Map<string, Resource[]>();
+    for (const r of resources) {
+      const code = r.courseCode.toUpperCase();
+      let list = courseMap.get(code);
+      if (!list) {
+        list = [];
+        courseMap.set(code, list);
+      }
+      list.push(r);
+    }
 
-  const courses = uniqueCourseCodes.map((code) => {
-    const courseRes = resources.filter((r) => r.courseCode.toUpperCase() === code);
-    const sample = courseRes[0];
-    const downloads = courseRes.reduce((sum, r) => sum + (r.downloadsCount || 0), 0);
-    const health = Math.min(100, Math.round((courseRes.length / 5) * 100));
+    return Array.from(courseMap.entries()).map(([code, courseRes]) => {
+      const sample = courseRes[0];
+      let downloads = 0;
+      let questionsCount = 0;
+      let materialsCount = 0;
+      let sessionalCount = 0;
+      const allTags: string[] = [];
 
-    const questionsCount = courseRes.filter(
-      (r) =>
-        r.academicMetadata?.section === 'question' ||
-        r.resourceType === 'Previous Exam Questions' ||
-        r.resourceType === 'Solved Questions'
-    ).length;
+      for (const r of courseRes) {
+        downloads += r.downloadsCount || 0;
+        if (r.tags) {
+          allTags.push(...r.tags);
+        }
 
-    const materialsCount = courseRes.filter(
-      (r) =>
-        r.academicMetadata?.section === 'course_material' ||
-        r.resourceType === 'Notes' ||
-        r.resourceType === 'Slides' ||
-        r.resourceType === 'External Link'
-    ).length;
+        if (
+          r.academicMetadata?.section === 'question' ||
+          r.resourceType === 'Previous Exam Questions' ||
+          r.resourceType === 'Solved Questions'
+        ) {
+          questionsCount++;
+        } else if (
+          r.academicMetadata?.section === 'course_material' ||
+          r.resourceType === 'Notes' ||
+          r.resourceType === 'Slides' ||
+          r.resourceType === 'External Link'
+        ) {
+          materialsCount++;
+        } else if (
+          r.academicMetadata?.section === 'sessional' ||
+          r.resourceType === 'Lab Reports'
+        ) {
+          sessionalCount++;
+        }
+      }
 
-    const sessionalCount = courseRes.filter(
-      (r) => r.academicMetadata?.section === 'sessional' || r.resourceType === 'Lab Reports'
-    ).length;
+      const health = Math.min(100, Math.round((courseRes.length / 5) * 100));
 
-    return {
-      id: code.toLowerCase().replace(/\s+/g, '-'),
-      code: code,
-      name: sample?.courseName || `${code} Course Pantry`,
-      dept: sample?.department || 'Academic Department',
-      instructor: 'Department Faculty',
-      tags: Array.from(new Set(courseRes.flatMap((r) => r.tags))).slice(0, 4),
-      health,
-      donationsCount: courseRes.length,
-      downloadsCount: downloads,
-      questionsCount,
-      materialsCount,
-      sessionalCount,
-    };
-  });
+      return {
+        id: code.toLowerCase().replace(/\s+/g, '-'),
+        code,
+        name: sample?.courseName || `${code} Course Pantry`,
+        dept: sample?.department || 'Academic Department',
+        instructor: 'Department Faculty',
+        tags: Array.from(new Set(allTags)).slice(0, 4),
+        health,
+        donationsCount: courseRes.length,
+        downloadsCount: downloads,
+        questionsCount,
+        materialsCount,
+        sessionalCount,
+      };
+    });
+  }, [resources]);
 
-  const filtered = courses.filter(
-    (c) =>
-      c.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  // Fast search filter over memoized courses
+  const filtered = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    if (!q) return courses;
+    return courses.filter(
+      (c) =>
+        c.code.toLowerCase().includes(q) ||
+        c.name.toLowerCase().includes(q) ||
+        c.tags.some((t) => t.toLowerCase().includes(q))
+    );
+  }, [courses, searchQuery]);
 
   return (
     <div className="space-y-6 font-sans">

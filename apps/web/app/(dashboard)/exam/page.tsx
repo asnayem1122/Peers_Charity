@@ -1,15 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { Flame, Sparkles, BookOpen, PlusCircle, Download, Check, ShieldCheck, FileText, Star, Eye } from 'lucide-react';
 import { PRODUCT_TERMINOLOGY } from '@/lib/constants';
 import { useAuth } from '@/lib/auth-context';
 import { getResources, fetchAndSyncResources, recordDownload, getDownloadedResourceIds, Resource } from '@/lib/resources-data';
 import { triggerResourceDownload } from '@/lib/download';
-import ResourceDetailModal from '@/components/ui/resource-detail-modal';
-import ReportResourceModal from '@/components/ui/report-resource-modal';
-import GuestAuthModal from '@/components/ui/guest-auth-modal';
+
+// Dynamic imports for modals (Rule: bundle-dynamic-imports)
+const ResourceDetailModal = dynamic(() => import('@/components/ui/resource-detail-modal'), { ssr: false });
+const ReportResourceModal = dynamic(() => import('@/components/ui/report-resource-modal'), { ssr: false });
+const GuestAuthModal = dynamic(() => import('@/components/ui/guest-auth-modal'), { ssr: false });
 
 export default function ExamEmergencyRoomPage() {
   const { user } = useAuth();
@@ -52,27 +55,35 @@ export default function ExamEmergencyRoomPage() {
     loadData();
   };
 
-  // Only consider Question Section resources (or legacy question/solved types)
-  const questionResources = resources.filter((res) => {
-    if (res.academicMetadata) {
-      return res.academicMetadata.section === 'question';
-    }
-    return (
-      res.resourceType === 'Previous Exam Questions' ||
-      res.resourceType === 'Solved Questions' ||
-      res.resourceType === 'PDF'
-    );
-  });
+  // Memoized Question Section resources (Rule: rerender-memo)
+  const questionResources = useMemo(() => {
+    return resources.filter((res) => {
+      if (res.academicMetadata) {
+        return res.academicMetadata.section === 'question';
+      }
+      return (
+        res.resourceType === 'Previous Exam Questions' ||
+        res.resourceType === 'Solved Questions' ||
+        res.resourceType === 'PDF'
+      );
+    });
+  }, [resources]);
 
-  const availableCourses = ['ALL', ...Array.from(new Set(questionResources.map((r) => r.courseCode.toUpperCase())))];
+  const availableCourses = useMemo(
+    () => ['ALL', ...Array.from(new Set(questionResources.map((r) => r.courseCode.toUpperCase())))],
+    [questionResources]
+  );
 
-  const examPackFilter = questionResources.filter((res) => {
-    const matchesCourse = selectedCourse === 'ALL' || res.courseCode.toUpperCase() === selectedCourse.toUpperCase();
-    const matchesExamType =
-      examTypeFilter === 'ALL' ||
-      res.academicMetadata?.examType === examTypeFilter;
-    return matchesCourse && matchesExamType;
-  });
+  const examPackFilter = useMemo(() => {
+    const selCourse = selectedCourse.toUpperCase();
+    return questionResources.filter((res) => {
+      const matchesCourse = selCourse === 'ALL' || res.courseCode.toUpperCase() === selCourse;
+      const matchesExamType =
+        examTypeFilter === 'ALL' ||
+        res.academicMetadata?.examType === examTypeFilter;
+      return matchesCourse && matchesExamType;
+    });
+  }, [questionResources, selectedCourse, examTypeFilter]);
 
   return (
     <div className="space-y-8 font-sans">

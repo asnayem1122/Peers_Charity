@@ -336,3 +336,27 @@ export async function apiSubmitReport(resourceId: string, reason: string, detail
   }
 }
 
+/**
+ * Uploads a newly contributed academic resource to the backend API via multipart/form-data
+ */
+export async function apiCreateResource(formData: FormData): Promise<ApiResource | null> {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+    const response = await fetch(`${API_BASE_URL}/api/resources`, {
+      method: 'POST',
+      body: formData,
+      credentials: 'include',
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+    if (!response.ok) return null;
+    const json = await response.json();
+    return json?.data ?? null;
+  } catch {
+    return null;
+  }
+}
+

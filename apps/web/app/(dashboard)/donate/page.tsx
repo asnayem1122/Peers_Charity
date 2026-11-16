@@ -32,6 +32,7 @@ import {
   ExamType,
   MaterialType,
 } from '@/lib/resources-data';
+import { apiCreateResource } from '@/lib/api';
 
 export default function DonateKnowledgePage() {
   const { user, login } = useAuth();
@@ -194,6 +195,33 @@ export default function DonateKnowledgePage() {
     } else if (section === 'sessional') {
       mappedResourceType = 'PDF';
     }
+
+    // Create background API upload payload
+    const formData = new FormData();
+    const finalTitle = title || `${courseCode} ${section === 'question' ? `${examType} Question` : section === 'sessional' ? labNumber : 'Material'}`;
+    formData.append('title', finalTitle);
+    if (description) formData.append('description', description);
+    formData.append('courseId', courseCode);
+    formData.append('semester', semester);
+    formData.append('resourceType', mappedResourceType);
+    formData.append(
+      'academicMetadata',
+      JSON.stringify({
+        section,
+        courseId: courseCode,
+        batch: batch.trim() || '11',
+        ...(section === 'question' ? { examType, semester } : {}),
+        ...(section === 'course_material' ? { materialType, semester, externalLink: sanitizedExternalUrl } : {}),
+        ...(section === 'sessional' ? { labNumber: labNumber.trim() } : {}),
+      })
+    );
+    if (file) {
+      formData.append('file', file);
+    }
+    if (sanitizedExternalUrl) {
+      formData.append('externalUrl', sanitizedExternalUrl);
+    }
+    apiCreateResource(formData).catch(() => {});
 
     setTimeout(() => {
       addResource({

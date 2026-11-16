@@ -20,6 +20,14 @@ export const addRating = async (req: AuthenticatedRequest, res: Response) => {
       return res.status(404).json({ success: false, message: 'Resource not found' });
     }
 
+    if (typeof stars !== 'number' || !Number.isInteger(stars) || stars < 1 || stars > 5) {
+      return res.status(400).json({
+        success: false,
+        statusCode: 400,
+        message: 'Rating stars must be an integer between 1 and 5.',
+      });
+    }
+
     const resource = await Resource.findById(resourceId);
     if (!resource) {
       return res.status(404).json({ success: false, message: 'Resource not found' });
@@ -32,7 +40,7 @@ export const addRating = async (req: AuthenticatedRequest, res: Response) => {
     await Rating.findOneAndUpdate(
       { resourceId, userId },
       { stars },
-      { upsert: true, new: true }
+      { upsert: true, new: true, runValidators: true }
     );
 
     const ratings = await Rating.find({ resourceId });
@@ -162,15 +170,28 @@ export const recordDownload = async (req: AuthenticatedRequest, res: Response) =
       return res.status(404).json({ success: false, message: 'Resource not found' });
     }
 
-    await Download.create({ resourceId, userId });
-    const resource = await Resource.findByIdAndUpdate(
-      resourceId,
-      { $inc: { 'stats.downloadsCount': 1 } },
-      { new: true }
-    );
-
+    const resource = await Resource.findById(resourceId);
     if (!resource) {
       return res.status(404).json({ success: false, message: 'Resource not found' });
+    }
+
+    await Download.create({ resourceId, userId });
+
+    resource.stats.downloadsCount = (resource.stats.downloadsCount || 0) + 1;
+    resource.qualityScore = QualityScoreService.calculateRQS({
+      averageRating: resource.stats.averageRating,
+      ratingsCount: resource.stats.ratingsCount,
+      downloadsCount: resource.stats.downloadsCount,
+      bookmarksCount: resource.stats.bookmarksCount,
+    });
+    await resource.save();
+
+    // Award benefactor points if downloaded by peer (anti-self-download farming)
+    if (userId && resource.uploaderId && resource.uploaderId !== userId) {
+      await UserProfile.findOneAndUpdate(
+        { userId: resource.uploaderId },
+        { $inc: { charityPoints: 2 } }
+      );
     }
 
     return res.status(200).json({
@@ -193,10 +214,35 @@ export const submitReport = async (req: AuthenticatedRequest, res: Response) => 
       return res.status(404).json({ success: false, message: 'Resource not found' });
     }
 
+    const resource = await Resource.findById(resourceId);
+    if (!resource) {
+      return res.status(404).json({ success: false, message: 'Resource not found' });
+    }
+
+    const validReasons = [
+      'incorrect information',
+      'wrong course',
+      'duplicate',
+      'spam',
+      'inappropriate content',
+      'copyright concern',
+      'malicious file',
+      'misleading title',
+      'other',
+    ];
+    const normalizedReason = typeof reason === 'string' ? reason.toLowerCase().trim() : '';
+    if (!validReasons.includes(normalizedReason)) {
+      return res.status(400).json({
+        success: false,
+        statusCode: 400,
+        message: `Invalid report reason. Permitted reasons: ${validReasons.join(', ')}`,
+      });
+    }
+
     const report = await Report.create({
       resourceId,
       reporterId,
-      reason,
+      reason: normalizedReason,
       details,
     });
 

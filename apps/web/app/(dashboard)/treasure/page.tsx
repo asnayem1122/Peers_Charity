@@ -1,15 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { Bookmark, Compass, Eye, Trash2, Star, Download, ExternalLink } from 'lucide-react';
 import { PRODUCT_TERMINOLOGY } from '@/lib/constants';
 import { getResources, getSavedResourceIds, toggleSaveResource, Resource } from '@/lib/resources-data';
 import { triggerResourceDownload } from '@/lib/download';
 import { apiToggleBookmark } from '@/lib/api';
-import ResourceDetailModal from '@/components/ui/resource-detail-modal';
-import ReportResourceModal from '@/components/ui/report-resource-modal';
-import GuestAuthModal from '@/components/ui/guest-auth-modal';
+
+// Dynamic imports for modals (Rule: bundle-dynamic-imports)
+const ResourceDetailModal = dynamic(() => import('@/components/ui/resource-detail-modal'), { ssr: false });
+const ReportResourceModal = dynamic(() => import('@/components/ui/report-resource-modal'), { ssr: false });
+const GuestAuthModal = dynamic(() => import('@/components/ui/guest-auth-modal'), { ssr: false });
 
 export default function MyTreasurePage() {
   const [savedResources, setSavedResources] = useState<Resource[]>([]);
@@ -22,7 +25,8 @@ export default function MyTreasurePage() {
   const loadData = () => {
     const all = getResources();
     const savedIds = getSavedResourceIds();
-    const filtered = all.filter((r) => savedIds.includes(r.id));
+    const savedSet = new Set(savedIds);
+    const filtered = all.filter((r) => savedSet.has(r.id));
     setSavedResources(filtered);
   };
 

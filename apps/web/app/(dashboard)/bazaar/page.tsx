@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import {
   Search,
@@ -39,12 +40,14 @@ import {
   ResourceType,
   AcademicSection,
 } from '@/lib/resources-data';
-import ResourceDetailModal from '@/components/ui/resource-detail-modal';
-import ReportResourceModal from '@/components/ui/report-resource-modal';
-import GuestAuthModal from '@/components/ui/guest-auth-modal';
-import AboutProjectModal from '@/components/ui/about-project-modal';
 import { triggerResourceDownload } from '@/lib/download';
 import { apiToggleBookmark } from '@/lib/api';
+
+// Dynamic imports for heavy modals to reduce initial route JS bundle
+const ResourceDetailModal = dynamic(() => import('@/components/ui/resource-detail-modal'), { ssr: false });
+const ReportResourceModal = dynamic(() => import('@/components/ui/report-resource-modal'), { ssr: false });
+const GuestAuthModal = dynamic(() => import('@/components/ui/guest-auth-modal'), { ssr: false });
+const AboutProjectModal = dynamic(() => import('@/components/ui/about-project-modal'), { ssr: false });
 
 export default function CharityBazaarPage() {
   const { user } = useAuth();
@@ -128,43 +131,60 @@ export default function CharityBazaarPage() {
     loadData();
   };
 
-  // Filter & Search Logic
-  const filteredResources = resources
-    .filter((res) => {
-      const q = searchQuery.toLowerCase().trim();
-      const matchesSearch =
-        !q ||
-        res.title.toLowerCase().includes(q) ||
-        res.courseCode.toLowerCase().includes(q) ||
-        res.courseName.toLowerCase().includes(q) ||
-        res.description.toLowerCase().includes(q) ||
-        res.tags.some((t) => t.toLowerCase().includes(q));
+  // Memoized Set for O(1) bookmark lookup across large lists (Rule: js-set-map-lookups)
+  const savedSet = useMemo(() => new Set(savedIds), [savedIds]);
 
-      const matchesSection =
-        selectedSection === 'ALL' || res.academicMetadata?.section === selectedSection;
+  // Memoized Filter & Search Logic (Rule: rerender-memo)
+  const filteredResources = useMemo(() => {
+    return resources
+      .filter((res) => {
+        const q = searchQuery.toLowerCase().trim();
+        const matchesSearch =
+          !q ||
+          res.title.toLowerCase().includes(q) ||
+          res.courseCode.toLowerCase().includes(q) ||
+          res.courseName.toLowerCase().includes(q) ||
+          res.description.toLowerCase().includes(q) ||
+          res.tags.some((t) => t.toLowerCase().includes(q));
 
-      const matchesSubFilter =
-        selectedSection === 'ALL'
-          ? true
-          : selectedSection === 'question'
-          ? selectedExamType === 'ALL' || res.academicMetadata?.examType === selectedExamType
-          : selectedSection === 'course_material'
-          ? selectedMaterialType === 'ALL' || res.academicMetadata?.materialType === selectedMaterialType
-          : true;
+        const matchesSection =
+          selectedSection === 'ALL' || res.academicMetadata?.section === selectedSection;
 
-      const matchesType = selectedType === 'ALL' || res.resourceType === selectedType;
-      const matchesCourse = selectedCourse === 'ALL' || res.courseCode === selectedCourse;
+        const matchesSubFilter =
+          selectedSection === 'ALL'
+            ? true
+            : selectedSection === 'question'
+            ? selectedExamType === 'ALL' || res.academicMetadata?.examType === selectedExamType
+            : selectedSection === 'course_material'
+            ? selectedMaterialType === 'ALL' || res.academicMetadata?.materialType === selectedMaterialType
+            : true;
 
-      return matchesSearch && matchesSection && matchesSubFilter && matchesType && matchesCourse;
-    })
-    .sort((a, b) => {
-      if (sortBy === 'downloads') return b.downloadsCount - a.downloadsCount;
-      if (sortBy === 'rating') return b.rating - a.rating;
-      if (sortBy === 'newest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      return 0;
-    });
+        const matchesType = selectedType === 'ALL' || res.resourceType === selectedType;
+        const matchesCourse = selectedCourse === 'ALL' || res.courseCode === selectedCourse;
 
-  const availableCourses = Array.from(new Set(resources.map((r) => r.courseCode)));
+        return matchesSearch && matchesSection && matchesSubFilter && matchesType && matchesCourse;
+      })
+      .sort((a, b) => {
+        if (sortBy === 'downloads') return b.downloadsCount - a.downloadsCount;
+        if (sortBy === 'rating') return b.rating - a.rating;
+        if (sortBy === 'newest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        return 0;
+      });
+  }, [
+    resources,
+    searchQuery,
+    selectedSection,
+    selectedExamType,
+    selectedMaterialType,
+    selectedType,
+    selectedCourse,
+    sortBy,
+  ]);
+
+  const availableCourses = useMemo(
+    () => Array.from(new Set(resources.map((r) => r.courseCode))),
+    [resources]
+  );
 
   return (
     <div className="space-y-6 font-sans">
@@ -401,7 +421,7 @@ export default function CharityBazaarPage() {
         /* Grid Layout */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredResources.map((res) => {
-            const isSaved = savedIds.includes(res.id);
+            const isSaved = savedSet.has(res.id);
             return (
               <div
                 key={res.id}
@@ -505,7 +525,7 @@ export default function CharityBazaarPage() {
         /* List Layout */
         <div className="space-y-3">
           {filteredResources.map((res) => {
-            const isSaved = savedIds.includes(res.id);
+            const isSaved = savedSet.has(res.id);
             return (
               <div
                 key={res.id}

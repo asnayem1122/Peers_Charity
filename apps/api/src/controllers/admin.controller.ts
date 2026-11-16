@@ -56,7 +56,16 @@ export const updateResourceStatus = async (req: AuthenticatedRequest, res: Respo
       return res.status(404).json({ success: false, message: 'Resource not found' });
     }
 
-    const resource = await Resource.findByIdAndUpdate(id, { status }, { new: true });
+    const validStatuses = ['DRAFT', 'PENDING', 'PUBLISHED', 'REJECTED', 'REMOVED', 'ARCHIVED'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        statusCode: 400,
+        message: `Invalid status. Permitted statuses: ${validStatuses.join(', ')}`,
+      });
+    }
+
+    const resource = await Resource.findByIdAndUpdate(id, { status }, { new: true, runValidators: true });
     if (!resource) {
       return res.status(404).json({ success: false, message: 'Resource not found' });
     }
@@ -97,7 +106,16 @@ export const resolveReport = async (req: AuthenticatedRequest, res: Response) =>
       return res.status(404).json({ success: false, message: 'Report not found' });
     }
 
-    const report = await Report.findByIdAndUpdate(id, { status }, { new: true });
+    const validReportStatuses = ['PENDING', 'INVESTIGATING', 'RESOLVED', 'DISMISSED'];
+    if (!validReportStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        statusCode: 400,
+        message: `Invalid status. Permitted statuses: ${validReportStatuses.join(', ')}`,
+      });
+    }
+
+    const report = await Report.findByIdAndUpdate(id, { status }, { new: true, runValidators: true });
     if (!report) {
       return res.status(404).json({ success: false, message: 'Report not found' });
     }

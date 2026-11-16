@@ -1,9 +1,20 @@
 import { Resource, recordDownload } from './resources-data';
 import { apiRecordDownload } from './api';
 
+// Helper to sanitize non-ASCII Unicode to printable ASCII for standard PDF Type1 fonts
+function toAsciiSafe(text: string): string {
+  return text
+    .replace(/[\u2014\u2013]/g, '-')
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/[\u2022]/g, '*')
+    .replace(/[^\x20-\x7E]/g, ' ');
+}
+
 // Helper to escape PDF text
 function escapePdfText(text: string): string {
-  return text.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+  const safe = toAsciiSafe(text);
+  return safe.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
 }
 
 /**
