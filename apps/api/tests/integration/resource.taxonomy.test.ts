@@ -375,4 +375,112 @@ describe('Phase 2: Backend API & Database Integration Tests — 3-Tier Taxonomy'
       expect(isIndexUsed).toBe(true);
     });
   });
+
+  describe('4. Resource Update & Delete Pipeline (CRUD Lifecycle & Access Control)', () => {
+    let createdResource: any;
+    const ownerHeaders = {
+      'x-test-user-id': 'usr_owner_999',
+      'x-test-user-email': 'owner@peerscharity.org',
+    };
+    const unauthorizedHeaders = {
+      'x-test-user-id': 'usr_attacker_666',
+      'x-test-user-email': 'attacker@peerscharity.org',
+    };
+    const adminHeaders = {
+      'x-test-user-id': 'usr_admin_001',
+      'x-test-user-email': 'admin@peerscharity.org',
+      'x-test-user-role': 'ADMIN',
+    };
+
+    beforeEach(async () => {
+      createdResource = await Resource.create({
+        title: 'Original Title: Compiler Design Lab',
+        description: 'Original Lexical Analyzer source code',
+        uploaderId: 'usr_owner_999',
+        universityId,
+        departmentId,
+        courseId,
+        semester: 'Level 3 / Term 2',
+        resourceType: 'Lab Reports',
+        status: 'PUBLISHED',
+        academicMetadata: {
+          section: 'sessional',
+          courseId,
+          batch: '12',
+          labNumber: 'Lab 01',
+        },
+      });
+    });
+
+    it('Status 200: Allows owner to update resource title and description', async () => {
+      const response = await request(app)
+        .patch(`/api/resources/${createdResource._id}`)
+        .set(ownerHeaders)
+        .send({
+          title: 'Updated: Lexical Analyzer & Parser Implementation',
+          description: 'Updated with Flex and Bison parser specifications',
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.title).toBe('Updated: Lexical Analyzer & Parser Implementation');
+
+      const refreshed = await Resource.findById(createdResource._id);
+      expect(refreshed?.title).toBe('Updated: Lexical Analyzer & Parser Implementation');
+    });
+
+    it('Status 403: Denies non-owner from updating someone else\'s donation', async () => {
+      const response = await request(app)
+        .patch(`/api/resources/${createdResource._id}`)
+        .set(unauthorizedHeaders)
+        .send({ title: 'Hacked Title' });
+
+      expect(response.status).toBe(403);
+      expect(response.body.success).toBe(false);
+
+      const unchanged = await Resource.findById(createdResource._id);
+      expect(unchanged?.title).toBe('Original Title: Compiler Design Lab');
+    });
+
+    it('Status 403: Denies non-owner from deleting someone else\'s donation', async () => {
+      const response = await request(app)
+        .delete(`/api/resources/${createdResource._id}`)
+        .set(unauthorizedHeaders);
+
+      expect(response.status).toBe(403);
+      expect(response.body.success).toBe(false);
+
+      const stillExists = await Resource.findById(createdResource._id);
+      expect(stillExists).not.toBeNull();
+    });
+
+    it('Status 200: Allows owner to soft-delete donation (sets status to REMOVED)', async () => {
+      const response = await request(app)
+        .delete(`/api/resources/${createdResource._id}`)
+        .set(ownerHeaders);
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.status).toBe('REMOVED');
+
+      // Check that it's no longer returned in public query
+      const listResponse = await request(app).get('/api/resources');
+      const foundInPublic = listResponse.body.data.some(
+        (r: any) => r._id === createdResource._id.toString()
+      );
+      expect(foundInPublic).toBe(false);
+    });
+
+    it('Status 200: Allows admin to hard purge donation and cascade deletes', async () => {
+      const response = await request(app)
+        .delete(`/api/resources/${createdResource._id}?hard=true`)
+        .set(adminHeaders);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.status).toBe('DELETED');
+
+      const purged = await Resource.findById(createdResource._id);
+      expect(purged).toBeNull();
+    });
+  });
 });

@@ -1,5 +1,5 @@
 import app from './app';
-import { connectDatabase } from './config/database';
+import { connectDatabase, disconnectDatabase } from './config/database';
 import { config } from './config/env';
 
 const startServer = async () => {
@@ -16,8 +16,9 @@ const startServer = async () => {
 
   const shutdown = async () => {
     console.log(`\n[Server] Shutting down gracefully...`);
-    server.close(() => {
+    server.close(async () => {
       console.log(`[Server] HTTP server closed.`);
+      await disconnectDatabase();
       process.exit(0);
     });
   };

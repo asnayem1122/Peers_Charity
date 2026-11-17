@@ -6,6 +6,10 @@ import { UserProfile } from '../models/UserProfile';
 import { University } from '../models/University';
 import { Department } from '../models/Department';
 import { Course } from '../models/Course';
+import { Bookmark } from '../models/Bookmark';
+import { Review } from '../models/Review';
+import { Rating } from '../models/Rating';
+import { Download } from '../models/Download';
 import { storageService, StorageService } from '../services/StorageService';
 import { QualityScoreService } from '../services/QualityScoreService';
 
@@ -345,5 +349,192 @@ export const getResourceById = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const updateResource = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(404).json({
+        success: false,
+        statusCode: 404,
+        message: 'Looks like this donation wandered off.',
+      });
+    }
+
+    const resource = await Resource.findById(id);
+    if (!resource) {
+      return res.status(404).json({
+        success: false,
+        statusCode: 404,
+        message: 'Looks like this donation wandered off.',
+      });
+    }
+
+    // Tenant / Owner isolation: only uploader or ADMIN can update
+    const userId = req.user?.id;
+    const userRole = req.user?.role;
+    const isOwner = resource.uploaderId === userId;
+    const isAdmin = userRole === 'ADMIN' || userRole === 'SUPER_ADMIN';
+
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({
+        success: false,
+        statusCode: 403,
+        message: 'Forbidden: You can only edit donations you uploaded.',
+      });
+    }
+
+    const {
+      title,
+      description,
+      topics,
+      tags,
+      semester,
+      resourceType,
+      academicMetadata,
+      externalUrl,
+    } = req.body;
+
+    if (title && typeof title === 'string' && title.trim()) {
+      resource.title = title.trim();
+    }
+    if (description !== undefined) {
+      resource.description = typeof description === 'string' ? description.trim() : resource.description;
+    }
+    if (semester && typeof semester === 'string') {
+      resource.semester = semester.trim();
+    }
+    if (resourceType && typeof resourceType === 'string') {
+      resource.resourceType = resourceType as any;
+    }
+    if (topics) {
+      try {
+        resource.topics = typeof topics === 'string' ? JSON.parse(topics) : topics;
+      } catch {
+        resource.topics = Array.isArray(topics) ? topics : resource.topics;
+      }
+    }
+    if (tags) {
+      try {
+        resource.tags = typeof tags === 'string' ? JSON.parse(tags) : tags;
+      } catch {
+        resource.tags = Array.isArray(tags) ? tags : resource.tags;
+      }
+    }
+    if (externalUrl) {
+      resource.fileUrl = externalUrl;
+      if (resource.academicMetadata) {
+        resource.academicMetadata.externalLink = externalUrl;
+      }
+    }
+    if (academicMetadata) {
+      let parsed = academicMetadata;
+      if (typeof academicMetadata === 'string') {
+        try {
+          parsed = JSON.parse(academicMetadata);
+        } catch {
+          parsed = academicMetadata;
+        }
+      }
+      resource.academicMetadata = { ...resource.academicMetadata, ...parsed };
+    }
+
+    resource.qualityScore = QualityScoreService.calculateRQS({
+      averageRating: resource.stats.averageRating,
+      ratingsCount: resource.stats.ratingsCount,
+      downloadsCount: resource.stats.downloadsCount,
+      bookmarksCount: resource.stats.bookmarksCount,
+    });
+
+    await resource.save();
+
+    return res.status(200).json({
+      success: true,
+      statusCode: 200,
+      message: 'Donation updated successfully',
+      data: resource,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      statusCode: 500,
+      message: error.message || 'Failed to update resource',
+    });
+  }
+};
+
+export const deleteResource = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(404).json({
+        success: false,
+        statusCode: 404,
+        message: 'Looks like this donation wandered off.',
+      });
+    }
+
+    const resource = await Resource.findById(id);
+    if (!resource) {
+      return res.status(404).json({
+        success: false,
+        statusCode: 404,
+        message: 'Looks like this donation wandered off.',
+      });
+    }
+
+    // Owner / Admin authorization check
+    const userId = req.user?.id;
+    const userRole = req.user?.role;
+    const isOwner = resource.uploaderId === userId;
+    const isAdmin = userRole === 'ADMIN' || userRole === 'SUPER_ADMIN';
+
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({
+        success: false,
+        statusCode: 403,
+        message: 'Forbidden: You can only remove donations you uploaded.',
+      });
+    }
+
+    // Soft delete / Archival (or hard delete if requested by admin)
+    const hardDelete = req.query.hard === 'true' && isAdmin;
+    if (hardDelete) {
+      await Resource.deleteOne({ _id: id });
+      await Promise.all([
+        Bookmark.deleteMany({ resourceId: id }),
+        Review.deleteMany({ resourceId: id }),
+        Rating.deleteMany({ resourceId: id }),
+        Download.deleteMany({ resourceId: id }),
+      ]);
+    } else {
+      resource.status = 'REMOVED';
+      await resource.save();
+    }
+
+    // Deduct charity points if uploader deleted their donation
+    if (resource.uploaderId) {
+      await UserProfile.findOneAndUpdate(
+        { userId: resource.uploaderId },
+        { $inc: { charityPoints: -10 } }
+      );
+    }
+
+    return res.status(200).json({
+      success: true,
+      statusCode: 200,
+      message: hardDelete
+        ? 'Resource permanently purged.'
+        : 'Resource successfully archived and removed from public catalog.',
+      data: { id, status: hardDelete ? 'DELETED' : 'REMOVED' },
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      statusCode: 500,
+      message: error.message || 'Failed to delete resource',
+    });
   }
 };

@@ -7,6 +7,8 @@ import {
   createResource,
   getResources,
   getResourceById,
+  updateResource,
+  deleteResource,
 } from '../controllers/resource.controller';
 
 import path from 'path';
@@ -55,5 +57,8 @@ router.post(
   createResource
 );
 router.get('/:id', getResourceById);
+router.put('/:id', authenticateUser, updateResource);
+router.patch('/:id', authenticateUser, updateResource);
+router.delete('/:id', authenticateUser, deleteResource);
 
 export default router;

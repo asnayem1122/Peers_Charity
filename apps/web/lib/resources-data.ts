@@ -124,6 +124,35 @@ export function addResource(newRes: Omit<Resource, 'id' | 'createdAt' | 'quality
   return created;
 }
 
+export function updateResource(id: string, updates: Partial<Resource>): Resource | null {
+  const current = getResources();
+  const index = current.findIndex((r) => r.id === id);
+  if (index === -1) return null;
+
+  const target = current[index];
+  const updated: Resource = {
+    ...target,
+    ...updates,
+    id: target.id,
+    academicMetadata: updates.academicMetadata
+      ? { ...target.academicMetadata, ...updates.academicMetadata }
+      : target.academicMetadata,
+  };
+
+  current[index] = updated;
+  saveResources(current);
+  return updated;
+}
+
+export function deleteResource(id: string): boolean {
+  const current = getResources();
+  const filtered = current.filter((r) => r.id !== id);
+  if (filtered.length === current.length) return false;
+
+  saveResources(filtered);
+  return true;
+}
+
 export function getSavedResourceIds(): string[] {
   if (typeof window === 'undefined') return [];
   try {

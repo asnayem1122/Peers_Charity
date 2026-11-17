@@ -23,7 +23,7 @@ export const authenticateUser = async (
         id: req.headers['x-test-user-id'] as string,
         email: (req.headers['x-test-user-email'] as string) || 'test@peerscharity.org',
         name: 'Test Benefactor',
-        role: 'STUDENT',
+        role: (req.headers['x-test-user-role'] as string) || 'STUDENT',
       };
       return next();
     }

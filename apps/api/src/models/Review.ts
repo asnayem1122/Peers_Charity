@@ -23,4 +23,7 @@ const ReviewSchema = new Schema<IReview>(
   { timestamps: true }
 );
 
+// Enforce one review per user per resource to prevent points farming
+ReviewSchema.index({ resourceId: 1, userId: 1 }, { unique: true });
+
 export const Review = mongoose.model<IReview>('Review', ReviewSchema);

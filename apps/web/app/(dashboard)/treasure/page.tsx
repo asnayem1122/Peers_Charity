@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { Bookmark, Compass, Eye, Trash2, Star, Download, ExternalLink } from 'lucide-react';
@@ -22,21 +22,21 @@ export default function MyTreasurePage() {
   const [reportTarget, setReportTarget] = useState<{ id: string; title: string }>({ id: '', title: '' });
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
-  const filterSaved = (all: Resource[]) => {
+  const filterSaved = useCallback((all: Resource[]) => {
     const savedIds = getSavedResourceIds();
     const savedSet = new Set(savedIds);
     return all.filter((r) => savedSet.has(r.id));
-  };
+  }, []);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setSavedResources(filterSaved(getResources()));
     const all = await fetchAndSyncResources();
     setSavedResources(filterSaved(all));
-  };
+  }, [filterSaved]);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   const handleRemove = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();

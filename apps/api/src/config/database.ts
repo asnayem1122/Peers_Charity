@@ -3,6 +3,21 @@ import { config } from './env';
 
 let isConnected = false;
 
+// Attach connection lifecycle listeners once
+if (typeof mongoose.connection.on === 'function') {
+  mongoose.connection.on('disconnected', () => {
+    isConnected = false;
+    console.warn('[Database] ⚠️ MongoDB disconnected. Mongoose will attempt auto-reconnect...');
+  });
+  mongoose.connection.on('reconnected', () => {
+    isConnected = true;
+    console.log('[Database] ✅ MongoDB reconnected.');
+  });
+  mongoose.connection.on('error', (err) => {
+    console.error('[Database] ❌ MongoDB runtime error:', err?.message || err);
+  });
+}
+
 /**
  * Redacts passwords and credentials from connection strings for safe logging
  */
@@ -57,5 +72,20 @@ export const checkDatabaseHealth = async (): Promise<{ status: string; latencyMs
     return { status: 'healthy', latencyMs: Date.now() - start };
   } catch {
     return { status: 'degraded', latencyMs: Date.now() - start };
+  }
+};
+
+/**
+ * Closes the active MongoDB connection pool cleanly during graceful shutdown
+ */
+export const disconnectDatabase = async (): Promise<void> => {
+  if (mongoose.connection.readyState !== 0) {
+    try {
+      await mongoose.disconnect();
+      isConnected = false;
+      console.log('[Database] MongoDB connection pool closed cleanly.');
+    } catch (err: any) {
+      console.warn('[Database] Error closing MongoDB connection:', err?.message || err);
+    }
   }
 };

@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { INITIAL_RESOURCES, Resource } from '@/lib/initial-resources';
-
-// Shared module runtime store preserving resources across requests
-// in serverless / local dev environments
-let runtimeResources: Resource[] = [...INITIAL_RESOURCES];
+import { Resource } from '@/lib/initial-resources';
+import { getServerResources, addServerResource } from '@/lib/server-resource-store';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -14,7 +11,7 @@ export async function GET(request: NextRequest) {
   const courseCode = searchParams.get('courseCode') || searchParams.get('courseId');
   const query = searchParams.get('q')?.toLowerCase().trim();
 
-  let filtered = [...runtimeResources];
+  let filtered = [...getServerResources()];
 
   if (section && section !== 'ALL') {
     filtered = filtered.filter((r) => r.academicMetadata?.section === section);
@@ -122,8 +119,8 @@ export async function POST(request: NextRequest) {
       reviews: body.reviews || [],
     };
 
-    // Store in runtime list so subsequent GET requests return the created item
-    runtimeResources = [newResource, ...runtimeResources];
+    // Store in global runtime store so subsequent requests return the created item
+    addServerResource(newResource);
 
     return NextResponse.json(
       {

@@ -360,3 +360,57 @@ export async function apiCreateResource(formData: FormData): Promise<ApiResource
   }
 }
 
+/**
+ * Updates an existing academic donation on the backend API
+ */
+export async function apiUpdateResource(
+  id: string,
+  updates: Record<string, any>
+): Promise<ApiResource | null> {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+    const response = await fetch(`${API_BASE_URL}/api/resources/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updates),
+      credentials: 'include',
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+    if (!response.ok) return null;
+    const json = await response.json();
+    return json?.data ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Deletes or archives an academic donation on the backend API
+ */
+export async function apiDeleteResource(id: string, hard = false): Promise<boolean> {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+    const url = new URL(`${API_BASE_URL}/api/resources/${encodeURIComponent(id)}`);
+    if (hard) url.searchParams.set('hard', 'true');
+
+    const response = await fetch(url.toString(), {
+      method: 'DELETE',
+      credentials: 'include',
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
