@@ -71,6 +71,7 @@ export default function DonateKnowledgePage() {
   const [materialType, setMaterialType] = useState<MaterialType>('HAND_NOTE');
   const [labNumber, setLabNumber] = useState('Lab 01');
   const [sessionalDeliveryMode, setSessionalDeliveryMode] = useState<'file' | 'link'>('file');
+  const [questionDeliveryMode, setQuestionDeliveryMode] = useState<'file' | 'link'>('file');
 
   // File or External URL
   const [file, setFile] = useState<File | null>(null);
@@ -183,6 +184,9 @@ export default function DonateKnowledgePage() {
       return false;
     }
     if (section === 'question') {
+      if (questionDeliveryMode === 'link') {
+        return !!externalUrl.trim();
+      }
       return !!file;
     }
     if (section === 'course_material') {
@@ -225,6 +229,7 @@ export default function DonateKnowledgePage() {
     // Validate and sanitize external URL if provided
     let sanitizedExternalUrl: string | undefined = undefined;
     if (
+      (section === 'question' && questionDeliveryMode === 'link') ||
       (section === 'course_material' && materialType === 'EXTERNAL_LINK') ||
       (section === 'sessional' && sessionalDeliveryMode === 'link')
     ) {
@@ -606,27 +611,59 @@ export default function DonateKnowledgePage() {
 
             {/* Section Specific Fields: Question Section -> Exam Type */}
             {section === 'question' && (
-              <div className="space-y-2">
-                <label className="block text-xs font-bold uppercase text-muted-foreground font-mono">
-                  Exam Type
-                </label>
-                <div className="grid grid-cols-3 gap-3 font-mono">
-                  {(['CT', 'MID', 'FINAL'] as ExamType[]).map((type) => (
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <label className="block text-xs font-bold uppercase text-muted-foreground font-mono">
+                    Exam Type
+                  </label>
+                  <div className="grid grid-cols-3 gap-3 font-mono">
+                    {(['CT', 'MID', 'FINAL'] as ExamType[]).map((type) => (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => setExamType(type)}
+                        className={`py-3 px-4 rounded-2xl border text-center transition-all ${
+                          examType === type
+                            ? 'border-foreground bg-foreground text-background font-bold shadow-md'
+                            : 'border-border bg-background hover:bg-card-hover text-muted-foreground'
+                        }`}
+                      >
+                        <span className="block text-xs font-bold">
+                          {type === 'CT' ? 'Class Test (CT)' : type === 'MID' ? 'Mid-Term Exam' : 'Final Exam'}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-1">
+                  <label className="block text-xs font-bold uppercase text-muted-foreground mb-1.5 font-mono">
+                    Question Paper Delivery Method
+                  </label>
+                  <div className="grid grid-cols-2 gap-2 font-mono text-xs">
                     <button
-                      key={type}
                       type="button"
-                      onClick={() => setExamType(type)}
-                      className={`py-3 px-4 rounded-2xl border text-center transition-all ${
-                        examType === type
-                          ? 'border-foreground bg-foreground text-background font-bold shadow-md'
-                          : 'border-border bg-background hover:bg-card-hover text-muted-foreground'
+                      onClick={() => setQuestionDeliveryMode('file')}
+                      className={`p-3 rounded-2xl border text-center transition-all ${
+                        questionDeliveryMode === 'file'
+                          ? 'border-amber-500 bg-amber-500/10 text-amber-400 font-bold shadow-md'
+                          : 'border-border bg-background text-muted-foreground hover:text-foreground'
                       }`}
                     >
-                      <span className="block text-xs font-bold">
-                        {type === 'CT' ? 'Class Test (CT)' : type === 'MID' ? 'Mid-Term Exam' : 'Final Exam'}
-                      </span>
+                      📁 Upload Exam Paper File
                     </button>
-                  ))}
+                    <button
+                      type="button"
+                      onClick={() => setQuestionDeliveryMode('link')}
+                      className={`p-3 rounded-2xl border text-center transition-all ${
+                        questionDeliveryMode === 'link'
+                          ? 'border-amber-500 bg-amber-500/10 text-amber-400 font-bold shadow-md'
+                          : 'border-border bg-background text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      🔗 Drive / Portal Link
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -738,11 +775,16 @@ export default function DonateKnowledgePage() {
             )}
 
             {/* File Upload Zone OR External URL */}
-            {(section === 'course_material' && materialType === 'EXTERNAL_LINK') ||
+            {(section === 'question' && questionDeliveryMode === 'link') ||
+            (section === 'course_material' && materialType === 'EXTERNAL_LINK') ||
             (section === 'sessional' && sessionalDeliveryMode === 'link') ? (
               <div className="space-y-2">
                 <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground font-mono">
-                  {section === 'sessional' ? 'Project Repository / Educational URL' : 'External Educational URL'}{' '}
+                  {section === 'sessional'
+                    ? 'Project Repository / Educational URL'
+                    : section === 'question'
+                    ? 'Exam Paper Link / Google Drive URL'
+                    : 'External Educational URL'}{' '}
                   <span className="text-rose-400">*</span>
                 </label>
                 <div className="relative">
@@ -755,6 +797,8 @@ export default function DonateKnowledgePage() {
                     placeholder={
                       section === 'sessional'
                         ? 'https://github.com/your-username/your-project-repo'
+                        : section === 'question'
+                        ? 'https://drive.google.com/file/d/... or archive URL'
                         : 'https://visualgo.net or https://geeksforgeeks.org/dbms'
                     }
                     className="w-full pl-10 pr-4 py-3 rounded-2xl border border-border bg-background text-foreground text-xs focus:outline-none focus:border-foreground"
@@ -766,13 +810,14 @@ export default function DonateKnowledgePage() {
                 <input
                   type="file"
                   id="file-input"
+                  aria-label="Upload academic resource file"
                   onChange={handleFileChange}
                   accept={
                     section === 'sessional'
                       ? '.pdf,.zip,.c,.cpp,.py,.java,.docx,.doc,.txt,.ppt,.pptx'
                       : '.pdf,.pptx,.ppt,.docx,.doc,.zip,.png,.jpg'
                   }
-                  className="hidden"
+                  className="sr-only"
                 />
                 <label htmlFor="file-input" className="cursor-pointer block space-y-2">
                   <div className="w-12 h-12 rounded-2xl bg-foreground/10 text-foreground flex items-center justify-center mx-auto">

@@ -39,10 +39,14 @@ export default function AdminHeadquartersPage() {
   const [reports, setReports] = useState<ResourceReport[]>([]);
   const [pendingVault, setPendingVault] = useState<PendingVaultItem[]>([]);
 
-  // Strict Auto-Redirect: If not admin, bounce immediately to HQ
+  // Strict Auto-Redirect: If not logged in, go to login; if not admin, bounce to HQ
   useEffect(() => {
-    if (!isLoading && (!user || user.role !== 'ADMIN')) {
-      router.replace('/hq');
+    if (!isLoading) {
+      if (!user) {
+        router.replace('/login?redirect=/admin');
+      } else if (user.role !== 'ADMIN') {
+        router.replace('/hq');
+      }
     }
   }, [user, isLoading, router]);
 
