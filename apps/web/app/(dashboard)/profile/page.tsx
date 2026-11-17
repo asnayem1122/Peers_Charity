@@ -19,6 +19,7 @@ import {
   PlusCircle,
   Camera,
   Upload,
+  Download,
   Gamepad2,
   X,
   Check,
@@ -28,6 +29,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { getResources, fetchAndSyncResources, Resource } from '@/lib/resources-data';
+import { triggerResourceDownload } from '@/lib/download';
 
 // SVG Vector Generator for Google Play Account Avatars
 const makePlayAvatarSvg = (
@@ -169,6 +171,59 @@ export default function CharityCardProfilePage() {
     userResources.length > 0
       ? (userResources.reduce((sum, r) => sum + r.rating, 0) / userResources.length).toFixed(1)
       : '—';
+
+  const generosityLevel =
+    userCharityPoints >= 150
+      ? { title: 'Gold Philanthropist', level: 3, nextThreshold: 300, progress: Math.min(100, Math.round((userCharityPoints / 300) * 100)) }
+      : userCharityPoints >= 50
+      ? { title: 'Silver Scholar', level: 2, nextThreshold: 150, progress: Math.min(100, Math.round((userCharityPoints / 150) * 100)) }
+      : { title: 'Bronze Benefactor', level: 1, nextThreshold: 50, progress: Math.min(100, Math.round((userCharityPoints / 50) * 100)) };
+
+  const badges = [
+    {
+      id: 'first-light',
+      title: 'First Light',
+      desc: 'Donated your first academic study note',
+      icon: Sparkles,
+      unlocked: userDonationsCount >= 1,
+    },
+    {
+      id: 'curriculum-pillar',
+      title: 'Curriculum Pillar',
+      desc: 'Uploaded 3+ verified academic resources',
+      icon: Trophy,
+      unlocked: userDonationsCount >= 3,
+    },
+    {
+      id: 'academic-shield',
+      title: 'Academic Shield',
+      desc: 'Verified student contributor',
+      icon: ShieldCheck,
+      unlocked: !!user,
+    },
+    {
+      id: 'exam-hero',
+      title: 'Exam Room Hero',
+      desc: 'Notes helped 25+ peers prepare for exams',
+      icon: Star,
+      unlocked: userStudentsHelped >= 25,
+    },
+    {
+      id: 'treasure-keeper',
+      title: 'Treasure Keeper',
+      desc: 'Active academic philanthropist on campus',
+      icon: Award,
+      unlocked: userCharityPoints >= 30,
+    },
+  ];
+
+  const allUserReviews = userResources.flatMap((r) =>
+    (r.reviews || []).map((rev) => ({
+      ...rev,
+      resourceTitle: r.title,
+      courseCode: r.courseCode,
+    }))
+  );
 
   // Dynamic Profile State bound to active user
   const [profile, setProfile] = useState({
@@ -490,9 +545,9 @@ export default function CharityCardProfilePage() {
             {userResources.map((res) => (
               <div
                 key={res.id}
-                className="p-5 rounded-3xl bg-card border border-border shadow-sm flex items-center justify-between gap-4"
+                className="p-5 rounded-3xl bg-card border border-border shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4"
               >
-                <div className="space-y-1 font-sans">
+                <div className="space-y-2 font-sans flex-1">
                   <div className="flex items-center gap-2 font-mono text-xs">
                     <span className="px-2.5 py-0.5 rounded bg-foreground text-background font-bold text-[10px]">
                       {res.courseCode}
@@ -502,16 +557,162 @@ export default function CharityCardProfilePage() {
                     </span>
                   </div>
                   <h3 className="text-sm font-bold text-foreground">{res.title}</h3>
-                  <p className="text-xs text-muted-foreground font-mono">
-                    {res.downloadsCount} downloads • {res.bookmarksCount} bookmarks
-                  </p>
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground font-mono">
+                    <span className="flex items-center gap-1 text-foreground font-semibold">
+                      <FileText className="w-3.5 h-3.5 text-accent" />
+                      <span>{res.fileName || `${res.title.replace(/[^a-zA-Z0-9_-]/g, '_')}.pdf`}</span>
+                    </span>
+                    <span>•</span>
+                    <span>{res.fileSize || '2.4 MB'}</span>
+                    <span>•</span>
+                    <span>{res.downloadsCount} downloads</span>
+                  </div>
                 </div>
-                <Link
-                  href={`/bazaar?q=${encodeURIComponent(res.title)}`}
-                  className="liquid-metal-btn px-4 py-2 text-xs font-mono font-bold shrink-0"
-                >
-                  View in Bazaar →
-                </Link>
+                <div className="flex items-center gap-2 shrink-0 font-mono">
+                  <button
+                    type="button"
+                    onClick={() => triggerResourceDownload(res)}
+                    className="p-2 rounded-xl bg-card border border-border hover:bg-card-hover text-foreground transition-all flex items-center gap-1.5 text-xs font-bold"
+                    title="Download File"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Download</span>
+                  </button>
+                  <Link
+                    href={`/bazaar?q=${encodeURIComponent(res.title)}`}
+                    className="liquid-metal-btn px-4 py-2 text-xs font-bold"
+                  >
+                    View in Bazaar →
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        )
+      )}
+
+      {/* Tab: Achievements */}
+      {activeTab === 'achievements' && (
+        <div className="space-y-6 font-mono text-xs">
+          {/* Level Progress */}
+          <div className="p-6 rounded-3xl bg-card border border-border shadow-sm space-y-4 font-sans">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground font-mono">Active Tier</span>
+                <h3 className="text-lg font-black font-mono text-foreground">{generosityLevel.title}</h3>
+              </div>
+              <div className="text-right font-mono">
+                <span className="text-sm font-bold text-foreground">{userCharityPoints} pts</span>
+                <span className="text-xs text-muted-foreground block">/ {generosityLevel.nextThreshold} pts next tier</span>
+              </div>
+            </div>
+            <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
+              <div
+                className="h-full bg-foreground rounded-full transition-all duration-500"
+                style={{ width: `${generosityLevel.progress}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Badges Matrix */}
+          <div className="space-y-3 font-sans">
+            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">Charity Badges Matrix</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {badges.map((b) => {
+                const IconComponent = b.icon;
+                return (
+                  <div
+                    key={b.id}
+                    className={`p-4 rounded-2xl border transition-all flex items-start gap-3 ${
+                      b.unlocked
+                        ? 'bg-card border-border shadow-sm'
+                        : 'bg-muted/40 border-border/50 opacity-60'
+                    }`}
+                  >
+                    <div
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                        b.unlocked ? 'bg-foreground text-background shadow-md' : 'bg-muted text-muted-foreground'
+                      }`}
+                    >
+                      <IconComponent className="w-5 h-5" />
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-1.5">
+                        <h4 className="text-sm font-bold text-foreground">{b.title}</h4>
+                        {b.unlocked ? (
+                          <span className="text-[10px] font-mono font-bold text-emerald-400">UNLOCKED</span>
+                        ) : (
+                          <span className="text-[10px] font-mono text-muted-foreground">LOCKED</span>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{b.desc}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Points Ledger */}
+          <div className="p-6 rounded-3xl bg-card border border-border shadow-sm space-y-3 font-mono">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Charity Points Ledger</h3>
+            <div className="divide-y divide-border/60 text-xs">
+              <div className="py-2.5 flex items-center justify-between">
+                <span>Academic Uploads (+10 pts per note)</span>
+                <span className="font-bold text-foreground">+{userDonationsCount * 10} pts</span>
+              </div>
+              <div className="py-2.5 flex items-center justify-between">
+                <span>Verified Peer Community Status</span>
+                <span className="font-bold text-foreground">+10 pts</span>
+              </div>
+              <div className="py-2.5 flex items-center justify-between">
+                <span>Total Accumulated Charity Points</span>
+                <span className="font-bold text-emerald-400 text-sm">+{userCharityPoints + 10} pts</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tab: Reviews */}
+      {activeTab === 'reviews' && (
+        allUserReviews.length === 0 ? (
+          <div className="p-8 rounded-2xl glass-panel text-center space-y-4 flex flex-col items-center justify-center min-h-[200px]">
+            <MessageSquare className="w-8 h-8 text-muted-foreground" />
+            <h3 className="text-base font-bold">No Peer Reviews Yet</h3>
+            <p className="text-xs text-muted-foreground max-w-sm">
+              "Your donations have not received peer reviews yet. Keep sharing high-yield notes to earn peer endorsements!"
+            </p>
+            <Link
+              href="/donate"
+              className="px-5 py-2 rounded-xl bg-foreground text-background font-bold text-xs hover:opacity-90 transition-all shadow-md flex items-center gap-2"
+            >
+              <PlusCircle className="w-4 h-4" />
+              <span>Donate Another Resource</span>
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-4 font-mono text-xs">
+            {allUserReviews.map((rev, idx) => (
+              <div key={idx} className="p-5 rounded-3xl bg-card border border-border shadow-sm space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded bg-foreground text-background font-bold text-[10px]">
+                      {rev.courseCode}
+                    </span>
+                    <span className="font-bold text-foreground text-sm font-sans">{rev.resourceTitle}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-amber-400">
+                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                    <span className="font-bold">{rev.rating}</span>
+                  </div>
+                </div>
+                <p className="text-xs text-foreground font-sans leading-relaxed">"{rev.comment}"</p>
+                <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                  <span>Reviewed by {rev.userName}</span>
+                  <span>•</span>
+                  <span>{rev.createdAt}</span>
+                </div>
               </div>
             ))}
           </div>

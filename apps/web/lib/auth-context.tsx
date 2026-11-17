@@ -13,7 +13,7 @@ export interface User {
   studentId?: string;
 }
 
-interface RegisterData {
+export interface RegisterData {
   name: string;
   email: string;
   password?: string;
@@ -21,11 +21,11 @@ interface RegisterData {
   studentId?: string;
 }
 
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, password: string) => { success: boolean; error?: string };
-  register: (data: RegisterData) => { success: boolean; error?: string };
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  register: (data: RegisterData) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   updateProfile: (updates: Partial<User>) => void;
 }
@@ -33,14 +33,14 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isLoading: true,
-  login: () => ({ success: false }),
-  register: () => ({ success: false }),
+  login: async () => ({ success: false }),
+  register: async () => ({ success: false }),
   logout: () => {},
   updateProfile: () => {},
 });
 
 // Secure credential hashing helper: prevents storing plaintext passwords in localStorage
-function hashPassword(password: string): string {
+export function hashPassword(password: string): string {
   let hash = 0x811c9dc5;
   const salted = `pc_salt_${password}_charity_2026`;
   for (let i = 0; i < salted.length; i++) {
@@ -51,7 +51,7 @@ function hashPassword(password: string): string {
 }
 
 // Demo accounts (storing password hashes only)
-const DEMO_ACCOUNTS: { email: string; passwordHash: string; user: User }[] = [
+export const DEMO_ACCOUNTS: { email: string; passwordHash: string; user: User }[] = [
   {
     email: 'admin@demo.com',
     passwordHash: hashPassword('DemoPassword123!'),
@@ -165,7 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const register = (data: RegisterData) => {
+  const register = async (data: RegisterData): Promise<{ success: boolean; error?: string }> => {
     try {
       const email = data.email.trim().toLowerCase();
       const existingRegistered = getCustomRegisteredAccounts();
@@ -188,13 +188,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         studentId: data.studentId?.trim(),
       };
 
-      // Security Hardening: Never store plaintext passwords in localStorage
       const newAccount = {
         email: email,
         passwordHash: hashPassword(data.password || 'password123'),
         user: newUser,
       };
 
+      // 1. Sync with server-side store for cross-device access (e.g. laptop -> phone)
+      try {
+        await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: data.name,
+            email: data.email,
+            password: data.password || 'password123',
+            levelTerm: data.levelTerm,
+            studentId: data.studentId,
+          }),
+        });
+      } catch (e) {
+        console.warn('[Auth] Server register sync skipped or offline:', e);
+      }
+
+      // 2. Local persistence
       const updatedList = [...existingRegistered, newAccount];
       localStorage.setItem(STORAGE_KEY_REGISTERED_USERS, JSON.stringify(updatedList));
 
@@ -207,7 +224,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const login = (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     const trimmedEmail = email.trim().toLowerCase();
     const customAccounts = getCustomRegisteredAccounts();
     const allAccounts = [...DEMO_ACCOUNTS, ...customAccounts];
@@ -217,19 +234,68 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       (a) => a.email.toLowerCase() === trimmedEmail && a.passwordHash === computedHash
     );
 
-    if (!account) {
-      return { success: false, error: 'Invalid email or password. Please check your credentials.' };
+    if (account) {
+      // Found locally
+      const storedProfile = localStorage.getItem(`peers-charity-profile-${account.user.id}`);
+      const mergedUser = storedProfile
+        ? { ...account.user, ...JSON.parse(storedProfile) }
+        : account.user;
+
+      setUser(mergedUser);
+      localStorage.setItem('peers-charity-user', JSON.stringify(mergedUser));
+
+      // Background sync to server store if custom
+      if (!DEMO_ACCOUNTS.some((a) => a.email.toLowerCase() === trimmedEmail)) {
+        fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: account.user.name,
+            email: account.email,
+            password,
+            levelTerm: account.user.levelTerm,
+            studentId: account.user.studentId,
+          }),
+        }).catch(() => {});
+      }
+
+      return { success: true };
     }
 
-    // Check if there's a stored profile for this user (avatar, name, etc.)
-    const storedProfile = localStorage.getItem(`peers-charity-profile-${account.user.id}`);
-    const mergedUser = storedProfile
-      ? { ...account.user, ...JSON.parse(storedProfile) }
-      : account.user;
+    // Not found locally: Query server auth store (handles cross-device login, e.g. registered on laptop, logging in on phone)
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: trimmedEmail, password }),
+      });
 
-    setUser(mergedUser);
-    localStorage.setItem('peers-charity-user', JSON.stringify(mergedUser));
-    return { success: true };
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.user) {
+          const serverUser: User = json.user;
+          // Cache in local storage for subsequent offline access
+          const newAccount = {
+            email: trimmedEmail,
+            passwordHash: computedHash,
+            user: serverUser,
+          };
+          const updatedList = [...customAccounts.filter((a) => a.email.toLowerCase() !== trimmedEmail), newAccount];
+          localStorage.setItem(STORAGE_KEY_REGISTERED_USERS, JSON.stringify(updatedList));
+
+          setUser(serverUser);
+          localStorage.setItem('peers-charity-user', JSON.stringify(serverUser));
+          return { success: true };
+        }
+      } else {
+        const json = await res.json().catch(() => ({}));
+        return { success: false, error: json.message || 'Invalid email or password. Please check your credentials.' };
+      }
+    } catch (e) {
+      console.warn('[Auth] Server login fetch error:', e);
+    }
+
+    return { success: false, error: 'Invalid email or password. Please check your credentials.' };
   };
 
   const logout = () => {

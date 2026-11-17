@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   X,
   Star,
@@ -48,17 +48,27 @@ export default function ResourceDetailModal({
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (resource) {
+      setIsSaved(getSavedResourceIds(user?.id).includes(resource.id));
+    }
+  }, [resource, isOpen, user]);
 
   if (!isOpen || !resource) return null;
-
-  const isSaved = getSavedResourceIds().includes(resource.id);
 
   const handleToggleSave = () => {
     if (!user) {
       onRequireAuth('bookmark resources');
       return;
     }
-    toggleSaveResource(resource.id);
+    const updated = toggleSaveResource(resource.id, user.id);
+    const nowSaved = updated.includes(resource.id);
+    setIsSaved(nowSaved);
+    setSaveFeedback(nowSaved ? 'Saved to My Treasure Vault!' : 'Removed from Treasure Vault');
+    setTimeout(() => setSaveFeedback(null), 2500);
     apiToggleBookmark(resource.id).catch(() => {});
     if (onResourceUpdated) onResourceUpdated();
   };
@@ -256,17 +266,25 @@ export default function ResourceDetailModal({
 
             {/* Action Bar (Download & Bookmark) */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 font-mono">
-              <button
-                onClick={handleToggleSave}
-                className={`w-full sm:w-auto px-5 py-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all ${
-                  isSaved
-                    ? 'bg-foreground text-background border-foreground shadow-md'
-                    : 'border-border bg-card hover:bg-card-hover text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-background' : ''}`} />
-                <span>{isSaved ? 'Bookmarked in Treasure Vault' : 'Save to Treasure Vault'}</span>
-              </button>
+              <div className="relative w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={handleToggleSave}
+                  className={`w-full sm:w-auto px-5 py-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+                    isSaved
+                      ? 'bg-foreground text-background border-foreground shadow-md'
+                      : 'border-border bg-card hover:bg-card-hover text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-background' : ''}`} />
+                  <span>{isSaved ? 'Bookmarked in Treasure Vault' : 'Save to Treasure Vault'}</span>
+                </button>
+                {saveFeedback && (
+                  <div className="absolute -top-8 left-0 right-0 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 px-2.5 py-1 rounded-lg bg-foreground text-background text-[10px] font-bold shadow-lg animate-in fade-in slide-in-from-bottom-1 whitespace-nowrap text-center z-10">
+                    {saveFeedback}
+                  </div>
+                )}
+              </div>
 
               <button
                 onClick={handleDownload}

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Bookmark, Compass, Eye, Trash2, Star, Download, ExternalLink } from 'lucide-react';
 import { PRODUCT_TERMINOLOGY } from '@/lib/constants';
 import { getResources, fetchAndSyncResources, getSavedResourceIds, toggleSaveResource, Resource } from '@/lib/resources-data';
+import { useAuth } from '@/lib/auth-context';
 import { triggerResourceDownload } from '@/lib/download';
 import { apiToggleBookmark } from '@/lib/api';
 
@@ -15,6 +16,7 @@ const ReportResourceModal = dynamic(() => import('@/components/ui/report-resourc
 const GuestAuthModal = dynamic(() => import('@/components/ui/guest-auth-modal'), { ssr: false });
 
 export default function MyTreasurePage() {
+  const { user } = useAuth();
   const [savedResources, setSavedResources] = useState<Resource[]>([]);
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -23,10 +25,10 @@ export default function MyTreasurePage() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const filterSaved = useCallback((all: Resource[]) => {
-    const savedIds = getSavedResourceIds();
+    const savedIds = getSavedResourceIds(user?.id);
     const savedSet = new Set(savedIds);
     return all.filter((r) => savedSet.has(r.id));
-  }, []);
+  }, [user]);
 
   const loadData = useCallback(async () => {
     setSavedResources(filterSaved(getResources()));
@@ -40,7 +42,7 @@ export default function MyTreasurePage() {
 
   const handleRemove = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    toggleSaveResource(id);
+    toggleSaveResource(id, user?.id);
     apiToggleBookmark(id).catch(() => {});
     loadData();
   };

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import {
@@ -73,11 +73,11 @@ export default function CharityBazaarPage() {
   const [authActionName, setAuthActionName] = useState('access this feature');
   const [isAboutOpen, setIsAboutOpen] = useState(false);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     // 1. Immediately render local / seed resources
     const list = getResources();
     setResources(list);
-    setSavedIds(getSavedResourceIds());
+    setSavedIds(getSavedResourceIds(user?.id));
 
     // 2. Fetch fresh live data from API in the background
     try {
@@ -88,7 +88,7 @@ export default function CharityBazaarPage() {
     } catch {
       // Gracefully maintain verified seed resources
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     loadData();
@@ -103,7 +103,7 @@ export default function CharityBazaarPage() {
       if (secParam) setSelectedSection(secParam);
       if (qParam) setSearchQuery(qParam);
     }
-  }, []);
+  }, [loadData]);
 
   const handleOpenDetail = (res: Resource) => {
     setSelectedResource(res);
@@ -126,7 +126,7 @@ export default function CharityBazaarPage() {
       handleRequireAuth('bookmark resources to your Treasure Vault');
       return;
     }
-    const updated = toggleSaveResource(id);
+    const updated = toggleSaveResource(id, user.id);
     apiToggleBookmark(id).catch(() => {});
     setSavedIds(updated);
     loadData();

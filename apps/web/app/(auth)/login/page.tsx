@@ -29,7 +29,7 @@ export default function LoginPage() {
     // Small delay to simulate network
     await new Promise((r) => setTimeout(r, 500));
 
-    const result = login(email, password);
+    const result = await login(email, password);
 
     if (!result.success) {
       setError(result.error || 'Invalid credentials');
@@ -138,8 +138,8 @@ export default function LoginPage() {
           <div className="grid grid-cols-3 gap-2 text-[11px]">
             <button
               type="button"
-              onClick={() => {
-                login('student@demo.com', 'DemoPassword123!');
+              onClick={async () => {
+                await login('student@demo.com', 'DemoPassword123!');
                 router.push('/hq');
               }}
               className="px-2 py-2 rounded-xl border border-border bg-background hover:bg-card-hover text-foreground font-medium transition-all truncate"
@@ -149,8 +149,8 @@ export default function LoginPage() {
             </button>
             <button
               type="button"
-              onClick={() => {
-                login('top.contributor@demo.com', 'DemoPassword123!');
+              onClick={async () => {
+                await login('top.contributor@demo.com', 'DemoPassword123!');
                 router.push('/hq');
               }}
               className="px-2 py-2 rounded-xl border border-border bg-background hover:bg-card-hover text-foreground font-medium transition-all truncate"
@@ -160,8 +160,8 @@ export default function LoginPage() {
             </button>
             <button
               type="button"
-              onClick={() => {
-                login('admin@demo.com', 'DemoPassword123!');
+              onClick={async () => {
+                await login('admin@demo.com', 'DemoPassword123!');
                 router.push('/hq');
               }}
               className="px-2 py-2 rounded-xl border border-border bg-background hover:bg-card-hover text-foreground font-medium transition-all truncate"

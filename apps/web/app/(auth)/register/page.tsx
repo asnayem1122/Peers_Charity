@@ -33,7 +33,7 @@ export default function RegisterPage() {
     await new Promise((r) => setTimeout(r, 400));
 
     try {
-      const res = register({
+      const res = await register({
         name,
         email,
         password,

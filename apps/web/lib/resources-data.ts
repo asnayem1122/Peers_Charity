@@ -94,8 +94,25 @@ export async function fetchAndSyncResources(): Promise<Resource[]> {
         return true;
       });
 
-      // Combined dataset: local additions at the top, followed by canonical API items
-      const combined = [...localOnly, ...mappedApi];
+      // Combined dataset: local additions at the top, followed by canonical API items with metadata preservation
+      const mergedApi = mappedApi.map((apiItem) => {
+        const matchingLocal = currentLocal.find(
+          (l) => l.id === apiItem.id || (l.title.toLowerCase() === apiItem.title.toLowerCase() && l.courseCode.toLowerCase() === apiItem.courseCode.toLowerCase())
+        );
+        if (matchingLocal) {
+          return {
+            ...apiItem,
+            fileName: apiItem.fileName || matchingLocal.fileName,
+            fileSize: apiItem.fileSize || matchingLocal.fileSize,
+            realUploaderId: apiItem.realUploaderId && apiItem.realUploaderId !== 'uploader_demo' ? apiItem.realUploaderId : matchingLocal.realUploaderId,
+            realUploaderEmail: apiItem.realUploaderEmail && apiItem.realUploaderEmail !== 'benefactor@demo.com' ? apiItem.realUploaderEmail : matchingLocal.realUploaderEmail,
+            realUploaderName: apiItem.realUploaderName && apiItem.realUploaderName !== 'Academic Benefactor' ? apiItem.realUploaderName : matchingLocal.realUploaderName,
+          };
+        }
+        return apiItem;
+      });
+
+      const combined = [...localOnly, ...mergedApi];
       saveResources(combined);
       return combined;
     }
@@ -153,22 +170,47 @@ export function deleteResource(id: string): boolean {
   return true;
 }
 
-export function getSavedResourceIds(): string[] {
+function getStorageKeyForUser(userId?: string): string {
+  if (userId) {
+    return `${STORAGE_KEY_SAVED_IDS}_${userId}`;
+  }
+  return STORAGE_KEY_SAVED_IDS;
+}
+
+export function getSavedResourceIds(userId?: string): string[] {
   if (typeof window === 'undefined') return [];
   try {
-    const data = localStorage.getItem(STORAGE_KEY_SAVED_IDS);
-    return data ? JSON.parse(data) : [];
+    const key = getStorageKeyForUser(userId);
+    const data = localStorage.getItem(key);
+    if (data) return JSON.parse(data);
+
+    // Fallback to legacy global key if user-specific key is not set yet
+    if (userId) {
+      const legacy = localStorage.getItem(STORAGE_KEY_SAVED_IDS);
+      if (legacy) {
+        const parsed = JSON.parse(legacy);
+        localStorage.setItem(key, legacy);
+        return parsed;
+      }
+    }
+    return [];
   } catch {
     return [];
   }
 }
 
-export function toggleSaveResource(id: string): string[] {
-  const current = getSavedResourceIds();
+export function isResourceSaved(id: string, userId?: string): boolean {
+  return getSavedResourceIds(userId).includes(id);
+}
+
+export function toggleSaveResource(id: string, userId?: string): string[] {
+  const current = getSavedResourceIds(userId);
   const updated = current.includes(id)
     ? current.filter((i) => i !== id)
     : [...current, id];
   if (typeof window !== 'undefined') {
+    const key = getStorageKeyForUser(userId);
+    localStorage.setItem(key, JSON.stringify(updated));
     localStorage.setItem(STORAGE_KEY_SAVED_IDS, JSON.stringify(updated));
   }
   // Update bookmarks count in resources

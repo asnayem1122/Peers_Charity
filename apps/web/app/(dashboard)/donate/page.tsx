@@ -338,6 +338,15 @@ export default function DonateKnowledgePage() {
     if (sanitizedExternalUrl) {
       formData.append('externalUrl', sanitizedExternalUrl);
     }
+    formData.append('realUploaderId', user.id);
+    formData.append('realUploaderEmail', user.email);
+    formData.append('realUploaderName', user.name);
+    formData.append('displayMode', displayMode);
+    formData.append('publicDisplayIdentity', publicDisplay);
+    if (file) {
+      formData.append('fileName', file.name);
+      formData.append('fileSize', `${(file.size / (1024 * 1024)).toFixed(1)} MB`);
+    }
     apiCreateResource(formData).catch(() => {});
 
     setLoading(false);

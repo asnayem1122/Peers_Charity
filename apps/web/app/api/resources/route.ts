@@ -71,6 +71,17 @@ export async function POST(request: NextRequest) {
       body.semester = formData.get('semester') as string;
       body.resourceType = formData.get('resourceType') as string;
       body.externalUrl = formData.get('externalUrl') as string;
+      body.realUploaderId = formData.get('realUploaderId') as string;
+      body.realUploaderEmail = formData.get('realUploaderEmail') as string;
+      body.realUploaderName = formData.get('realUploaderName') as string;
+      body.displayMode = formData.get('displayMode') as string;
+      body.publicDisplayIdentity = formData.get('publicDisplayIdentity') as string;
+      if (formData.get('fileName')) {
+        body.fileName = formData.get('fileName') as string;
+      }
+      if (formData.get('fileSize')) {
+        body.fileSize = formData.get('fileSize') as string;
+      }
 
       const meta = formData.get('academicMetadata');
       if (meta) {
